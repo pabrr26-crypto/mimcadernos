@@ -1077,59 +1077,17 @@
                 <pre class="code-block-gs" id="gasScriptCodeBlock">// ============================================================================
 // MOTOR EDITORIAL MIM (UENF / FIPEDS) - INTEGRAÇÃO GOOGLE SHEETS (Code.gs)
 // ============================================================================
-// POR QUE OCORREU O ERRO "reading 'getSheetByName'"?
-// 1) Se você clicar no botão "Executar" direto na barra do editor com a função
-//    "ensureSheetsStructure" selecionada, o parâmetro "ss" entra vazio (undefined).
-//    Para testar pelo botão Executar do editor, selecione a função "instalarBancoDeDados" abaixo!
-// 2) Se o seu script foi criado de forma autônoma (fora de uma planilha), o comando
-//    getActiveSpreadsheet() retorna nulo. O código abaixo corrige os DOIS casos automaticamente:
-//    se não houver planilha vinculada, ele cria uma automaticamente no seu Google Drive!
+// Como configurar na sua Planilha Google:
+// 1. Abra a Planilha Google -> Extensões -> Apps Script.
+// 2. Apague o código existente, cole este código completo e salve (Ctrl+S).
+// 3. Clique em "Implantar" -> "Nova implantação" (ou "Gerenciar implantações" -> Editar).
+// 4. Tipo: "App da Web" | Executar como: "Eu" | Quem pode acessar: "Qualquer pessoa".
+// 5. Copie a URL gerada (/exec) e mantenha conectada na ferramenta HTML.
 
 const SHEET_SECOES = "DB_SECOES_CADERNOS";
 const SHEET_GLOBAL = "DB_ESTADO_GLOBAL";
-const SPREADSHEET_ID_FIXO = ""; // Opcional: Se quiser usar uma planilha específica, cole o ID dela aqui
-
-// 👉 SE QUISER TESTAR PELO BOTÃO "EXECUTAR" DO APPS SCRIPT, SELECIONE ESTA FUNÇÃO:
-function instalarBancoDeDados() {
-  const ss = getOrCreateSpreadsheet();
-  ensureSheetsStructure(ss);
-  Logger.log("✅ Banco de dados MIM pronto! Planilha conectada: " + ss.getUrl());
-}
-
-function getOrCreateSpreadsheet() {
-  let ss = null;
-  
-  // 1. Tenta pelo ID fixo, se informado
-  if (SPREADSHEET_ID_FIXO && SPREADSHEET_ID_FIXO.trim() !== "") {
-    try { ss = SpreadsheetApp.openById(SPREADSHEET_ID_FIXO.trim()); } catch (e) {}
-  }
-  
-  // 2. Tenta pegar a planilha ativa (quando aberto via Extensões > Apps Script)
-  if (!ss) {
-    try { ss = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) {}
-  }
-  
-  // 3. Se for um script autônomo (standalone), recupera ou cria a planilha automaticamente!
-  if (!ss) {
-    const props = PropertiesService.getScriptProperties();
-    const savedId = props.getProperty("MIM_DB_SPREADSHEET_ID");
-    if (savedId) {
-      try { ss = SpreadsheetApp.openById(savedId); } catch (e) {}
-    }
-    if (!ss) {
-      ss = SpreadsheetApp.create("Banco_de_Dados_Motor_Editorial_MIM_UENF");
-      props.setProperty("MIM_DB_SPREADSHEET_ID", ss.getId());
-    }
-  }
-  return ss;
-}
 
 function ensureSheetsStructure(ss) {
-  // Blindagem contra "undefined": se "ss" não for passado, busca ou cria automaticamente
-  if (!ss) {
-    ss = getOrCreateSpreadsheet();
-  }
-
   let shSec = ss.getSheetByName(SHEET_SECOES);
   if (!shSec) {
     shSec = ss.insertSheet(SHEET_SECOES);
@@ -1155,14 +1113,15 @@ function ensureSheetsStructure(ss) {
     shGlob.getRange("A1:C1").setFontWeight("bold").setBackground("#0a192f").setFontColor("#d4af37");
     shGlob.setFrozenRows(1);
   }
-  return { ss, shSec, shGlob };
+  return { shSec, shGlob };
 }
 
 function doGet(e) {
   try {
-    const { ss, shSec, shGlob } = ensureSheetsStructure();
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const { shSec, shGlob } = ensureSheetsStructure(ss);
 
-    // 1. Lê todas as linhas da aba estruturada por seção
+    // 1. Lê todas as linhas da aba estruturada por seção (permite edição até na própria planilha!)
     const secRows = shSec.getDataRange().getValues();
     const sectionsMap = {};
     for (let i = 1; i &lt; secRows.length; i++) {
@@ -1195,7 +1154,6 @@ function doGet(e) {
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "ok",
-      spreadsheetUrl: ss.getUrl(),
       hasData: Object.keys(sectionsMap).length &gt; 0,
       sectionsMap: sectionsMap,
       anchors: anchors,
@@ -1215,9 +1173,10 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(25000);
   try {
-    const rawBody = (e && e.postData && e.postData.contents) ? e.postData.contents : "{}";
+    const rawBody = e.postData ? e.postData.contents : "{}";
     const payload = JSON.parse(rawBody);
-    const { ss, shSec, shGlob } = ensureSheetsStructure();
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const { shSec, shGlob } = ensureSheetsStructure(ss);
     const now = new Date().toISOString();
 
     // Atualiza ou insere seções enviadas na aba DB_SECOES_CADERNOS
@@ -1269,7 +1228,6 @@ function doPost(e) {
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "ok",
-      spreadsheetUrl: ss.getUrl(),
       savedAt: now
     })).setMimeType(ContentService.MimeType.JSON);
 
