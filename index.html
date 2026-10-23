@@ -895,15 +895,15 @@
         <div class="topbar">
             <div class="api-group">
                 <input type="password" id="apiKey" class="api-input" placeholder="Cole sua Chave API do Gemini..." onchange="saveKey()">
-                <input type="text" id="apiModel" class="model-input" list="geminiModelsList" value="gemini-4-argon" title="Código do modelo: gemini-4-argon | Contexto: 1.048.576 tokens | Saída máx: 65.536 tokens" onchange="saveKey()">
+                <input type="text" id="apiModel" class="model-input" list="geminiModelsList" value="gemini-3.8-flash" title="Código do modelo: gemini-3.8-flash | Contexto: 1.048.576 tokens | Saída máx: 65.536 tokens" onchange="saveKey()">
                 <datalist id="geminiModelsList">
-                    <option value="gemini-4-argon">gemini-4-argon (1M Contexto / 65.536 Saída)</option>
+                    <option value="gemini-3.8-flash">gemini-3.8-flash (1M Contexto / 65.536 Saída - Recomendado)</option>
                     <option value="gemini-3.8-flash">gemini-3.8-flash (Modelo do Exemplo)</option>
                     <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                     <option value="gemini-2.5-pro">gemini-2.5-pro</option>
                 </datalist>
                 <span class="argon-spec-badge" title="Janela de contexto unificada: 1.048.576 tokens | Saída máxima: 65.536 tokens (síncrona padrão) / até 1.048.576 (decodificação longa)">
-                    ⚡ Argon: 1M Ctx / 65k Out
+                    ⚡ Gemini 3.8 Flash: 1M Ctx / 65k Out
                 </span>
                 <span id="cloudStatusPill" class="cloud-status-pill syncing" title="Status da sincronização em tempo real com a Planilha Google Sheets">
                     ☁️ Conectando ao Sheets...
@@ -1058,7 +1058,7 @@
                 <div style="background:#f0f4f8; padding:14px; border-radius:6px; border:1px solid #cbd5e1; margin-bottom:16px;">
                     <label style="font-weight:bold; font-size:0.86em; color:var(--primary); display:block; margin-bottom:6px;">🔗 URL do Web App Google Apps Script Conectado:</label>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <input type="text" id="gasWebAppUrlInput" style="flex:1; padding:9px 12px; border:1px solid #94a3b8; border-radius:4px; font-family:monospace; font-size:0.85em;" value="https://script.google.com/macros/s/AKfycbxDMyo-EVM9xKnuso7JBkzMUo21KPJb8iryvoUJLUVDW39gYIUkl7fXXHESu1xzZZcsFg/exec">
+                        <input type="text" id="gasWebAppUrlInput" style="flex:1; padding:9px 12px; border:1px solid #94a3b8; border-radius:4px; font-family:monospace; font-size:0.85em;" value="https://script.google.com/macros/s/AKfycbzi-mkcQM3W9E6OP-aIo3FHiijrd83f85u-cy-msujWgDAzhL2T3-McIV4MRMXmh1nO5g/exec">
                         <button onclick="saveGasUrlConfig()" style="background:var(--primary); color:white; border:none; padding:9px 15px; border-radius:4px; font-weight:bold; cursor:pointer;">Salvar URL</button>
                         <button onclick="resetDefaultGasUrl()" style="background:#64748b; color:white; border:none; padding:9px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Restaurar Padrão</button>
                     </div>
@@ -1077,17 +1077,59 @@
                 <pre class="code-block-gs" id="gasScriptCodeBlock">// ============================================================================
 // MOTOR EDITORIAL MIM (UENF / FIPEDS) - INTEGRAÇÃO GOOGLE SHEETS (Code.gs)
 // ============================================================================
-// Como configurar na sua Planilha Google:
-// 1. Abra a Planilha Google -> Extensões -> Apps Script.
-// 2. Apague o código existente, cole este código completo e salve (Ctrl+S).
-// 3. Clique em "Implantar" -> "Nova implantação" (ou "Gerenciar implantações" -> Editar).
-// 4. Tipo: "App da Web" | Executar como: "Eu" | Quem pode acessar: "Qualquer pessoa".
-// 5. Copie a URL gerada (/exec) e mantenha conectada na ferramenta HTML.
+// POR QUE OCORREU O ERRO "reading 'getSheetByName'"?
+// 1) Se você clicar no botão "Executar" direto na barra do editor com a função
+//    "ensureSheetsStructure" selecionada, o parâmetro "ss" entra vazio (undefined).
+//    Para testar pelo botão Executar do editor, selecione a função "instalarBancoDeDados" abaixo!
+// 2) Se o seu script foi criado de forma autônoma (fora de uma planilha), o comando
+//    getActiveSpreadsheet() retorna nulo. O código abaixo corrige os DOIS casos automaticamente:
+//    se não houver planilha vinculada, ele cria uma automaticamente no seu Google Drive!
 
 const SHEET_SECOES = "DB_SECOES_CADERNOS";
 const SHEET_GLOBAL = "DB_ESTADO_GLOBAL";
+const SPREADSHEET_ID_FIXO = ""; // Opcional: Se quiser usar uma planilha específica, cole o ID dela aqui
+
+// 👉 SE QUISER TESTAR PELO BOTÃO "EXECUTAR" DO APPS SCRIPT, SELECIONE ESTA FUNÇÃO:
+function instalarBancoDeDados() {
+  const ss = getOrCreateSpreadsheet();
+  ensureSheetsStructure(ss);
+  Logger.log("✅ Banco de dados MIM pronto! Planilha conectada: " + ss.getUrl());
+}
+
+function getOrCreateSpreadsheet() {
+  let ss = null;
+  
+  // 1. Tenta pelo ID fixo, se informado
+  if (SPREADSHEET_ID_FIXO && SPREADSHEET_ID_FIXO.trim() !== "") {
+    try { ss = SpreadsheetApp.openById(SPREADSHEET_ID_FIXO.trim()); } catch (e) {}
+  }
+  
+  // 2. Tenta pegar a planilha ativa (quando aberto via Extensões > Apps Script)
+  if (!ss) {
+    try { ss = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) {}
+  }
+  
+  // 3. Se for um script autônomo (standalone), recupera ou cria a planilha automaticamente!
+  if (!ss) {
+    const props = PropertiesService.getScriptProperties();
+    const savedId = props.getProperty("MIM_DB_SPREADSHEET_ID");
+    if (savedId) {
+      try { ss = SpreadsheetApp.openById(savedId); } catch (e) {}
+    }
+    if (!ss) {
+      ss = SpreadsheetApp.create("Banco_de_Dados_Motor_Editorial_MIM_UENF");
+      props.setProperty("MIM_DB_SPREADSHEET_ID", ss.getId());
+    }
+  }
+  return ss;
+}
 
 function ensureSheetsStructure(ss) {
+  // Blindagem contra "undefined": se "ss" não for passado, busca ou cria automaticamente
+  if (!ss) {
+    ss = getOrCreateSpreadsheet();
+  }
+
   let shSec = ss.getSheetByName(SHEET_SECOES);
   if (!shSec) {
     shSec = ss.insertSheet(SHEET_SECOES);
@@ -1113,15 +1155,14 @@ function ensureSheetsStructure(ss) {
     shGlob.getRange("A1:C1").setFontWeight("bold").setBackground("#0a192f").setFontColor("#d4af37");
     shGlob.setFrozenRows(1);
   }
-  return { shSec, shGlob };
+  return { ss, shSec, shGlob };
 }
 
 function doGet(e) {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const { shSec, shGlob } = ensureSheetsStructure(ss);
+    const { ss, shSec, shGlob } = ensureSheetsStructure();
 
-    // 1. Lê todas as linhas da aba estruturada por seção (permite edição até na própria planilha!)
+    // 1. Lê todas as linhas da aba estruturada por seção
     const secRows = shSec.getDataRange().getValues();
     const sectionsMap = {};
     for (let i = 1; i &lt; secRows.length; i++) {
@@ -1154,6 +1195,7 @@ function doGet(e) {
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "ok",
+      spreadsheetUrl: ss.getUrl(),
       hasData: Object.keys(sectionsMap).length &gt; 0,
       sectionsMap: sectionsMap,
       anchors: anchors,
@@ -1173,10 +1215,9 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(25000);
   try {
-    const rawBody = e.postData ? e.postData.contents : "{}";
+    const rawBody = (e && e.postData && e.postData.contents) ? e.postData.contents : "{}";
     const payload = JSON.parse(rawBody);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const { shSec, shGlob } = ensureSheetsStructure(ss);
+    const { ss, shSec, shGlob } = ensureSheetsStructure();
     const now = new Date().toISOString();
 
     // Atualiza ou insere seções enviadas na aba DB_SECOES_CADERNOS
@@ -1228,6 +1269,7 @@ function doPost(e) {
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "ok",
+      spreadsheetUrl: ss.getUrl(),
       savedAt: now
     })).setMimeType(ContentService.MimeType.JSON);
 
@@ -1936,8 +1978,8 @@ function doPost(e) {
         // =========================================================================
         // 3. ESTADO DA APLICAÇÃO, MODELO GEMINI-4-ARGON E INTEGRAÇÃO GOOGLE SHEETS
         // =========================================================================
-        const STORAGE_KEY = 'mimMotorEditorialUenf_v3_argon';
-        const DEFAULT_GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxDMyo-EVM9xKnuso7JBkzMUo21KPJb8iryvoUJLUVDW39gYIUkl7fXXHESu1xzZZcsFg/exec";
+        const STORAGE_KEY = 'mimMotorEditorialUenf_v3_flash';
+        const DEFAULT_GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzi-mkcQM3W9E6OP-aIo3FHiijrd83f85u-cy-msujWgDAzhL2T3-McIV4MRMXmh1nO5g/exec";
 
         let appData = null;
         let currentCadernoId = 'caderno_1';
@@ -1995,7 +2037,7 @@ function doPost(e) {
         window.onload = async () => {
             initAppData();
             const savedKey = localStorage.getItem('geminiApiKey');
-            const savedModel = localStorage.getItem('geminiApiModel') || 'gemini-4-argon';
+            const savedModel = localStorage.getItem('geminiApiModel') || 'gemini-3.8-flash';
             if (savedKey) document.getElementById('apiKey').value = savedKey;
             document.getElementById('apiModel').value = savedModel;
             document.getElementById('gasWebAppUrlInput').value = getGasUrl();
@@ -2630,17 +2672,17 @@ No final, adicione a tag ---REFERENCIAS--- seguida de novas referências ABNT ci
         }
 
         async function callGeminiAPIWithFallback(apiKey, chosenModel, textPrompt) {
-            const cleanChosen = (chosenModel || 'gemini-4-argon').trim();
+            const cleanChosen = (chosenModel || 'gemini-3.8-flash').trim();
             const modelsToTry = [cleanChosen];
-            if (!modelsToTry.includes('gemini-4-argon')) modelsToTry.push('gemini-4-argon');
+            if (!modelsToTry.includes('gemini-3.8-flash')) modelsToTry.push('gemini-3.8-flash');
             if (!modelsToTry.includes('gemini-2.5-flash')) modelsToTry.push('gemini-2.5-flash');
 
             let lastError = null;
             for (const modelName of modelsToTry) {
                 try {
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey.trim()}`;
-                    // Configuração otimizada para as especificações do gemini-4-argon (Saída máxima síncrona: 65.536 tokens)
-                    const maxTokens = modelName.includes('argon') ? 65536 : 8192;
+                    // Configuração otimizada para as especificações do gemini-3.8-flash (Saída máxima síncrona: 65.536 tokens)
+                    const maxTokens = (modelName.includes('3.8') || modelName.includes('argon')) ? 65536 : 8192;
                     const options = {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -2664,7 +2706,7 @@ No final, adicione a tag ---REFERENCIAS--- seguida de novas referências ABNT ci
 
         async function gerarTextoGemini() {
             const apiKeyRaw = document.getElementById('apiKey').value;
-            const modelRaw = document.getElementById('apiModel').value || 'gemini-4-argon';
+            const modelRaw = document.getElementById('apiModel').value || 'gemini-3.8-flash';
             if (!apiKeyRaw) {
                 showToast('⚠️ Insira sua Chave API do Google Gemini no topo da tela!');
                 document.getElementById('apiKey').focus();
@@ -2679,7 +2721,7 @@ No final, adicione a tag ---REFERENCIAS--- seguida de novas referências ABNT ci
             btn.disabled = true;
             document.getElementById('btnContinuar').disabled = true;
             loader.style.display = 'inline-block';
-            btnText.innerText = "Escrevendo com Argon...";
+            btnText.innerText = "Escrevendo com Gemini 3.8 Flash...";
 
             try {
                 const textoResposta = await callGeminiAPIWithFallback(apiKeyRaw, modelRaw, textPrompt);
@@ -2707,7 +2749,7 @@ No final, adicione a tag ---REFERENCIAS--- seguida de novas referências ABNT ci
 
         async function continuarTextoGemini() {
             const apiKeyRaw = document.getElementById('apiKey').value;
-            const modelRaw = document.getElementById('apiModel').value || 'gemini-4-argon';
+            const modelRaw = document.getElementById('apiModel').value || 'gemini-3.8-flash';
             if (!apiKeyRaw) {
                 showToast('⚠️ Insira sua Chave API do Google Gemini no topo!');
                 document.getElementById('apiKey').focus();
