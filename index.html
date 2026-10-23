@@ -1,0 +1,2990 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor Editorial MIM - Coleção de Cadernos Temáticos (Padrão UENF / NDB)</title>
+    <style>
+        :root {
+            --primary: #003366;          /* Azul Institucional UENF */
+            --primary-light: #004b93;    /* Azul Royal UENF */
+            --primary-soft: #e6eef7;     /* Azul Gelo Suave */
+            --sidebar: #0a192f;          /* Azul Marinho Profundo UENF */
+            --sidebar-hover: #112240;    /* Azul Escuro Médio */
+            --sidebar-border: #1d3557;   /* Borda Azul Naval */
+            --bg: #f0f4f8;               /* Fundo Cinza-Azulado Claro */
+            --text: #1e293b;             /* Texto Principal */
+            --accent: #d4af37;           /* Ouro Institucional UENF */
+            --accent-bg: #fffdf5;        /* Fundo Creme Dourado */
+            --success: #1e8449;          /* Verde Sucesso */
+            --danger: #c0392b;           /* Vermelho Alerta/PDF */
+            --dark: #06101e;             /* Azul Abissal */
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* ================= SIDEBAR (CAPÍTULOS DO CADERNO ATIVO) ================= */
+        .sidebar {
+            width: 350px;
+            background-color: var(--sidebar);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-right: 1px solid var(--sidebar-border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 18px 20px;
+            background: linear-gradient(135deg, #06101e 0%, #003366 100%);
+            border-bottom: 2px solid var(--accent);
+            text-align: center;
+        }
+
+        .sidebar-header .inst-badge {
+            display: inline-block;
+            background-color: rgba(212, 175, 55, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            font-size: 0.7em;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.05em;
+            color: #ffffff;
+            line-height: 1.35;
+            font-weight: 700;
+        }
+
+        .sidebar-header .sub {
+            font-size: 0.76em;
+            color: #94a3b8;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .territory-selector-box {
+            padding: 10px 16px;
+            background-color: #0d1f3a;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+
+        .territory-selector-box label {
+            display: block;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .territory-select {
+            width: 100%;
+            padding: 7px 10px;
+            background-color: #112240;
+            color: #fff;
+            border: 1px solid #233554;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .chapter-title {
+            background-color: var(--dark);
+            color: #64ffda;
+            padding: 8px 18px;
+            font-size: 0.72em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid #112240;
+            border-bottom: 1px solid #112240;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            padding: 11px 18px;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+            font-size: 0.86em;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.3;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--sidebar-hover);
+            color: white;
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-left: 4px solid var(--accent);
+            font-weight: bold;
+        }
+
+        .nav-btn.ref-nav {
+            border-left: 4px solid #e74c3c;
+            background-color: rgba(231, 76, 60, 0.08);
+        }
+
+        .nav-btn.ref-nav.active {
+            background-color: #922b21;
+            border-left: 4px solid var(--accent);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #475569;
+            flex-shrink: 0;
+        }
+
+        .status-dot.filled {
+            background-color: #2ecc71;
+            box-shadow: 0 0 6px #2ecc71;
+        }
+
+        /* ================= MAIN CONTENT AREA ================= */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* TOPBAR (API + BOTOES GLOBAIS) */
+        .topbar {
+            background: white;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 1px solid #dce4ec;
+        }
+
+        .api-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .api-input {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            width: 240px;
+            font-family: monospace;
+            font-size: 0.88em;
+            background-color: #f8fafc;
+        }
+
+        .model-input {
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            width: 165px;
+            font-family: monospace;
+            font-size: 0.85em;
+            background-color: #f8fafc;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .top-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .top-buttons button, .file-label {
+            padding: 8px 13px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.84em;
+            text-align: center;
+            color: white;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-anchor { background-color: var(--primary); border: 1px solid var(--accent) !important; }
+        .btn-anchor:hover { background-color: var(--primary-light); }
+        .btn-preview { background-color: #112240; }
+        .btn-preview:hover { background-color: #1e3a8a; }
+        .btn-pdf { background-color: var(--danger); }
+        .btn-pdf:hover { background-color: #a93226; }
+        .btn-cloud-save { background-color: var(--success); }
+        .btn-cloud-save:hover { background-color: #196f3d; }
+        .btn-cloud-load { background-color: var(--primary-light); }
+        .btn-cloud-load:hover { background-color: var(--primary); }
+        .btn-gas-code { background-color: #0f172a; border: 1px solid #38bdf8 !important; color: #38bdf8 !important; }
+        .btn-gas-code:hover { background-color: #1e293b; color: #ffffff !important; }
+        .btn-clear { background-color: #64748b; }
+        .btn-clear:hover { background-color: #475569; }
+        input[type="file"] { display: none; }
+
+        .argon-spec-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #0a192f 0%, #003366 100%);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.74em;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .cloud-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 11px;
+            border-radius: 15px;
+            font-size: 0.76em;
+            font-weight: bold;
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .cloud-status-pill.online { background-color: #dcfce7; color: #166534; border-color: #86efac; }
+        .cloud-status-pill.syncing { background-color: #fef9c3; color: #854d0e; border-color: #fde047; }
+        .cloud-status-pill.offline { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+        .code-block-gs {
+            background-color: #0a192f;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.83em;
+            line-height: 1.45;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid var(--accent);
+            overflow-x: auto;
+            white-space: pre;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        /* BARRA DE ABAS DOS 7 CADERNOS (UM POR ABA) */
+        .cadernos-tabs-bar {
+            background: linear-gradient(90deg, #0a192f 0%, #003366 100%);
+            padding: 8px 20px 0 20px;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            border-bottom: 3px solid var(--accent);
+            flex-shrink: 0;
+        }
+
+        .caderno-tab {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-bottom: none;
+            padding: 9px 14px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 0.82em;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .caderno-tab:hover {
+            background-color: rgba(255, 255, 255, 0.18);
+            color: white;
+        }
+
+        .caderno-tab.active {
+            background-color: var(--bg);
+            color: var(--primary);
+            font-weight: 800;
+            border-top: 3px solid var(--accent);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.15);
+        }
+
+        .caderno-tab .tab-badge {
+            font-size: 0.75em;
+            padding: 1px 6px;
+            border-radius: 10px;
+            background-color: rgba(0, 51, 102, 0.15);
+            color: inherit;
+        }
+
+        /* EDITOR CONTAINER */
+        .workspace-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 36px 60px 36px;
+        }
+
+        .editor-container {
+            max-width: 960px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .caderno-context-banner {
+            background: linear-gradient(135deg, #003366 0%, #0a192f 100%);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid var(--accent);
+            box-shadow: 0 3px 10px rgba(0, 51, 102, 0.12);
+        }
+
+        .caderno-context-banner h4 {
+            margin: 0 0 4px 0;
+            font-size: 1.02em;
+            color: var(--accent);
+        }
+
+        .caderno-context-banner p {
+            margin: 0;
+            font-size: 0.83em;
+            color: #e2e8f0;
+        }
+
+        .section-title {
+            width: 100%;
+            font-size: 1.65em;
+            border: none;
+            background: transparent;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+            outline: none;
+            border-bottom: 2px dashed #cbd5e1;
+            padding-bottom: 6px;
+        }
+
+        .badges-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            background-color: var(--primary-soft);
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.82em;
+            font-weight: bold;
+            display: inline-block;
+            border: 1px solid #bfdbfe;
+        }
+
+        .creative-tip {
+            background-color: var(--accent-bg);
+            border-left: 4px solid var(--accent);
+            padding: 14px 18px;
+            border-radius: 4px;
+            margin-bottom: 22px;
+            font-size: 0.92em;
+            color: #5c4509;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            line-height: 1.45;
+        }
+
+        .creative-tip strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--primary);
+            font-size: 0.95em;
+        }
+
+        /* PLANEJADOR DE TÓPICOS FRASAIS E ARGUMENTOS GERADORES */
+        .planner-card {
+            background: white;
+            padding: 22px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 22px;
+            border-top: 4px solid var(--primary);
+        }
+
+        .planner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .planner-header h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.08em;
+        }
+
+        .planner-tools {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small-tool {
+            background-color: var(--primary-soft);
+            color: var(--primary);
+            border: 1px solid #cbd5e1;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.78em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-small-tool:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .para-wrapper {
+            position: relative;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .para-label {
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 0.78em;
+            user-select: none;
+            background: var(--primary-soft);
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .para-input {
+            width: 100%;
+            padding: 10px 36px 10px 115px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 64px;
+            font-family: inherit;
+            font-size: 0.92em;
+            line-height: 1.4;
+            color: #1e293b;
+            background-color: #fcfdff;
+        }
+
+        .para-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.1);
+        }
+
+        .btn-del-arg {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1em;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .btn-del-arg:hover {
+            color: var(--danger);
+            background-color: #fee2e2;
+        }
+
+        .btn-add-arg {
+            background-color: #f1f5f9;
+            color: var(--primary);
+            border: 1px dashed #94a3b8;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            margin-top: 6px;
+        }
+
+        .btn-add-arg:hover {
+            background-color: var(--primary-soft);
+            border-color: var(--primary);
+        }
+
+        /* BOTOES DE ACAO IA */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button {
+            padding: 14px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.98em;
+            flex: 1;
+            min-width: 180px;
+            font-weight: bold;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .btn-gerar { background-color: var(--primary); }
+        .btn-gerar:hover { background-color: var(--primary-light); }
+        .btn-gerar:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        .btn-continuar { background-color: var(--success); }
+        .btn-continuar:hover { background-color: #145a32; }
+        .btn-continuar:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        .btn-batch { background-color: #b7791f; }
+        .btn-batch:hover { background-color: #975a16; }
+
+        .btn-eject { background-color: var(--dark); }
+        .btn-eject:hover { background-color: #1e293b; }
+
+        /* AREA DE TEXTO GERADO */
+        .editor-label-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .generated-area {
+            width: 100%;
+            min-height: 480px;
+            padding: 24px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1.1em;
+            line-height: 1.65;
+            resize: vertical;
+            background-color: white;
+            color: #1e293b;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .generated-area:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* TOAST NOTIFICATION (SEM USAR ALERT BLOQUEANTE) */
+        #toast-box {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--sidebar);
+            color: white;
+            border-left: 5px solid var(--accent);
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            font-size: 0.9em;
+            font-weight: 600;
+            z-index: 9999;
+            display: none;
+            max-width: 420px;
+        }
+
+        /* MODAL DE ANCORAGEM DE REFERENCIAS E PREVIEW */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(6, 16, 30, 0.78);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-width: 920px;
+            max-height: 88vh;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            border-top: 5px solid var(--primary);
+        }
+
+        .modal-header {
+            background-color: var(--sidebar);
+            color: white;
+            padding: 16px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 { margin: 0; font-size: 1.05em; color: var(--accent); }
+        .modal-close { background: none; border: none; color: white; font-size: 1.3em; cursor: pointer; }
+        .modal-body { padding: 22px; overflow-y: auto; flex: 1; }
+        .modal-footer { padding: 14px 22px; background: #f1f5f9; border-top: 1px solid #cbd5e1; display: flex; justify-content: flex-end; gap: 10px; }
+
+        .anchor-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background-color: #f8fafc;
+            font-size: 0.86em;
+        }
+
+        /* ================= ESTILOS DE IMPRESSÃO / PDF (ESTILO CADERNO NDB / UENF ~50 PÁGINAS) ================= */
+        @media print {
+            body {
+                display: block !important;
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+            }
+            .sidebar, .main-content, .modal-overlay, #toast-box {
+                display: none !important;
+            }
+            #pdf-content {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                background: white !important;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 11.5pt;
+                color: #1e293b;
+                line-height: 1.55;
+            }
+            @page {
+                size: A4;
+                margin: 2cm 2cm 2cm 2cm;
+            }
+            .pdf-cover-page {
+                page-break-after: always;
+                min-height: 24.5cm;
+                background: linear-gradient(160deg, #0a192f 0%, #003366 65%, #004b93 100%) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color: white !important;
+                padding: 2.5cm 2cm;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                border: 4px solid #d4af37;
+                border-radius: 8px;
+            }
+            .pdf-page-section {
+                page-break-before: always;
+                margin-bottom: 18pt;
+            }
+            .pdf-chapter-banner {
+                background-color: #003366 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 14px 18px;
+                border-left: 8px solid #d4af37;
+                border-radius: 4px;
+                margin-bottom: 16pt;
+            }
+            .pdf-chapter-banner h1 {
+                margin: 0;
+                font-size: 16pt;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            #pdf-content h2 {
+                font-size: 13.5pt;
+                color: #003366;
+                border-bottom: 2px solid #003366;
+                padding-bottom: 4px;
+                margin-top: 18pt;
+                margin-bottom: 10pt;
+            }
+            #pdf-content h3 {
+                font-size: 12pt;
+                color: #0a192f;
+                margin-top: 14pt;
+                margin-bottom: 6pt;
+            }
+            #pdf-content p {
+                text-align: justify;
+                margin: 0 0 10pt 0;
+            }
+            .ndb-box {
+                background-color: #f0f4f8 !important;
+                border-left: 6px solid #003366 !important;
+                border: 1px solid #cbd5e1;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 12pt 14pt;
+                border-radius: 6px;
+                margin: 14pt 0;
+                page-break-inside: avoid;
+            }
+            .ndb-box-gold {
+                background-color: #fffdf5 !important;
+                border-left: 6px solid #d4af37 !important;
+                border: 1px solid #f3e5ab;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 12pt 14pt;
+                border-radius: 6px;
+                margin: 14pt 0;
+                page-break-inside: avoid;
+            }
+            .ndb-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 14pt 0;
+                font-size: 10pt;
+                page-break-inside: avoid;
+            }
+            .ndb-table th {
+                background-color: #003366 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 8px;
+                border: 1px solid #003366;
+                text-align: left;
+            }
+            .ndb-table td {
+                padding: 8px;
+                border: 1px solid #cbd5e1;
+                vertical-align: top;
+            }
+            .referencia {
+                text-indent: 0 !important;
+                text-align: left !important;
+                line-height: 1.35;
+                margin-bottom: 10pt !important;
+                padding-left: 1cm;
+                text-indent: -1cm !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= BARRA LATERAL (CAPÍTULOS DO CADERNO ATUAL) ================= -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <span class="inst-badge">Padrão Editorial UENF • FIPEDS • NDB</span>
+            <h2 id="sidebarCadernoTitle">Caderno 1 – Organização & EcoSol</h2>
+            <span class="sub" id="sidebarCadernoSub">Geração Modular (~50 Páginas por Caderno)</span>
+        </div>
+
+        <div class="territory-selector-box">
+            <label for="municipioSelect">📍 Território de Referência (Rede MIM):</label>
+            <select id="municipioSelect" class="territory-select" onchange="changeTerritory()">
+                <option value="Tanguá">Tanguá (Território de Referência)</option>
+                <option value="Campos dos Goytacazes">Campos dos Goytacazes (Rede)</option>
+                <option value="Macaé">Macaé (Rede)</option>
+                <option value="Cabo Frio">Cabo Frio (Rede)</option>
+                <option value="Arraial do Cabo">Arraial do Cabo (Rede)</option>
+                <option value="Armação dos Búzios">Armação dos Búzios (Rede)</option>
+                <option value="Rio das Ostras">Rio das Ostras (Rede)</option>
+                <option value="Carapebus">Carapebus (Rede)</option>
+                <option value="Quissamã">Quissamã (Rede)</option>
+                <option value="São Francisco de Itabapoana">São Francisco de Itabapoana (Rede)</option>
+            </select>
+        </div>
+
+        <div id="sidebarNavContainer">
+            <!-- Botões das seções do caderno ativo injetados via JS -->
+        </div>
+    </div>
+
+    <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+    <div class="main-content">
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="api-group">
+                <input type="password" id="apiKey" class="api-input" placeholder="Cole sua Chave API do Gemini..." onchange="saveKey()">
+                <input type="text" id="apiModel" class="model-input" list="geminiModelsList" value="gemini-4-argon" title="Código do modelo: gemini-4-argon | Contexto: 1.048.576 tokens | Saída máx: 65.536 tokens" onchange="saveKey()">
+                <datalist id="geminiModelsList">
+                    <option value="gemini-4-argon">gemini-4-argon (1M Contexto / 65.536 Saída)</option>
+                    <option value="gemini-3.8-flash">gemini-3.8-flash (Modelo do Exemplo)</option>
+                    <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                    <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                </datalist>
+                <span class="argon-spec-badge" title="Janela de contexto unificada: 1.048.576 tokens | Saída máxima: 65.536 tokens (síncrona padrão) / até 1.048.576 (decodificação longa)">
+                    ⚡ Argon: 1M Ctx / 65k Out
+                </span>
+                <span id="cloudStatusPill" class="cloud-status-pill syncing" title="Status da sincronização em tempo real com a Planilha Google Sheets">
+                    ☁️ Conectando ao Sheets...
+                </span>
+            </div>
+            <div class="top-buttons">
+                <button class="btn-cloud-load" onclick="loadFromGoogleSheets(false)" title="Buscar agora os argumentos e textos já salvos no banco de dados do Google Sheets">☁️ Carregar do Sheets</button>
+                <button class="btn-cloud-save" onclick="syncToGoogleSheets(false)" title="Salvar imediatamente todos os argumentos e textos gerados na planilha Google Sheets">💾 Salvar no Sheets</button>
+                <button class="btn-gas-code" onclick="openGasModal()" title="Ver o código do Google Apps Script e o link conectado da planilha">📜 Código Google Sheets</button>
+                <button class="btn-anchor" onclick="openAnchorModal()" title="Carregar itens, leis e obras para ancoragem automática na seção Referências">⚓ Acervo & Âncora (<span id="anchorCountBadge">0</span>)</button>
+                <button class="btn-preview" onclick="openPreviewModal()">👁️ Espelho</button>
+                <button class="btn-clear" onclick="clearCurrentCaderno()">Reiniciar Aba</button>
+                <button class="btn-pdf" onclick="generatePDF()">📥 PDF (Caderno Atual)</button>
+            </div>
+        </div>
+
+        <!-- ABAS DOS 7 CADERNOS (GERADOS UM POR UM) -->
+        <div class="cadernos-tabs-bar" id="cadernosTabsBar">
+            <!-- Injetado via JS -->
+        </div>
+
+        <!-- ÁREA DE EDIÇÃO DA SEÇÃO ATUAL -->
+        <div class="workspace-scroll">
+            <div class="editor-container">
+                <div class="caderno-context-banner">
+                    <div>
+                        <h4 id="bannerCadernoName">CADERNO TEMÁTICO 1</h4>
+                        <p id="bannerCadernoMeta">Finalidade e Produto Prático da Oficina</p>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0;">
+                        <span style="font-size: 0.75em; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 12px; display: inline-block;" id="bannerProgressText">0/12 Seções Geradas</span>
+                    </div>
+                </div>
+
+                <input type="text" id="sectionTitle" class="section-title" onchange="saveData()">
+
+                <div class="badges-container">
+                    <div class="info-badge" id="paraSuggestion">Meta Editorial: ~4 a 5 páginas A4 nesta seção</div>
+                    <div class="info-badge" style="background-color:#fef3c7; color:#92400e; border-color:#fde68a;" id="argCount">0 Argumentos Geradores</div>
+                    <div class="info-badge" style="background-color:#dcfce7; color:#166534; border-color:#bbf7d0;" id="wordCountBadge">0 palavras (~0 págs)</div>
+                </div>
+
+                <div class="creative-tip" id="creativeTip">
+                    <strong>💡 Diretriz Pedagógica e Estilo NDB/MIM:</strong>
+                    <span id="tipText"></span>
+                </div>
+
+                <!-- PLANEJADOR DE ARGUMENTOS GERADORES (JÁ PREENCHIDOS E EDITÁVEIS) -->
+                <div class="planner-card" id="plannerCard">
+                    <div class="planner-header">
+                        <h3>🎯 Planejador de Frases & Argumentos Geradores (Editáveis)</h3>
+                        <div class="planner-tools">
+                            <button class="btn-small-tool" onclick="restoreDefaultArguments()" title="Restaurar os argumentos originais sugeridos para esta seção">🔄 Restaurar Sugeridos</button>
+                            <button class="btn-small-tool" onclick="openAnchorModal()" title="Inserir referência ancorada diretamente nos argumentos">⚓ Injetar Item da Âncora</button>
+                        </div>
+                    </div>
+                    <div id="paragraphInputs"></div>
+                    <button class="btn-add-arg" onclick="addArgument()">➕ Adicionar Novo Argumento / Tópico Gerador</button>
+                </div>
+
+                <!-- BOTÕES DE GERAÇÃO -->
+                <div class="action-buttons" id="actionButtons">
+                    <button id="btnGerar" class="btn-gerar" onclick="gerarTextoGemini()">
+                        <span id="btnText">✨ Iniciar Escrita (Seção Atual)</span>
+                        <div id="loader" class="loader"></div>
+                    </button>
+                    <button id="btnContinuar" class="btn-continuar" onclick="continuarTextoGemini()">
+                        <span id="btnTextCont">🔄 Continuar / Expandir Páginas</span>
+                        <div id="loaderContinuar" class="loader"></div>
+                    </button>
+                    <button id="btnBatch" class="btn-batch" onclick="gerarCadernoSequencial()">
+                        <span id="btnTextBatch">⚡ Gerar Caderno Completo (Sequencial)</span>
+                        <div id="loaderBatch" class="loader"></div>
+                    </button>
+                    <button id="btnEject" class="btn-eject" onclick="ejectPrompt()">
+                        <span id="btnTextEject">📤 Copiar Prompt</span>
+                    </button>
+                </div>
+
+                <div class="editor-label-bar">
+                    <h3 style="color: var(--primary); margin: 0;">📄 Conteúdo Editorial da Seção (Editável):</h3>
+                    <span style="font-size: 0.8em; color: #64748b;">As citações com <code>---REFERENCIAS---</code> são ancoradas automaticamente no item 12. Referências</span>
+                </div>
+                <textarea id="generatedText" class="generated-area" oninput="saveData(); updateWordCounter();" placeholder="Clique em '✨ Iniciar Escrita' para gerar o texto a partir dos Argumentos Geradores acima, ou escreva/edite livremente aqui..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 1: SISTEMA DE ANCORAGEM DE REFERÊNCIAS E ITENS BASE ================= -->
+    <div class="modal-overlay" id="anchorModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>⚓ Sistema de Ancoragem de Referências, Leis e Evidências Territoriais</h3>
+                <button class="modal-close" onclick="closeAnchorModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-top:0; font-size:0.9em; color:#334155;">
+                    Os itens marcados ou adicionados abaixo ficam <strong>ancorados no motor de geração</strong>. Toda vez que você clicar em <em>"Iniciar Escrita"</em> ou <em>"Continuar"</em>, a IA utilizará essas fontes no texto e enviará automaticamente a citação ABNT após a tag <code>---REFERENCIAS---</code> direto para a seção <strong>12. Referências</strong> do caderno ativo.
+                </p>
+
+                <div style="background:#f0f4f8; padding:14px; border-radius:6px; border:1px solid #cbd5e1; margin-bottom:16px;">
+                    <label style="font-weight:bold; font-size:0.85em; color:var(--primary); display:block; margin-bottom:6px;">➕ Carregar / Adicionar Novo Item para a Âncora de Referências (Lei, Autor, Dado Local ou Trecho de Documento):</label>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" id="newAnchorText" style="flex:1; padding:8px; border:1px solid #cbd5e1; border-radius:4px;" placeholder="Ex: LEI Nº 11.340/2006 (Lei Maria da Penha) - Mecanismos para coibir a violência doméstica...">
+                        <button onclick="addCustomAnchorItem()" style="background:var(--primary); color:white; border:none; padding:8px 14px; border-radius:4px; font-weight:bold; cursor:pointer;">Ancorar Item</button>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label class="file-label" style="background:#475569; padding:5px 10px; font-size:0.78em;">
+                            📄 Carregar Arquivo (.txt / .md) para a Âncora
+                            <input type="file" accept=".txt,.md" onchange="loadAnchorFile(event)">
+                        </label>
+                        <button onclick="sendAllCheckedAnchorsToReferencias()" style="background:var(--success); color:white; border:none; padding:6px 12px; border-radius:4px; font-size:0.8em; font-weight:bold; cursor:pointer;">
+                            📥 Enviar Todas Marcadas Direto para "12. Referências" Agora
+                        </button>
+                    </div>
+                </div>
+
+                <h4 style="margin:0 0 10px 0; color:var(--primary); font-size:0.92em;">📚 Biblioteca Nativa MIM / FIPEDS / NDB-UENF (Marque as que deseja ancorar no caderno atual):</h4>
+                <div id="anchorItemsList"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeAnchorModal()" style="background:var(--primary); color:white; border:none; padding:8px 18px; border-radius:4px; font-weight:bold; cursor:pointer;">Salvar e Fechar Âncora</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 2: ESPELHO DE VISUALIZAÇÃO DO CADERNO ================= -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal-card" style="max-width: 1020px;">
+            <div class="modal-header">
+                <h3 id="previewModalTitle">👁️ Espelho Editorial do Caderno Ativo</h3>
+                <button class="modal-close" onclick="closePreviewModal()">×</button>
+            </div>
+            <div class="modal-body" id="previewModalBody" style="background:#e2e8f0; padding:25px;">
+                <!-- Renderizado via JS -->
+            </div>
+            <div class="modal-footer">
+                <button onclick="closePreviewModal()" style="background:#64748b; color:white; border:none; padding:8px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">Fechar</button>
+                <button onclick="closePreviewModal(); generatePDF();" style="background:var(--danger); color:white; border:none; padding:8px 18px; border-radius:4px; font-weight:bold; cursor:pointer;">🖨️ Imprimir / Salvar PDF Agora</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL 3: INTEGRAÇÃO GOOGLE SHEETS E CÓDIGO APPS SCRIPT ================= -->
+    <div class="modal-overlay" id="gasModal">
+        <div class="modal-card" style="max-width: 960px;">
+            <div class="modal-header">
+                <h3>📜 Integração Google Sheets (Banco de Dados Online) & Código Google Apps Script</h3>
+                <button class="modal-close" onclick="closeGasModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:#f0f4f8; padding:14px; border-radius:6px; border:1px solid #cbd5e1; margin-bottom:16px;">
+                    <label style="font-weight:bold; font-size:0.86em; color:var(--primary); display:block; margin-bottom:6px;">🔗 URL do Web App Google Apps Script Conectado:</label>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <input type="text" id="gasWebAppUrlInput" style="flex:1; padding:9px 12px; border:1px solid #94a3b8; border-radius:4px; font-family:monospace; font-size:0.85em;" value="https://script.google.com/macros/s/AKfycbxDMyo-EVM9xKnuso7JBkzMUo21KPJb8iryvoUJLUVDW39gYIUkl7fXXHESu1xzZZcsFg/exec">
+                        <button onclick="saveGasUrlConfig()" style="background:var(--primary); color:white; border:none; padding:9px 15px; border-radius:4px; font-weight:bold; cursor:pointer;">Salvar URL</button>
+                        <button onclick="resetDefaultGasUrl()" style="background:#64748b; color:white; border:none; padding:9px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Restaurar Padrão</button>
+                    </div>
+                    <p style="margin:8px 0 0 0; font-size:0.8em; color:#475569;">
+                        Sempre que qualquer usuário abrir esta ferramenta online, ela consultará automaticamente este link para carregar os <strong>Argumentos Geradores</strong> e os <strong>Textos já gerados</strong> de cada caderno.
+                    </p>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <h4 style="margin:0; color:var(--primary); font-size:0.95em;">⚙️ Código de Implementação para colar no Google Apps Script (<code>Extensões &gt; Apps Script</code>):</h4>
+                    <button onclick="copyGasScriptCode()" id="btnCopyGasCode" style="background:var(--success); color:white; border:none; padding:7px 14px; border-radius:4px; font-weight:bold; font-size:0.82em; cursor:pointer;">
+                        📋 Copiar Código Google Apps Script
+                    </button>
+                </div>
+
+                <pre class="code-block-gs" id="gasScriptCodeBlock">// ============================================================================
+// MOTOR EDITORIAL MIM (UENF / FIPEDS) - INTEGRAÇÃO GOOGLE SHEETS (Code.gs)
+// ============================================================================
+// POR QUE OCORREU O ERRO "reading 'getSheetByName'"?
+// 1) Se você clicar no botão "Executar" direto na barra do editor com a função
+//    "ensureSheetsStructure" selecionada, o parâmetro "ss" entra vazio (undefined).
+//    Para testar pelo botão Executar do editor, selecione a função "instalarBancoDeDados" abaixo!
+// 2) Se o seu script foi criado de forma autônoma (fora de uma planilha), o comando
+//    getActiveSpreadsheet() retorna nulo. O código abaixo corrige os DOIS casos automaticamente:
+//    se não houver planilha vinculada, ele cria uma automaticamente no seu Google Drive!
+
+const SHEET_SECOES = "DB_SECOES_CADERNOS";
+const SHEET_GLOBAL = "DB_ESTADO_GLOBAL";
+const SPREADSHEET_ID_FIXO = ""; // Opcional: Se quiser usar uma planilha específica, cole o ID dela aqui
+
+// 👉 SE QUISER TESTAR PELO BOTÃO "EXECUTAR" DO APPS SCRIPT, SELECIONE ESTA FUNÇÃO:
+function instalarBancoDeDados() {
+  const ss = getOrCreateSpreadsheet();
+  ensureSheetsStructure(ss);
+  Logger.log("✅ Banco de dados MIM pronto! Planilha conectada: " + ss.getUrl());
+}
+
+function getOrCreateSpreadsheet() {
+  let ss = null;
+  
+  // 1. Tenta pelo ID fixo, se informado
+  if (SPREADSHEET_ID_FIXO && SPREADSHEET_ID_FIXO.trim() !== "") {
+    try { ss = SpreadsheetApp.openById(SPREADSHEET_ID_FIXO.trim()); } catch (e) {}
+  }
+  
+  // 2. Tenta pegar a planilha ativa (quando aberto via Extensões > Apps Script)
+  if (!ss) {
+    try { ss = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) {}
+  }
+  
+  // 3. Se for um script autônomo (standalone), recupera ou cria a planilha automaticamente!
+  if (!ss) {
+    const props = PropertiesService.getScriptProperties();
+    const savedId = props.getProperty("MIM_DB_SPREADSHEET_ID");
+    if (savedId) {
+      try { ss = SpreadsheetApp.openById(savedId); } catch (e) {}
+    }
+    if (!ss) {
+      ss = SpreadsheetApp.create("Banco_de_Dados_Motor_Editorial_MIM_UENF");
+      props.setProperty("MIM_DB_SPREADSHEET_ID", ss.getId());
+    }
+  }
+  return ss;
+}
+
+function ensureSheetsStructure(ss) {
+  // Blindagem contra "undefined": se "ss" não for passado, busca ou cria automaticamente
+  if (!ss) {
+    ss = getOrCreateSpreadsheet();
+  }
+
+  let shSec = ss.getSheetByName(SHEET_SECOES);
+  if (!shSec) {
+    shSec = ss.insertSheet(SHEET_SECOES);
+    shSec.appendRow([
+      "CHAVE_UNICA",
+      "ID_CADERNO",
+      "NOME_CADERNO",
+      "ID_SECAO",
+      "TITULO_SECAO",
+      "ARGUMENTOS_JSON",
+      "TEXTO_GERADO",
+      "MUNICIPIO_REF",
+      "ATUALIZADO_EM"
+    ]);
+    shSec.getRange("A1:I1").setFontWeight("bold").setBackground("#003366").setFontColor("#ffffff");
+    shSec.setFrozenRows(1);
+  }
+
+  let shGlob = ss.getSheetByName(SHEET_GLOBAL);
+  if (!shGlob) {
+    shGlob = ss.insertSheet(SHEET_GLOBAL);
+    shGlob.appendRow(["CHAVE", "VALOR_JSON", "ATUALIZADO_EM"]);
+    shGlob.getRange("A1:C1").setFontWeight("bold").setBackground("#0a192f").setFontColor("#d4af37");
+    shGlob.setFrozenRows(1);
+  }
+  return { ss, shSec, shGlob };
+}
+
+function doGet(e) {
+  try {
+    const { ss, shSec, shGlob } = ensureSheetsStructure();
+
+    // 1. Lê todas as linhas da aba estruturada por seção
+    const secRows = shSec.getDataRange().getValues();
+    const sectionsMap = {};
+    for (let i = 1; i &lt; secRows.length; i++) {
+      const [uniqueKey, cadId, cadName, secId, secTitle, argsJson, textoGerado, municipio, updatedAt] = secRows[i];
+      if (!cadId || !secId) continue;
+      if (!sectionsMap[cadId]) sectionsMap[cadId] = {};
+      let parsedArgs = [];
+      try { parsedArgs = JSON.parse(argsJson || "[]"); } catch (err) { parsedArgs = []; }
+      sectionsMap[cadId][secId] = {
+        title: secTitle || "",
+        args: parsedArgs,
+        text: textoGerado || "",
+        municipio: municipio || "Tanguá",
+        updatedAt: updatedAt || ""
+      };
+    }
+
+    // 2. Lê acervo de âncoras e metadados globais
+    const globRows = shGlob.getDataRange().getValues();
+    let anchors = null;
+    let lastMunicipio = "Tanguá";
+    for (let j = 1; j &lt; globRows.length; j++) {
+      if (globRows[j][0] === "ANCHORS_LIBRARY") {
+        try { anchors = JSON.parse(globRows[j][1]); } catch (err) {}
+      }
+      if (globRows[j][0] === "ACTIVE_MUNICIPIO") {
+        lastMunicipio = globRows[j][1] || "Tanguá";
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "ok",
+      spreadsheetUrl: ss.getUrl(),
+      hasData: Object.keys(sectionsMap).length &gt; 0,
+      sectionsMap: sectionsMap,
+      anchors: anchors,
+      municipio: lastMunicipio,
+      serverTime: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(25000);
+  try {
+    const rawBody = (e && e.postData && e.postData.contents) ? e.postData.contents : "{}";
+    const payload = JSON.parse(rawBody);
+    const { ss, shSec, shGlob } = ensureSheetsStructure();
+    const now = new Date().toISOString();
+
+    // Atualiza ou insere seções enviadas na aba DB_SECOES_CADERNOS
+    if (payload.workbooks) {
+      const existingData = shSec.getDataRange().getValues();
+      const rowIndexByKey = {};
+      for (let i = 1; i &lt; existingData.length; i++) {
+        rowIndexByKey[existingData[i][0]] = i + 1;
+      }
+
+      const municipio = payload.municipio || "Tanguá";
+      Object.keys(payload.workbooks).forEach(function(cadId) {
+        const cad = payload.workbooks[cadId];
+        if (!cad || !cad.sections) return;
+        Object.keys(cad.sections).forEach(function(secId) {
+          const sec = cad.sections[secId];
+          const uniqueKey = cadId + "__" + secId;
+          const rowValues = [
+            uniqueKey,
+            cadId,
+            cad.shortTab || cad.fullTitle || cadId,
+            secId,
+            sec.title || "",
+            JSON.stringify(sec.args || []),
+            sec.text || "",
+            municipio,
+            now
+          ];
+
+          if (rowIndexByKey[uniqueKey]) {
+            shSec.getRange(rowIndexByKey[uniqueKey], 1, 1, rowValues.length).setValues([rowValues]);
+          } else {
+            shSec.appendRow(rowValues);
+            rowIndexByKey[uniqueKey] = shSec.getLastRow();
+          }
+        });
+      });
+    }
+
+    // Salva as âncoras de referência e município ativo na aba DB_ESTADO_GLOBAL
+    shGlob.clearContents();
+    shGlob.appendRow(["CHAVE", "VALOR_JSON", "ATUALIZADO_EM"]);
+    if (payload.anchors) {
+      shGlob.appendRow(["ANCHORS_LIBRARY", JSON.stringify(payload.anchors), now]);
+    }
+    if (payload.municipio) {
+      shGlob.appendRow(["ACTIVE_MUNICIPIO", payload.municipio, now]);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "ok",
+      spreadsheetUrl: ss.getUrl(),
+      savedAt: now
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}</pre>
+
+                <div style="margin-top:12px; font-size:0.82em; color:#334155; background:#fffdf5; border-left:4px solid var(--accent); padding:10px 14px; border-radius:4px;">
+                    <strong>💡 Como funciona a tabela no Google Sheets:</strong> O script cria automaticamente a aba <code>DB_SECOES_CADERNOS</code> contendo uma linha para cada seção dos 7 cadernos (colunas: <em>ID_CADERNO, ID_SECAO, TITULO_SECAO, ARGUMENTOS_JSON, TEXTO_GERADO</em>) e a aba <code>DB_ESTADO_GLOBAL</code> para o acervo de referências. Assim, qualquer alteração feita na aplicação (ou diretamente nas células da planilha) fica disponível para todos que abrirem o sistema!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="loadFromGoogleSheets(false)" style="background:var(--primary-light); color:white; border:none; padding:8px 15px; border-radius:4px; font-weight:bold; cursor:pointer;">☁️ Testar Carregamento Agora</button>
+                <button onclick="syncToGoogleSheets(false)" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Testar Salvamento Agora</button>
+                <button onclick="closeGasModal()" style="background:var(--primary); color:white; border:none; padding:8px 18px; border-radius:4px; font-weight:bold; cursor:pointer;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTAINER OCULTO DE IMPRESSÃO NATIVA (IGUAL AO EXEMPLO DO USUÁRIO) -->
+    <div id="pdf-content" style="display: none;"></div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-box"></div>
+
+    <script>
+        // =========================================================================
+        // 1. BIBLIOTECA NATIVA DE ÂNCORAS E REFERÊNCIAS (MIM / FIPEDS / NDB-UENF)
+        // =========================================================================
+        const DEFAULT_ANCHOR_LIBRARY = [
+            { id: 'ref_cf88', checked: true, citation: 'BRASIL. [Constituição (1988)]. Constituição da República Federativa do Brasil de 1988. Brasília, DF: Presidência da República, 1988.' },
+            { id: 'ref_ecosol_lei', checked: true, citation: 'BRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária; cria o Sistema Nacional de Economia Solidária (Sinaes); e altera a Lei nº 10.406, de 10 de janeiro de 2002 (Código Civil). Brasília, DF: Presidência da República, 2024.' },
+            { id: 'ref_ecosol_dec', checked: true, citation: 'BRASIL. Decreto nº 12.784, de 19 de dezembro de 2025. Regulamenta a Lei nº 15.068, de 23 de dezembro de 2024, que dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária. Diário Oficial da União: Brasília, DF, 22 dez. 2025.' },
+            { id: 'ref_mmil', checked: true, citation: 'BRASIL. Ministério da Educação. Portaria nº 725, de 13 de abril de 2023. Institui o Programa Mulheres Mil. Diário Oficial da União: seção 1, Brasília, DF, n. 72, p. 16, 14 abr. 2023b.' },
+            { id: 'ref_mvsv', checked: true, citation: 'BRASIL. Decreto nº 11.431, de 8 de março de 2023. Institui o Programa Mulher Viver sem Violência. Diário Oficial da União: seção 1, Brasília, DF, p. 5, 9 mar. 2023a.' },
+            { id: 'ref_mariadapenha', checked: true, citation: 'BRASIL. Lei nº 11.340, de 7 de agosto de 2006 (Lei Maria da Penha). Cria mecanismos para coibir a violência doméstica e familiar contra a mulher. Diário Oficial da União: Brasília, DF, 8 ago. 2006.' },
+            { id: 'ref_loas', checked: true, citation: 'BRASIL. Lei nº 8.742, de 7 de dezembro de 1993. Lei Orgânica da Assistência Social (LOAS) - Benefício de Prestação Continuada (BPC) e Benefícios Eventuais. Brasília, DF, 1993.' },
+            { id: 'ref_ibge2024', checked: true, citation: 'INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA (IBGE). Estatísticas de gênero: indicadores sociais das mulheres no Brasil. 3. ed. Rio de Janeiro: IBGE, 2024. (Mulheres dedicam 21,3h semanais ao cuidado/afazeres domésticos contra 11,7h dos homens; 28% em tempo parcial).' },
+            { id: 'ref_ndb_uenf', checked: true, citation: 'NÚCLEO DE DIREITOS E BENEFÍCIOS DO PEA PESCARTE (NDB/UENF). Caderno de direitos e benefícios da comunidade de pesca artesanal. Coord. Geraldo Marcio Timóteo. Campos dos Goytacazes, RJ: EdUENF, 2022. ISBN 978-65-87726-19-9.' },
+            { id: 'ref_singer', checked: true, citation: 'SINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.' },
+            { id: 'ref_freire', checked: true, citation: 'FREIRE, Paulo. Pedagogia do oprimido. 17. ed. Rio de Janeiro: Paz e Terra, 1987.' },
+            { id: 'ref_hooks', checked: true, citation: 'HOOKS, bell. Ensinando a transgredir: a educação como prática da liberdade. Tradução de Marcelo Brandão Cipolla. São Paulo: WMF Martins Fontes, 2013.' },
+            { id: 'ref_collins', checked: true, citation: 'COLLINS, Patricia Hill. Pensamento feminista negro: conhecimento, consciência e a política do empoderamento. São Paulo: Boitempo, 2019.' },
+            { id: 'ref_crenshaw', checked: true, citation: 'CRENSHAW, Kimberlé. Mapping the margins: intersectionality, identity politics, and violence against women of color. Stanford Law Review, v. 43, n. 6, 1991.' },
+            { id: 'ref_sen', checked: true, citation: 'SEN, Amartya. Desenvolvimento como liberdade. São Paulo: Companhia das Letras, 2000.' },
+            { id: 'ref_saffioti', checked: true, citation: 'SAFFIOTI, Heleieth I. B. Gênero, patriarcado, violência. São Paulo: Fundação Perseu Abramo, 2004.' },
+            { id: 'ref_dagnino', checked: true, citation: 'DAGNINO, Renato. Tecnologia social: contribuições conceituais e metodológicas. Campina Grande: EDUEPB; Florianópolis: Insular, 2014.' },
+            { id: 'ref_francafilho', checked: true, citation: 'FRANÇA FILHO, Genauto Carvalho de; CUNHA, Eduardo Vivian da. Incubação de redes locais de economia solidária: lições e aprendizados a partir da experiência do Projeto Eco-Luzia e da metodologia da ITES/UFBA. Organizações & Sociedade, v. 16, n. 51, 2009.' },
+            { id: 'ref_mance', checked: true, citation: 'MANCE, Euclides André. Redes de colaboração solidária: aspectos econômico-filosóficos. Petrópolis, RJ: Vozes, 2002.' },
+            { id: 'ref_fraser', checked: true, citation: 'FRASER, Nancy. A justiça social na globalização: redistribuição, reconhecimento e participação. Revista Crítica de Ciências Sociais, Coimbra, n. 63, out. 2002.' },
+            { id: 'ref_falsborda', checked: true, citation: 'FALS-BORDA, Orlando. Conocimiento y poder popular: lecciones con campesinos de Nicaragua, México y Colombia. Bogotá: Siglo XXI Editores, 1985.' }
+        ];
+
+        // =========================================================================
+        // 2. ESTRUTURA MESTRA DOS 7 CADERNOS TEMÁTICOS MIM (COM ARGUMENTOS SUGERIDOS)
+        // =========================================================================
+        const WORKBOOKS_MASTER = {
+            'caderno_1': {
+                id: 'caderno_1',
+                shortTab: '1. Organização & EcoSol',
+                fullTitle: 'Caderno Temático 1 – Organização Coletiva, Formas Jurídicas e Economia Solidária',
+                subtitle: 'Da ideia de trabalhar juntas à compreensão das possibilidades de organização',
+                metas: 'Metas 1.7; 2.1 (Módulo 1 - 5h); 2.3; 2.4',
+                produto: 'Mapa Inicial dos Projetos/Coletivos + Ficha de Identidade Inicial da Iniciativa (Dossiê dos 5 a 14 coletivos)',
+                responsavel: 'Supervisão Pedagógica e Facilitação, Advogada e Consultor em Desenvolvimento Territorial',
+                sections: {
+                    'capa': {
+                        group: 'Elementos Prévios (Boneca)',
+                        title: 'Capa, Expediente e Ficha Catalográfica (Págs. 1 a 4)',
+                        tip: 'Apresente os dados institucionais da FIPEDS, UENF/Pescarte como referência metodológica, equipe multidisciplinar dos Eixos Qualifiq, POD e (Re)Conheço e ficha catalográfica.',
+                        args: [
+                            'Identificação institucional completa do Projeto Mulheres Inspirando Mulheres – MIM (Fase II), executado pela FIPEDS em Tanguá e na Rede Intermunicipal de Cooperação (Arraial do Cabo, Cabo Frio, Armação dos Búzios, Rio das Ostras, Macaé, Carapebus, Quissamã, Campos dos Goytacazes e São Francisco de Itabapoana).',
+                            'Expediente técnico detalhando a governança integrada do MIM e os três eixos articuladores: Eixo Qualifiq (formação e incubação social), Eixo POD (comunicação, podcast e visibilidade) e Eixo (Re)Conheço (diagnóstico, pesquisa-ação e monitoramento).',
+                            'Ficha Catalográfica no padrão editorial universitário (inspirada na EdUENF / Caderno NDB) e nota metodológica sobre a herança da Educação Popular e do PEA Pescarte.'
+                        ],
+                        text: `## Identificação Institucional e Expediente Editorial\n\nO **Caderno Temático 1 – Organização Coletiva, Formas Jurídicas e Economia Solidária** integra a *Coleção de Cadernos Temáticos MIM*, instrumento pedagógico estruturante da Fase II do **Projeto Mulheres Inspirando Mulheres (MIM)**, desenvolvido pela **Fundação de Integração em Pesquisa, Educação e Desenvolvimento Social (FIPEDS)**.\n\n[BOX: VOCÊ SABIA?]\nA metodologia do Projeto MIM dialoga diretamente com as aprendizagens acumuladas em processos de educação popular, leitura socioterritorial e organização comunitária experimentados na Bacia de Campos (como no âmbito do Núcleo de Direitos e Benefícios do PEA Pescarte/UENF), agora adaptados por meio da tecnologia social e da reaplicabilidade adaptativa à realidade socioprodutiva diversificada de Tanguá e da Rede Intermunicipal de Cooperação!\n[/BOX]\n\n### Eixos Integradores da Execução MIM\n- **Eixo Qualifiq:** Formação complementar (20h), assessoria técnica continuada, clínicas temáticas e incubação social dos 5 a 14 coletivos.\n- **Eixo POD:** Comunicação popular, produção do Podcast MIM, cartilhas digitais e visibilidade do trabalho feminino.\n- **Eixo (Re)Conheço:** Diagnóstico socioterritorial participativo, pesquisa-ação, monitoramento e avaliação emancipatória.`
+                    },
+                    'apresentacao': {
+                        group: 'Elementos Prévios (Boneca)',
+                        title: 'Apresentação da Coleção e "Nesta oficina vamos..." (Págs. 5 a 8)',
+                        tip: 'Explique de forma acolhedora que nenhum grupo precisa decidir sua natureza jurídica ou abrir CNPJ antes de compreender o que pretende fazer coletivamente.',
+                        args: [
+                            'Apresentar a Coleção de Cadernos Temáticos MIM como companheira de caminhada das 300 mulheres participantes ao longo dos 6 meses da Fase II, conectando o aprendizado do Programa Mulheres Mil (Portaria MEC nº 725/2023) à geração concreta de trabalho e renda.',
+                            'Tranquilizar os grupos logo no início: explicar por que nenhum coletivo precisa decidir sua natureza jurídica ou "abrir CNPJ" às pressas antes de compreender sua identidade, vocação produtiva e forma de convivência.',
+                            'Detalhar os 6 objetivos práticos desta primeira oficina ("Nesta oficina vamos..."): compreender por que nos organizamos coletivamente; conhecer diferentes formas de organização; compreender associativismo, cooperativismo e economia solidária; diferenciar associação, cooperativa, fundação, instituto, ONG e OSC; conhecer os projetos existentes; e iniciar a identificação da natureza produtiva de cada iniciativa.'
+                        ],
+                        text: ''
+                    },
+                    'cap1': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: 'Capítulo 1 – Por que trabalhar coletivamente? (Págs. 9 a 14)',
+                        tip: 'Trabalhe a superação do isolamento doméstico, a sobrecarga de cuidado (dados IBGE 2024: 21,3h semanais das mulheres contra 11,7h dos homens) e a força da cooperação.',
+                        args: [
+                            'Problematizar a realidade cotidiana das mulheres: a sobrecarga do trabalho doméstico e de cuidado não remunerado (21,3 horas semanais para mulheres contra 11,7 horas dos homens segundo o IBGE, 2024) e a inserção precária ou parcial no mercado de trabalho.',
+                            'Demonstrar como o trabalho isolado ("cada uma por si em casa") limita o poder de compra de matéria-prima, o acesso a equipamentos e a negociação de preços, enquanto a organização coletiva divide responsabilidades e multiplica capacidades (Amartya Sen / Heleieth Saffioti).',
+                            'Apresentar os pilares do trabalho coletivo entre mulheres: cooperação, solidariedade, escuta ativa, divisão justa de tarefas, respeito às diferenças interseccionais (Crenshaw; Collins) e construção de objetivos comuns no território.'
+                        ],
+                        text: ''
+                    },
+                    'cap2': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: 'Capítulo 2 – Associativismo e Cooperativismo na Prática (Págs. 15 a 20)',
+                        tip: 'Explique com exemplos do cotidiano de Tanguá (agricultura familiar, doces, artesanato) e da Rede Intermunicipal (pesca artesanal, marisqueiras, costura) quando faz sentido associar-se ou cooperar.',
+                        args: [
+                            'Definir o Associativismo em palavras simples: a união de pessoas em torno de objetivos sociais, comunitários, culturais, representativos ou de apoio mútuo sem finalidade de lucro mercantil.',
+                            'Definir o Cooperativismo em palavras simples: a união de trabalhadoras e produtoras para exercer uma atividade econômica em comum, comprando insumos juntas, beneficiando e comercializando a produção com repartição das sobras proporcional ao trabalho de cada cooperada.',
+                            'Construir exemplos comparativos práticos entre um grupo de mulheres na citricultura/agroindústria de Tanguá e um grupo de beneficiamento de pescado ou artesanato nos municípios da Rede Intermunicipal, mostrando quando cada lógica faz sentido.'
+                        ],
+                        text: ''
+                    },
+                    'cap3': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: 'Capítulo 3 – O que é Economia Solidária e como ela fortalece nossos projetos? (Págs. 21 a 27)',
+                        tip: 'Fundamente com Paul Singer, Euclides Mance e o novo Marco Legal da Economia Solidária (Lei nº 15.068/2024 e Decreto nº 12.784/2025) em linguagem popular.',
+                        args: [
+                            'Explicar os fundamentos da Economia Solidária (Paul Singer): autogestão (onde todas têm voz e voto nas decisões, ao contrário da heterogestão patronal), cooperação, centralidade do ser humano e valorização do saber das mulheres.',
+                            'Apresentar a conquista da nova Lei Nacional da Economia Solidária (Lei nº 15.068/2024, regulamentada pelo Decreto nº 12.784/2025) e o Sistema Nacional de Economia Solidária (SINAES), explicando como a lei reconhece os empreendimentos econômicos solidários no Brasil.',
+                            'Relacionar Economia Solidária com Desenvolvimento Territorial e Redes de Cooperação (Euclides Mance; França Filho & Cunha): como os coletivos de Tanguá podem trocar saberes, insumos e experiências com os outros 9 municípios da Rede Intermunicipal do MIM.'
+                        ],
+                        text: ''
+                    },
+                    'cap4': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: 'Capítulo 4 – Afinal, o que são Associação, Cooperativa, Instituto, ONG, OSC e Fundação? (Págs. 28 a 34)',
+                        tip: 'Inclua obrigatoriamente o Quadro Comparativo Didático e o Boxe "Não é tudo a mesma coisa!" diferenciando Natureza Jurídica, Denominação, Expressão de Uso Social e Enquadramento Legal.',
+                        args: [
+                            'Desfazer a confusão jurídica mais comum nas comunidades: explicar com total clareza que Associação, Cooperativa e Fundação Privada são NATUREZAS JURÍDICAS reais previstas em lei, enquanto "Instituto" é apenas uma escolha de nome (denominação) geralmente adotada por uma associação ou fundação.',
+                            'Explicar que "ONG" (Organização Não Governamental) não é tipo jurídico no cartório, mas uma expressão de uso social, e que "OSC" (Organização da Sociedade Civil) é um enquadramento legal (Lei nº 13.019/2014 - MROSC) para parcerias com o Poder Público.',
+                            'Distinguir Fundação Privada (patrimônio destinado por um instituidor a um fim social) de Fundação Pública (criada pelo Estado como parte da Administração Pública, não sendo forma de organização para coletivos comunitários).',
+                            'Construir um Quadro Comparativo Didático completo em tabela e o boxe especial [BOX: NÃO É TUDO A MESMA COISA!] contrastando: Natureza Jurídica × Nome da Organização × Enquadramento Legal × Atividade Econômica.'
+                        ],
+                        text: ''
+                    },
+                    'cap5': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: 'Capítulo 5 – Conhecendo nossos projetos: Quem somos e o que queremos produzir? (Págs. 35 a 40)',
+                        tip: 'Trabalhe a dinâmica "Nosso projeto em cinco perguntas" (O que queremos fazer? Para quem? Com quem? Onde? Por quê?) preparando os grupos para o preenchimento da ficha.',
+                        args: [
+                            'Conduzir a roda de apresentação das iniciativas existentes no território: como escutar a história de cada grupo identificando os saberes já acumulados pelas mulheres (receitas, técnicas agrícolas, costura, estética, artesanato, serviços comunitários).',
+                            'Roteiro prático da Atividade "Nosso projeto em cinco perguntas": 1) O que queremos fazer? 2) Para quem? 3) Com quem? 4) Onde? 5) Por quê? com exemplos comentados de preenchimento coletivo.',
+                            'Analisar as dimensões da finalidade do grupo: nossa iniciativa é predominantemente social, representativa, produtiva, comercial ou combina mais de uma dimensão?'
+                        ],
+                        text: ''
+                    },
+                    'instrumento1': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: 'Instrumento 1 – Ficha de Identidade Inicial da Iniciativa e Mapa MIM (Págs. 41 a 46)',
+                        tip: 'Gere o formulário completo e estruturado da Ficha de Identidade Inicial da Iniciativa e o roteiro de construção do Mapa das Iniciativas MIM (Meta 1.7).',
+                        args: [
+                            'Estruturar integralmente o "Instrumento 1 – Ficha de Identidade Inicial da Iniciativa" com quadros e campos preenchíveis para: Nome do Coletivo/Ideia, Município/Comunidade, Integrantes, Qual problema ou necessidade queremos enfrentar, O que pretendemos produzir/transformar/comercializar ou prestar como serviço.',
+                            'Incluir na Ficha os blocos de mapeamento interno: Que conhecimentos e habilidades já temos no grupo? Que recursos, ferramentas ou espaços já possuímos? Quem poderá comprar ou utilizar aquilo que produziremos? Qual nossa finalidade principal?',
+                            'Apresentar o passo a passo da dinâmica coletiva de montagem do "Mapa Inicial dos Projetos e Coletivos MIM", explicando como este produto alimenta o Dossiê Inicial dos 5 a 14 coletivos acompanhados.'
+                        ],
+                        text: ''
+                    },
+                    'encerramento': {
+                        group: 'Fechamento e Ancoragem',
+                        title: 'Encerramento: O que descobrimos sobre nós e Ponte para o Caderno 2 (Págs. 47 a 48)',
+                        tip: 'Faça a síntese pedagógica das descobertas da Oficina 1 e prepare as mulheres para o Caderno 2 (Natureza Produtiva e Adequação Organizacional).',
+                        args: [
+                            'Sistematizar as principais aprendizagens da Oficina 1 por meio de perguntas de avaliação participativa (Guba & Lincoln): O que mudou na nossa visão sobre trabalhar juntas? Por que organizar o grupo vem antes do CNPJ?',
+                            'Criar a ponte metodológica para o Caderno Temático 2: agora que sabemos quem somos e o que é economia solidária, como vamos analisar a natureza produtiva exata do nosso trabalho na Clínica dos Projetos?'
+                        ],
+                        text: ''
+                    },
+                    'referencias': {
+                        group: 'Fechamento e Ancoragem',
+                        title: '12. Referências Bibliográficas e Normativas (Págs. 49 a 50)',
+                        tip: 'Todas as referências geradas com a tag ---REFERENCIAS--- ou enviadas pelo botão ⚓ Acervo & Âncora são consolidadas aqui em padrão ABNT.',
+                        args: [],
+                        text: `BRASIL. [Constituição (1988)]. Constituição da República Federativa do Brasil de 1988. Brasília, DF: Presidência da República, 1988.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária; cria o Sistema Nacional de Economia Solidária (Sinaes). Brasília, DF: Presidência da República, 2024.\n\nBRASIL. Decreto nº 12.784, de 19 de dezembro de 2025. Regulamenta a Lei nº 15.068, de 23 de dezembro de 2024. Diário Oficial da União: Brasília, DF, 22 dez. 2025.\n\nFREIRE, Paulo. Pedagogia do oprimido. 17. ed. Rio de Janeiro: Paz e Terra, 1987.\n\nINSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA (IBGE). Estatísticas de gênero: indicadores sociais das mulheres no Brasil. 3. ed. Rio de Janeiro: IBGE, 2024.\n\nNÚCLEO DE DIREITOS E BENEFÍCIOS DO PEA PESCARTE (NDB/UENF). Caderno de direitos e benefícios da comunidade de pesca artesanal. Campos dos Goytacazes, RJ: EdUENF, 2022.\n\nSINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.`
+                    }
+                }
+            },
+
+            'caderno_2': {
+                id: 'caderno_2',
+                shortTab: '2. Natureza & Jurídico',
+                fullTitle: 'Caderno Temático 2 – Natureza Produtiva e Forma de Organização Adequada',
+                subtitle: 'O que fazemos e como podemos nos organizar com segurança e autonomia',
+                metas: 'Metas 1.7; 2.3; 2.4; 2.9 (Formalização quando pertinente)',
+                produto: 'Ficha de Caracterização Produtiva + Matriz de Adequação Organizacional e Jurídica',
+                responsavel: 'Advogada, Contadora, Consultor em Desenvolvimento Territorial e Supervisão Pedagógica',
+                sections: {
+                    'capa': {
+                        group: 'Elementos Prévios (Boneca)',
+                        title: 'Capa, Expediente e Apresentação da Oficina 2 (Págs. 1 a 5)',
+                        tip: 'Explique a transição do conhecimento geral (Caderno 1) para a "Clínica dos Projetos", onde cada coletivo analisa seu próprio caso.',
+                        args: [
+                            'Apresentar a proposta do Caderno Temático 2: sair da visão geral sobre associativismo e entrar na leitura aplicada da atividade concreta de cada um dos 5 a 14 coletivos acompanhados pelo MIM.',
+                            'Explicar a metodologia da "Clínica dos Projetos" conduzida de forma integrada pela Advogada, pela Contadora, pelo Consultor Territorial e pela equipe pedagógica.',
+                            'Destacar a diretriz da Meta 2.9 do MIM: a oficina não decide automaticamente a abertura de CNPJ, mas constrói um diagnóstico rigoroso de maturidade, necessidade e viabilidade para orientar as 5 a 10 organizações elegíveis.'
+                        ],
+                        text: ''
+                    },
+                    'cap1': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '1. O que é Natureza Produtiva e quais atividades existem no nosso território? (Págs. 6 a 12)',
+                        tip: 'Detalhe as vocações de Tanguá e da Rede Intermunicipal: produção agrícola, processamento/beneficiamento, alimentação, artesanato, confecção, comércio, serviços, turismo rural, reciclagem, economia criativa e atividades mistas.',
+                        args: [
+                            'Definir o conceito de Natureza Produtiva de forma didática e apresentar um panorama detalhado das 12 categorias produtivas presentes em Tanguá e nos 9 municípios da Rede Intermunicipal.',
+                            'Diferenciar na prática: produção primária/agrícola (ex: cultivo de laranja, mandioca, hortaliças, pesca), processamento/beneficiamento (ex: doces, compotas, desfiado de pescado, polpas) e prestação de serviços ou comércio.',
+                            'Incluir quadro explicativo com exemplos reais de exigências sanitárias, ambientais e operacionais iniciais de cada tipo de atividade produtiva.'
+                        ],
+                        text: ''
+                    },
+                    'cap2': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '2. Nosso projeto produz o quê e para quem produzimos? (Págs. 13 a 18)',
+                        tip: 'Diferencie produto físico, prestação de serviço e atividade mista, além de mapear os perfis de público (beneficiário, consumidor final, comércio local, compras públicas).',
+                        args: [
+                            'Analisar as diferenças práticas entre produzir um bem material estocável, prestar um serviço contínuo ou atuar de forma mista (ex: gastronomia e buffet comunitário; artesanato e oficinas culturais).',
+                            'Mapear para quem o coletivo produz: diferença entre atender beneficiários comunitários gratuitos, vender para consumidores finais nas feiras, fornecer para comércios locais ou vender para o Poder Público (PNAE/PAA).',
+                            'Demonstrar como o perfil do comprador define se o grupo precisará ou não emitir nota fiscal (NFA-e, NF-e, NFS-e) e ter inscrição estadual ou municipal.'
+                        ],
+                        text: ''
+                    },
+                    'cap3': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '3. Como pretendemos funcionar e dividir resultados? (Págs. 19 a 25)',
+                        tip: 'Aborde produção individual vs. coletiva, compras conjuntas, uso de máquinas compartilhadas, divisão de receitas/sobras e se atividade econômica pode coexistir com finalidade social.',
+                        args: [
+                            'Avaliar os arranjos internos de funcionamento das mulheres: produção 100% conjunta no mesmo espaço vs. produção familiar em casa com compra de insumos e comercialização coletiva.',
+                            'Responder de forma clara e jurídica à pergunta: "Atividade econômica e finalidade social podem coexistir?", explicando a diferença entre geração de renda/sobras para as trabalhadoras e distribuição de lucro mercantil.',
+                            'Analisar responsabilidades das integrantes, necessidade ou não de patrimônio comum, contratação de terceiros e regras transparentes para divisão dos resultados financeiros.'
+                        ],
+                        text: ''
+                    },
+                    'cap4': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '4. Que tipo de organização combina com nosso projeto? (Págs. 26 a 33)',
+                        tip: 'Compare lado a lado: Grupo Informal / Coletivo Solidário, MEI articulado em rede, Associação Civil e Sociedade Cooperativa.',
+                        args: [
+                            'Construir uma Matriz Comparativa detalhada analisando vantagens, limites, custos de abertura/manutenção e obrigações contábeis de: 1) Grupo Informal em pré-incubação; 2) Articulado de MEIs; 3) Associação; 4) Cooperativa (Lei nº 5.764/71 e Lei Complementar nº 130/2009 / Lei nº 15.068/2024).',
+                            'Explicar as implicações contábeis e fiscais permanentes depois que se abre um CNPJ (declarações obrigatórias mensais/anuais, livro-caixa, atas registradas em cartório ou Junta Comercial, taxas bancárias e honorários contábeis).',
+                            'Apresentar casos práticos de grupos de mulheres mostrando por que uma escolha jurídica equivocada pode gerar dívidas fiscais ou travar a comercialização.'
+                        ],
+                        text: ''
+                    },
+                    'cap5': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: '5. Ainda precisamos nos formalizar agora? Critérios de Maturidade (Págs. 34 a 39)',
+                        tip: 'Mostre que "abrir CNPJ" não deve ser o primeiro passo automático e apresente os critérios técnicos da Meta 2.9 do MIM.',
+                        args: [
+                            'Desconstruir o mito de que "sem CNPJ o grupo não existe": mostrar como a organização interna, o teste do produto e a consolidação da confiança entre as mulheres vêm antes do registro cartorial.',
+                            'Apresentar o Checklist de Elegibilidade e Maturidade da Meta 2.9 do Projeto MIM para apoio à formalização ou regularização documental/cadastral das 5 a 10 organizações elegíveis.',
+                            'Orientar sobre a documentação pessoal das integrantes e verificação prévia de regularidade do CPF e benefícios sociais (como Bolsa Família, BPC/LOAS e Seguro-Defeso dos familiares, dialogando com o padrão do Caderno NDB/UENF).'
+                        ],
+                        text: ''
+                    },
+                    'instrumento2': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: 'Instrumento 2 – Matriz de Adequação Organizacional e Jurídica (Págs. 40 a 48)',
+                        tip: 'Reproduza a tabela oficial da Matriz de Adequação Organizacional e Jurídica do anexo e o roteiro da Clínica dos Projetos.',
+                        args: [
+                            'Estruturar na íntegra a tabela oficial da "Matriz de Adequação Organizacional e Jurídica" com todas as questões diagnósticas: Natureza da atividade; Finalidade principal; Há atividade econômica?; Há comercialização?; Como os resultados serão utilizados?; Quem toma decisões?; Há interesse em formalização?; Formas organizacionais que podem ser analisadas; Pontos que precisam de análise jurídica/contábil.',
+                            'Incluir a "Ficha de Caracterização Produtiva Detalhada" (Quem produz, para quem, insumos, equipamentos, emissão fiscal e políticas públicas acessíveis).',
+                            'Criar o formulário de Parecer Preliminar da Clínica Jurídico-Contábil para assinatura conjunta da Advogada, Contadora e representantes do coletivo.'
+                        ],
+                        text: ''
+                    },
+                    'referencias': {
+                        group: 'Fechamento e Ancoragem',
+                        title: '12. Referências Bibliográficas e Normativas (Págs. 49 a 50)',
+                        tip: 'Referências ABNT consolidadas automaticamente para o Caderno 2.',
+                        args: [],
+                        text: `BRASIL. Lei nº 10.406, de 10 de janeiro de 2002. Institui o Código Civil (Artigos 44 a 69 - Associações e Fundações). Brasília, DF, 2002.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nNÚCLEO DE DIREITOS E BENEFÍCIOS DO PEA PESCARTE (NDB/UENF). Caderno de direitos e benefícios da comunidade de pesca artesanal. Campos dos Goytacazes, RJ: EdUENF, 2022.`
+                    }
+                }
+            },
+
+            'caderno_3': {
+                id: 'caderno_3',
+                shortTab: '3. Projeto de Trabalho & Renda',
+                fullTitle: 'Caderno Temático 3 – Construindo o Projeto de Geração de Trabalho e Renda',
+                subtitle: 'Da ideia ao projeto possível e sustentável no nosso território',
+                metas: 'Metas 1.7; 2.4 (Qualificação e EVTEAS); 2.10; 2.11',
+                produto: 'Projeto Produtivo Preliminar do Coletivo + Quadro de Capacidade Produtiva e Postos de Trabalho',
+                responsavel: 'Analista de Projetos e Captação de Recursos, Consultor em Desenvolvimento Territorial e Apoio Pedagógico',
+                sections: {
+                    'capa': {
+                        group: 'Elementos Prévios (Boneca)',
+                        title: 'Capa, Expediente e Apresentação da Oficina 3 (Págs. 1 a 5)',
+                        tip: 'Destaque a importância estratégica deste caderno: deixar de trabalhar apenas com uma "ideia" e formular um Projeto Socioprodutivo consistente.',
+                        args: [
+                            'Apresentar o Caderno Temático 3 como o coração da formulação técnica dos coletivos: transformar desejos e saberes em um Projeto de Geração de Trabalho e Renda estruturado.',
+                            'Explicar como este caderno prepara a base para os Estudos de Viabilidade Técnica, Econômica, Ambiental e Social (EVTEAS) previstos na Meta 2.4 do MIM.'
+                        ],
+                        text: ''
+                    },
+                    'cap1': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '1. Uma boa ideia é suficiente? Problema e Oportunidade Territorial (Págs. 6 a 12)',
+                        tip: 'Trabalhe a diferença entre ideia solta e projeto estruturado, conectando à leitura das necessidades de Tanguá e da Rede Intermunicipal.',
+                        args: [
+                            'Demonstrar de forma didática a diferença entre ter uma "boa ideia" ("queremos fazer bolos e doces") e ter um "projeto socioprodutivo" (saber exatamente para quem, em que quantidade, com qual diferencial e com que estrutura).',
+                            'Ensinar as mulheres a responderem: "Qual necessidade ou oportunidade real do nosso município (Tanguá e Rede Intermunicipal) o nosso projeto atende?", articulando vocações locais como citricultura, agroindústria familiar, turismo de base comunitária, pesca e serviços.',
+                            'Construir a árvore lógica do projeto: Problema/Oportunidade Territorial → Solução Produtiva → Atividades → Resultados Esperados.'
+                        ],
+                        text: ''
+                    },
+                    'cap2': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '2. Nossa Solução: Produto, Serviço, Público/Cliente e Diferencial (Págs. 13 a 19)',
+                        tip: 'Ajude o coletivo a definir claramente o escopo de seus produtos/serviços, quem são seus clientes e qual é o diferencial solidário e territorial.',
+                        args: [
+                            'Definir o portfólio inicial enxuto do coletivo: por que começar com poucos produtos ou serviços bem feitos é mais seguro do que tentar abraçar tudo de uma vez.',
+                            'Mapear o público consumidor e cliente em camadas: vizinhança/comunidade, feiras municipais, comércios parceiros, turistas e compras institucionais da prefeitura.',
+                            'Identificar o diferencial competitivo e solidário do grupo: qualidade artesanal, origem territorial (ex: laranja de Tanguá, tradição pesqueira ou rural), produção limpa e impacto social feminino.'
+                        ],
+                        text: ''
+                    },
+                    'cap3': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '3. Processo de Trabalho, Infraestrutura e Capacidade Produtiva (Págs. 20 a 28)',
+                        tip: 'Ensine a desenhar o fluxo produtivo passo a passo e calcular a capacidade real de produção por dia, semana e mês.',
+                        args: [
+                            'Desenhar o Fluxo Simplificado do Processo de Produção ou Prestação de Serviço: desde a compra e chegada da matéria-prima, preparo/transformação, controle de qualidade, embalagem até a entrega.',
+                            'Levantar de forma realista a infraestrutura necessária: espaço físico (cozinha comunitária, ateliê, galpão, quintal produtivo), máquinas, utensílios, água, energia e transporte.',
+                            'Calcular a Capacidade Produtiva e de Atendimento (por dia, semana e mês) levando em conta o tempo real disponível das mulheres (considerando a jornada de cuidado familiar apurada pelo IBGE).'
+                        ],
+                        text: ''
+                    },
+                    'cap4': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '4. Quantos postos de trabalho nossa iniciativa consegue sustentar? (Págs. 29 a 37)',
+                        tip: 'Desenvolva a pergunta central do anexo: "Quantos postos de trabalho esta iniciativa consegue sustentar economicamente, com remuneração compatível e sem comprometer sua viabilidade?"',
+                        args: [
+                            'Trabalhar a questão crucial dos postos de trabalho: explicar por que não basta perguntar "quantas mulheres queremos no grupo", mas sim calcular quantas trabalhadoras a receita líquida da atividade consegue remunerar com dignidade.',
+                            'Apresentar a relação matemática simples e pedagógica entre: Capacidade Produtiva × Demanda/Vendas × Custos Operacionais × Sobra Líquida = Remuneração Possível e Número de Postos Sustentáveis.',
+                            'Mapear as funções necessárias dentro do coletivo (produção, compras, higiene/qualidade, vendas/atendimento, financeiro/caixa, comunicação) e a organização de escalas e turnos compatíveis com a vida das mulheres.'
+                        ],
+                        text: ''
+                    },
+                    'instrumento3': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: 'Instrumento 3 – Projeto Socioprodutivo Preliminar e Quadro de Postos (Págs. 38 a 48)',
+                        tip: 'Gere o modelo completo do Instrumento 3 (Projeto Socioprodutivo Preliminar + Quadro de Capacidade Produtiva e Postos de Trabalho).',
+                        args: [
+                            'Estruturar integralmente o "Instrumento 3A – Ficha de Estruturação do Projeto Socioprodutivo Preliminar" contendo todos os 11 campos exigidos: 1) Identificação do Coletivo; 2) Problema/Oportunidade Territorial; 3) Justificativa; 4) Objetivo Geral e Específicos; 5) Produto/Serviço e Diferencial; 6) Público/Cliente; 7) Fluxo do Processo Produtivo; 8) Infraestrutura e Equipamentos Necessários; 9) Capacidade Produtiva Mensal; 10) Postos de Trabalho Potenciais; 11) Resultados Pretendidos.',
+                            'Estruturar a tabela prática do "Instrumento 3B – Quadro de Dimensionamento da Capacidade Produtiva, Funções e Sustentação de Postos de Trabalho".'
+                        ],
+                        text: ''
+                    },
+                    'referencias': {
+                        group: 'Fechamento e Ancoragem',
+                        title: '12. Referências Bibliográficas e Normativas (Págs. 49 a 50)',
+                        tip: 'Referências ABNT consolidadas automaticamente para o Caderno 3.',
+                        args: [],
+                        text: `DAGNINO, Renato. Tecnologia social: contribuições conceituais e metodológicas. Campina Grande: EDUEPB; Florianópolis: Insular, 2014.\n\nFRANÇA FILHO, Genauto Carvalho de; CUNHA, Eduardo Vivian da. Incubação de redes locais de economia solidária. Organizações & Sociedade, Salvador, v. 16, n. 51, 2009.\n\nSEN, Amartya. Desenvolvimento como liberdade. São Paulo: Companhia das Letras, 2000.`
+                    }
+                }
+            },
+
+            'caderno_4': {
+                id: 'caderno_4',
+                shortTab: '4. Gestão & Viabilidade',
+                fullTitle: 'Caderno Temático 4 – Organização, Gestão e Viabilidade Econômico-Financeira',
+                subtitle: 'Como organizar, administrar democraticamente e verificar se o projeto se sustenta',
+                metas: 'Metas 2.1 (Módulos 2 e 5); 2.3; 2.4; 2.9; 2.10',
+                produto: 'Modelo de Governança e Responsabilidades (4A) + Planilha de Viabilidade Econômico-Financeira (4B)',
+                responsavel: 'Contadora e Consultor em Desenvolvimento Territorial, com Advogada e Analista de Projetos',
+                sections: {
+                    'capa': {
+                        group: 'Elementos Prévios (Boneca)',
+                        title: 'Capa, Expediente e Apresentação da Oficina 4 (Págs. 1 a 4)',
+                        tip: 'Apresente a união das duas dimensões vitais do empreendimento: quem administra (governança) e se financeiramente funciona (viabilidade).',
+                        args: [
+                            'Introduzir o Caderno Temático 4 unindo organização administrativa democrática e sustentabilidade econômico-financeira real.',
+                            'Explicar que nesta oficina cada coletivo trabalha com os números reais ou estimados do seu próprio projeto, e não apenas com exemplos abstratos.'
+                        ],
+                        text: ''
+                    },
+                    'parte1': {
+                        group: 'Parte I – Governança e Administração',
+                        title: 'Parte I e II – Quem decide, quem faz e como funcionamos juridicamente? (Págs. 5 a 14)',
+                        tip: 'Aborde governança democrática, coordenação/diretoria, conselho fiscal, assembleias, controles, prestação de contas, entrada/saída de integrantes e retomada jurídica.',
+                        args: [
+                            'Desenvolver os princípios da Governança Democrática e Autogestão nos coletivos de mulheres: como tomar decisões coletivas sem sobrecarga de uma única líder e com respeito à voz de todas.',
+                            'Explicar de forma prática a estrutura administrativa: Coordenação/Diretoria, Conselho Fiscal (quando aplicável), Assembleias/Reuniões ordinárias, registro em caderno de atas, controles internos de caixa e prestação de contas transparente.',
+                            'Construir regras claras de convivência: critérios para entrada e saída de integrantes, faltas, divisão de tarefas operacionais e retomada jurídica aplicada ao projeto já amadurecido.'
+                        ],
+                        text: ''
+                    },
+                    'parte3_4': {
+                        group: 'Parte II – Economia do Projeto',
+                        title: 'Parte III e IV – Quanto precisamos para começar e quanto custa funcionar? (Págs. 15 a 23)',
+                        tip: 'Trabalhe Investimento Inicial, Capital de Giro, Custos Fixos e Custos Variáveis com tabelas simples e exemplos dos coletivos.',
+                        args: [
+                            'Explicar "Quanto precisamos para começar?": diferença entre Investimento Fixo Inicial (fogão industrial, freezer, máquinas de costura, despolpadeira, reformas) e Capital de Giro (recursos para comprar a primeira remessa de matéria-prima e sustentar o caixa até receber as vendas).',
+                            'Explicar "Quanto custa funcionar todo mês?": distinção prática entre Custos Fixos (aluguel, internet, contador, taxa bancária, manutenção) e Custos Variáveis (matéria-prima, embalagens, gás de produção, frete por entrega).',
+                            'Ensinar a separar rigorosamente o caixa da família/casa do caixa do empreendimento coletivo.'
+                        ],
+                        text: ''
+                    },
+                    'parte5_6': {
+                        group: 'Parte II – Economia do Projeto',
+                        title: 'Parte V e VI – Receita, Margem, Ponto de Equilíbrio e Fluxo de Caixa (Págs. 24 a 32)',
+                        tip: 'Explique Receita Bruta, Margem de Contribuição, Ponto de Equilíbrio ("quanto precisamos vender para empatar?") e Remuneração das Integrantes.',
+                        args: [
+                            'Demonstrar como projetar a Receita Mensal de Vendas e calcular a Margem de Contribuição de cada linha de produto ou serviço.',
+                            'Explicar em linguagem acessível o Ponto de Equilíbrio: "Qual é o valor mínimo que nosso grupo precisa vender no mês para pagar todas as despesas e não ter prejuízo?".',
+                            'Estruturar o controle de Fluxo de Caixa mensal (entradas, saídas, saldo e fundo de reserva do coletivo) e a definição da retirada/remuneração justa das trabalhadoras.'
+                        ],
+                        text: ''
+                    },
+                    'parte7_8': {
+                        group: 'Parte II – Economia do Projeto',
+                        title: 'Parte VII e VIII – Retorno do Investimento (Payback) e Teste de Cenários (Págs. 33 a 38)',
+                        tip: 'Traduza o conceito de Payback para linguagem popular e simule os cenários (E se vendermos menos na baixa temporada? E se vendermos mais nas festas/feiras?).',
+                        args: [
+                            'Traduzir "Retorno do Investimento" e "Payback" em palavras simples: em quantos meses de trabalho as sobras geradas pelo projeto pagam o valor investido nas máquinas e equipamentos iniciais.',
+                            'Trabalhar a Simulação de Cenários ("E se vendermos menos ou mais?"): construir um exemplo completo comparando Cenário Cauteloso/Pessimista, Cenário Realista e Cenário Otimista (sazonalidade da safra da laranja, verão/turismo, datas comemorativas).'
+                        ],
+                        text: ''
+                    },
+                    'instrumento4': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: 'Instrumentos 4A e 4B – Matriz de Governança + Planilha Econômico-Financeira (Págs. 39 a 48)',
+                        tip: 'Gere os modelos completos do Instrumento 4A (Matriz de Governança e Responsabilidades) e do Instrumento 4B (Planilha de Viabilidade Econômico-Financeira).',
+                        args: [
+                            'Estruturar na íntegra o "Instrumento 4A – Matriz de Governança, Regras Internas e Divisão de Responsabilidades do Coletivo" (Cargos/Funções, Responsáveis, Periodicidade de Reuniões, Forma de Prestação de Contas, Regras de Entrada/Saída e Partilha).',
+                            'Estruturar na íntegra a tabela do "Instrumento 4B – Planilha Simplificada de Viabilidade Econômico-Financeira" contemplando: 1) Quadro de Investimento Inicial e Capital de Giro; 2) Quadro de Custos Fixos Mensais; 3) Quadro de Custos Variáveis e Custo Unitário; 4) Previsão de Produção, Preço e Receita; 5) Demonstração do Resultado, Remuneração das Integrantes, Ponto de Equilíbrio e Payback.'
+                        ],
+                        text: ''
+                    },
+                    'referencias': {
+                        group: 'Fechamento e Ancoragem',
+                        title: '12. Referências Bibliográficas e Normativas (Págs. 49 a 50)',
+                        tip: 'Referências ABNT consolidadas automaticamente para o Caderno 4.',
+                        args: [],
+                        text: `BRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nSINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.`
+                    }
+                }
+            },
+
+            'caderno_5': {
+                id: 'caderno_5',
+                shortTab: '5. Produção, Custo & Preço',
+                fullTitle: 'Caderno Temático 5 – Da Produção ao Mercado I: Custos, Preço e Preparação para Comercializar',
+                subtitle: 'Sabemos produzir. Mas sabemos quanto custa produzir e por quanto precisamos vender?',
+                metas: 'Metas 2.4; 2.6 (Experiências-Piloto); 2.7',
+                produto: 'Ficha Técnica e Comercial do Produto/Serviço + Planilha de Custo Unitário, Preço e Margem',
+                responsavel: 'Consultor Técnico em Desenvolvimento Territorial e Contadora, com apoio da Facilitação',
+                sections: {
+                    'capa': {
+                        group: 'Elementos Prévios (Boneca)',
+                        title: 'Capa, Expediente e Apresentação da Oficina 5 (Págs. 1 a 4)',
+                        tip: 'Destaque a pergunta geradora da Oficina 5: "Sabemos produzir. Mas sabemos quanto custa produzir e por quanto precisamos vender?"',
+                        args: [
+                            'Apresentar o Caderno Temático 5 como preparação direta para as Experiências-Piloto de Produção e Comercialização (Meta 2.6 do MIM).',
+                            'Problematizar o erro comum de copiar o preço do vizinho sem conhecer o próprio custo ou de esquecer de cobrar pelo próprio tempo de trabalho feminino.'
+                        ],
+                        text: ''
+                    },
+                    'cap1_2': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '1 e 2. Produzir não basta: Conhecendo nosso Produto/Serviço e Ficha Técnica (Págs. 5 a 13)',
+                        tip: 'Ensine a elaborar a Ficha Técnica Operacional padronizando receita/processo, rendimento, insumos e tempo de preparo.',
+                        args: [
+                            'Explicar por que padronizar o produto ou serviço é indispensável no trabalho coletivo: garantir que o doce, o artesanato, a roupa ou o serviço tenha sempre o mesmo padrão de qualidade, peso e apresentação.',
+                            'Ensinar passo a passo como montar uma Ficha Técnica de Produção: lista de matérias-primas e quantidades exatas, rendimento da receita/lote, tempo de preparo e perdas técnicas no processamento.'
+                        ],
+                        text: ''
+                    },
+                    'cap3_4': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '3 e 4. Quanto custa produzir? Por que Custo NÃO é Preço? (Págs. 14 a 23)',
+                        tip: 'Detalhe todos os itens do custo unitário (matéria-prima, mão de obra das mulheres, energia, água, gás, transporte, embalagem, taxas e perdas) e diferencie Custo de Preço.',
+                        args: [
+                            'Decompor todos os elementos que formam o Custo Unitário de um produto ou serviço: matéria-prima, insumos secundários, embalagem, rateio de água/luz/gás, transporte de compras, perdas de produção e, fundamentalmente, o valor da hora de trabalho das mulheres.',
+                            'Explicar com exemplos práticos e visuais por que "Custo NÃO é Preço": mostrar o que acontece quando o grupo vende pelo preço de custo (trabalha de graça e descapitaliza o coletivo).'
+                        ],
+                        text: ''
+                    },
+                    'cap5_6': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '5 e 6. Como formar o Preço Justo e planejar a Capacidade e o Estoque? (Págs. 24 a 31)',
+                        tip: 'Compare Preço Desejado, Preço Necessário (Custo + Despesas + Margem) e Preço praticado no Mercado local.',
+                        args: [
+                            'Apresentar a fórmula didática de formação do Preço de Venda na Economia Solidária: Custo Unitário Direto + Fração dos Custos Fixos/Comercialização (taxas de maquininha, transporte para feira) + Margem para Reserva e Investimento do Coletivo.',
+                            'Orientar o exercício prático da oficina: comparar o Preço Calculado pelo grupo com o Preço Observado no Mercado de Tanguá e região, analisando como agir quando o custo fica alto demais.',
+                            'Planejamento da produção, controle de estoque de insumos e produtos acabados, validade e capacidade real de entrega.'
+                        ],
+                        text: ''
+                    },
+                    'cap7_8': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '7 e 8. Qualidade, Embalagem, Logística e Meios de Pagamento (Págs. 32 a 38)',
+                        tip: 'Trabalhe apresentação visual, rotulagem comunitária, boas práticas de higiene, logística de entrega, PIX/cartão e documentação.',
+                        args: [
+                            'Trabalhar Qualidade, Apresentação e Embalagem: como um rótulo bem feito que conta a história das mulheres produtoras de Tanguá e da Rede MIM agrega valor simbólico e confiança ao produto.',
+                            'Organizar a logística de transporte e conservação, as formas de pagamento modernas (PIX do coletivo, maquininha de cartão, recibos, controle de vendas na feira) e os requisitos sanitários/documentais básicos.'
+                        ],
+                        text: ''
+                    },
+                    'instrumento5': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: 'Instrumento 5 – Ficha Técnica e Comercial + Planilha de Custos e Preço (Págs. 39 a 48)',
+                        tip: 'Gere o formulário completo da Ficha Econômica e Comercial do Produto ou Serviço e a Planilha Passo a Passo de Precificação.',
+                        args: [
+                            'Estruturar na íntegra o "Instrumento 5A – Ficha Técnica, Econômica e Comercial do Produto ou Serviço" (Descrição, Ingredientes/Insumos, Rendimento do Lote, Embalagem, Validade, Capacidade Produtiva Mensal).',
+                            'Estruturar na íntegra a tabela do "Instrumento 5B – Planilha Prática de Cálculo de Custo Unitário, Formação de Preço e Margem do Coletivo" com linha de exemplo preenchida e linhas em branco para oficina.'
+                        ],
+                        text: ''
+                    },
+                    'referencias': {
+                        group: 'Fechamento e Ancoragem',
+                        title: '12. Referências Bibliográficas e Normativas (Págs. 49 a 50)',
+                        tip: 'Referências ABNT consolidadas automaticamente para o Caderno 5.',
+                        args: [],
+                        text: `BRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nFRANÇA FILHO, Genauto Carvalho de; CUNHA, Eduardo Vivian da. Incubação de redes locais de economia solidária. Organizações & Sociedade, v. 16, n. 51, 2009.`
+                    }
+                }
+            },
+
+            'caderno_6': {
+                id: 'caderno_6',
+                shortTab: '6. Mercado & Continuidade',
+                fullTitle: 'Caderno Temático 6 – Da Produção ao Mercado II: Comercialização, Oportunidades e Continuidade',
+                subtitle: 'Abrindo caminhos, acessando mercados, fomento e planejando o futuro do nosso coletivo',
+                metas: 'Metas 2.7; 2.8 (Propostas/Fomento); 2.10; 2.11 (Continuidade); OE 5',
+                produto: 'Mapa de Mercado e Oportunidades (6A) + Plano Simplificado de Comercialização e Continuidade (6B)',
+                responsavel: 'Analista de Projetos e Captação, Consultor em Desenvolvimento Territorial e Analista de Comunicação (Eixo POD)',
+                sections: {
+                    'capa': {
+                        group: 'Elementos Prévios (Boneca)',
+                        title: 'Capa, Expediente e Apresentação da Oficina 6 (Págs. 1 a 4)',
+                        tip: 'Mostre que este caderno fecha o percurso da incubação produtiva olhando para fora: mercados, comunicação, fomento e estratégia de continuidade pós-Fase II.',
+                        args: [
+                            'Apresentar o Caderno Temático 6 como a coroação do percurso formativo produtivo: conectar os coletivos qualificados aos mercados locais, institucionais, digitais e às fontes de fomento.',
+                            'Articular diretamente com as Metas 2.7, 2.8, 2.10 e 2.11 do Plano de Trabalho MIM (avaliação de maturidade e estratégia individualizada de continuidade).'
+                        ],
+                        text: ''
+                    },
+                    'cap1_2_3': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '1, 2 e 3. Quem compra e onde vender? Da Feira Local às Redes Sociais (Págs. 5 a 15)',
+                        tip: 'Aborde venda direta vs. intermediada, feiras livres e solidárias, comércio local, WhatsApp Business, Instagram e marketplaces.',
+                        args: [
+                            'Construir a "Rota até o Cliente": diferenciar venda direta (feiras da agricultura familiar e economia solidária, encomendas, cestas, porta a porta) e venda intermediada (mercados de bairro, pousadas, restaurantes, lojas parceiras).',
+                            'Desenvolver um guia prático de Comercialização Digital para Mulheres (em diálogo com o Eixo POD): como usar o WhatsApp Business (catálogo, listas de transmissão), Instagram, fotos atrativas com luz natural no celular e escrita de legendas que valorizam o trabalho coletivo.'
+                        ],
+                        text: ''
+                    },
+                    'cap4_5': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '4 e 5. Compras Públicas, Parcerias e Como Apresentar Nosso Projeto (Págs. 16 a 24)',
+                        tip: 'Explique o acesso ao PNAE (Merenda Escolar), PAA (Aquisição de Alimentos), feiras municipais e como fazer uma apresentação (pitch comunitário) do coletivo.',
+                        args: [
+                            'Explicar em linguagem simples o que são Mercados Institucionais e Compras Públicas: como agricultoras familiares (CAF/DAP) e empreendimentos solidários podem vender para a alimentação escolar do município (PNAE - mínimo de 30% da agricultura familiar, com prioridade para grupos de mulheres) e para o PAA.',
+                            'Ensinar as mulheres a apresentarem seu projeto e seus produtos em 3 minutos (roteiro de apresentação para reuniões com gestores públicos, feiras, universidades e parceiros) e como manter um relacionamento fiel pós-venda com os clientes.'
+                        ],
+                        text: ''
+                    },
+                    'cap6_7': {
+                        group: 'Capítulos Teórico-Práticos',
+                        title: '6 e 7. Editais, Crédito e Fomento: Nem todo recurso serve para todo projeto! (Págs. 25 a 33)',
+                        tip: 'Diferencie fomento não reembolsável (editais públicos/privados) de microcrédito/empréstimo e trabalhe critérios de maturidade para evitar endividamento.',
+                        args: [
+                            'Mapear o ecossistema de oportunidades para coletivos de mulheres (Metas 2.7 e 2.8): editais públicos de cultura, economia solidária e agricultura, fundos socioambientais, emendas, parcerias com universidades (como UENF e institutos federais) e microcrédito produtivo orientado.',
+                            'Desenvolver a reflexão crítica essencial: "Nem todo recurso serve para todo projeto" — ensinar a diferenciar Fomento Não Reembolsável (fundo perdido/edital) de Crédito/Empréstimo (que exige pagamento com juros) e avaliar a capacidade real de execução e prestação de contas do grupo.'
+                        ],
+                        text: ''
+                    },
+                    'cap8_9': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: '8 e 9. Onde queremos estar em 6 meses e 1 ano? Nosso Plano de 90 Dias (Págs. 34 a 39)',
+                        tip: 'Trabalhe o horizonte de Emancipação Organizacional (redução progressiva da dependência técnica), preparação para eventual Fase III e o Plano de 90 Dias.',
+                        args: [
+                            'Trabalhar o conceito de Emancipação Organizacional do MIM: o que depende exclusivamente do próprio grupo de mulheres, o que depende de parceiros/poder público e o que ainda precisa de investimento técnico ou financeiro (eventual Fase III).',
+                            'Conduzir a roda de planejamento de curto e médio prazo: onde nosso coletivo quer estar em 90 dias, em 6 meses e em 1 ano após o ciclo da Fase II?'
+                        ],
+                        text: ''
+                    },
+                    'instrumento6': {
+                        group: 'Oficina Prática e Instrumentos',
+                        title: 'Instrumentos 6A e 6B – Mapa de Mercado + Plano de Continuidade 90 Dias (Págs. 40 a 48)',
+                        tip: 'Gere integralmente o Instrumento 6A (Mapa de Mercado e Oportunidades) e o Instrumento 6B (Plano Simplificado de Comercialização e Continuidade com quadro de 90 dias).',
+                        args: [
+                            'Estruturar na íntegra o "Instrumento 6A – Mapa de Mercado, Canais de Venda e Oportunidades de Fomento/Parcerias" aplicáveis ao estágio de maturidade do coletivo.',
+                            'Estruturar na íntegra o "Instrumento 6B – Plano Simplificado de Comercialização e Continuidade + Matriz de Ação de 90 Dias" com as colunas: O que fazer (Ação) | Quem coordena (Responsável) | Quando (Prazo) | Com apoio de quem (Parceiro) | O que é necessário (Recurso).'
+                        ],
+                        text: ''
+                    },
+                    'referencias': {
+                        group: 'Fechamento e Ancoragem',
+                        title: '12. Referências Bibliográficas e Normativas (Págs. 49 a 50)',
+                        tip: 'Referências ABNT consolidadas automaticamente para o Caderno 6.',
+                        args: [],
+                        text: `BRASIL. Lei nº 11.947, de 16 de junho de 2009. Dispõe sobre o atendimento da alimentação escolar (PNAE) e a aquisição de gêneros alimentícios da agricultura familiar. Brasília, DF, 2009.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nMANCE, Euclides André. Redes de colaboração solidária. Petrópolis, RJ: Vozes, 2002.`
+                    }
+                }
+            },
+
+            'caderno_especial': {
+                id: 'caderno_especial',
+                shortTab: '★ Especial: Direitos & Rede',
+                fullTitle: 'Caderno Especial MIM – Mulheres, História, Direitos e Poder Público: Conhecer para Acessar',
+                subtitle: 'Conhecer a história, acessar políticas públicas e garantir direitos no nosso território',
+                metas: 'Meta 1.4 (Articulação com Poder Público); Meta 2.1 (Módulo 3); Meta 3.3; OE 5',
+                produto: 'Mapa Municipal de Direitos e Rede de Proteção + Matriz de Demandas e Encaminhamentos Institucionais',
+                responsavel: 'Advogada e Coordenação Técnica, com Supervisão de Campo, Apoio Pedagógico e Órgãos Públicos Convidados',
+                sections: {
+                    'capa': {
+                        group: 'Abertura e Memória Histórica',
+                        title: 'Capa, Expediente e Abertura: "Esta história também é nossa!" (Págs. 1 a 5)',
+                        tip: 'Inclua a pergunta geradora sobre a História do Brasil, a transição do trabalho feminino nas guerras para o retorno aos lares e criação do auxílio-família, e o Boxe "Pare e Pense".',
+                        args: [
+                            'Abrir o Caderno Especial com a frase conceitual guia: "Conhecer a história ajuda a compreender que os direitos que temos hoje foram construídos. Conhecer esses direitos é também uma forma de protegê-los e de continuar construindo a sociedade que queremos." e a pergunta provocadora: "Quando você pensa na História do Brasil, de quantas mulheres você se lembra?".',
+                            'Desenvolver a contextualização histórica solicitada: mostrar que as mulheres sempre trabalharam — inclusive assumindo fábricas, lavouras e serviços pesados enquanto os homens estavam nas guerras — e que, com o retorno dos homens, houve um movimento de recondução das mulheres aos lares para cuidar da família e liberar postos no mercado de trabalho (sob o argumento da força física), contexto ligado à criação de mecanismos como o auxílio-família e à invisibilização do trabalho reprodutivo.',
+                            'Construir o boxe [BOX: PARE E PENSE] com as perguntas: Quem cuidava das crianças? Quem produzia alimentos? Quem lavava, costurava, vendia, ensinava e cuidava dos doentes? Quem organizava a comunidade? Esse trabalho aparecia nos livros de História? levando cada participante a reconhecer: "Então eu também faço parte da história!"'
+                        ],
+                        text: ''
+                    },
+                    'cap1_2': {
+                        group: 'Abertura e Memória Histórica',
+                        title: 'Cap. 1 e 2 – As mulheres sempre estiveram aqui e Por que precisaram lutar por direitos? (Págs. 6 a 12)',
+                        tip: 'Traga histórias de mulheres indígenas, negras, rurais, pescadoras, operárias e lideranças, o boxe "Mulheres que Abriram Caminho" e a distinção entre DIREITO, LEI e POLÍTICA PÚBLICA.',
+                        args: [
+                            'Narrar de forma envolvente a presença histórica das mulheres indígenas, mulheres negras escravizadas e libertas, trabalhadoras rurais, pescadoras artesanais e marisqueiras, operárias, professoras, domésticas e lideranças comunitárias das periferias, incluindo o boxe [BOX: UMA MULHER, UMA HISTÓRIA].',
+                            'Explicar por que os direitos não foram "dados naturalmente", mas conquistados diante de injustiças históricas (quando mulheres não podiam votar, trabalhar sem autorização do marido ou ter proteção contra violência doméstica).',
+                            'Explicar em palavras simples a tríade fundamental da cidadania: 1) O que é DIREITO (aquilo que a sociedade reconhece que deve ser garantido); 2) O que é LEI (a regra obrigatória para todos e para o Estado); e 3) O que é POLÍTICA PÚBLICA (a ação concreta, o serviço e o orçamento que fazem o direito sair do papel e chegar à vida real).'
+                        ],
+                        text: ''
+                    },
+                    'cap3_4': {
+                        group: 'Conquistas e Enfrentamento às Violências',
+                        title: 'Cap. 3 e 4 – Linha do Tempo Crítica das Conquistas e Quando uma História Muda uma Lei (Págs. 13 a 20)',
+                        tip: 'Para cada marco histórico use as 4 perguntas ("O que acontecia? O que reivindicaram? O que mudou? O que ainda precisamos fazer valer?") e conte a história de Maria da Penha com o boxe "A lei não nasceu do nada".',
+                        args: [
+                            'Construir a Linha do Tempo Crítica das Conquistas das Mulheres no Brasil (Direito à educação, Direito ao voto em 1932, Estatuto da Mulher Casada de 1962, Constituição Cidadã de 1988, Direitos das Trabalhadoras Rurais, Pescadoras e Domésticas - PEC das Domésticas, Lei Maria da Penha, Lei do Feminicídio e Igualdade Salarial), respondendo para cada marco: O que acontecia? O que as mulheres reivindicaram? O que mudou? O que ainda precisamos fazer valer?',
+                            'Desenvolver o Capítulo 4 ("Quando uma história muda uma lei"): contar em linguagem acessível e respeitosa a história de Maria da Penha Maia Fernandes, a omissão inicial do Estado, a denúncia internacional e o nascimento da Lei nº 11.340/2006, acompanhado do boxe [BOX: A LEI NÃO NASCEU DO NADA].'
+                        ],
+                        text: ''
+                    },
+                    'cap5': {
+                        group: 'Conquistas e Enfrentamento às Violências',
+                        title: 'Cap. 5 – Violência contra a mulher: quando a sociedade aprende a dar nome ao que acontecia (Págs. 21 a 26)',
+                        tip: 'Apresente exemplos cotidianos ("Ele controla todo o dinheiro", "Ela não pode trabalhar") sem exigir relato pessoal das participantes e explique os 8 tipos de violência.',
+                        args: [
+                            'Explicar de forma acolhedora e pedagógica que "nem toda violência deixa marca visível no corpo" e que o papel do caderno é informar com segurança, sem jamais exigir relato pessoal das participantes.',
+                            'Partir de frases cotidianas concretas ("Ele controla todo o dinheiro", "Ela não pode trabalhar ou ir à oficina", "Ele quebra os objetos e documentos dela", "Ele humilha e diz que ela não é capaz", "Ele impede que ela veja a família") para explicar didaticamente os tipos de violência: Física, Psicológica, Sexual, Patrimonial, Moral, Institucional, Econômica e Violência Política de Gênero.',
+                            'Explicar em palavras simples o que são as Medidas Protetivas de Urgência e como elas funcionam para proteger a mulher e seus filhos.'
+                        ],
+                        text: ''
+                    },
+                    'cap6_7': {
+                        group: 'Autonomia, Cuidado e Estado',
+                        title: 'Cap. 6 e 7 – Trabalho, Dinheiro, Autonomia e "Quem cuida de quem cuida?" (Págs. 27 a 33)',
+                        tip: 'Conecte o Caderno Especial à geração de trabalho e renda do MIM, ao Programa Mulheres Mil e ao debate sobre trabalho reprodutivo/cuidado (21,3h semanais IBGE).',
+                        args: [
+                            'Desenvolver o Capítulo 6 ("Trabalho, dinheiro e autonomia também são direitos"): explicar que ter renda não resolve magicamente todas as desigualdades, mas depender economicamente limita escolhas fundamentais; conectar com o Programa Mulheres Mil (Portaria MEC nº 725/2023), o Programa Mulher Viver sem Violência (Decreto nº 11.431/2023) e a Economia Solidária.',
+                            'Desenvolver o Capítulo 7 ("Quem cuida de quem cuida?"): partir da pergunta geradora "Se todo o trabalho de cuidado realizado pelas mulheres parasse por um dia, o que aconteceria no município?", analisando a dupla/tripla jornada, os dados do IBGE (2024) e a necessidade de equipamentos públicos (creches, saúde, assistência) para liberar o tempo das mulheres.'
+                        ],
+                        text: ''
+                    },
+                    'cap8_9': {
+                        group: 'Autonomia, Cuidado e Estado',
+                        title: 'Cap. 8 e 9 – O que o Estado tem a ver com a minha vida? Uma lei sozinha muda a realidade? (Págs. 34 a 38)',
+                        tip: 'Explique em linguagem simples o papel do Município, Estado e União (Executivo, Legislativo, Judiciário, MP e Defensoria) e o que é preciso para a lei sair do papel.',
+                        args: [
+                            'Explicar sem juridiquês a estrutura do Poder Público: o que faz o Município (prefeitura, secretarias, CRAS, CREAS, postos de saúde), o Estado do Rio de Janeiro (delegacias, hospitais estaduais, Defensoria, Justiça) e a União/Governo Federal (INSS, leis nacionais, Bolsa Família, BPC).',
+                            'Diferenciar quem faz as leis (Legislativo), quem executa as políticas e o orçamento (Executivo), quem julga (Judiciário) e quem defende os direitos do povo gratuitamente (Defensoria Pública e Ministério Público).',
+                            'Debater "Uma lei sozinha muda a vida das mulheres?": mostrar que a lei precisa vir acompanhada de serviço público aberto, orçamento, profissionais capacitados, informação acessível e participação social.'
+                        ],
+                        text: ''
+                    },
+                    'cap10_11': {
+                        group: 'Guia NDB de Acesso a Direitos e Rede',
+                        title: 'Cap. 10 e 11 – Onde buscar Direitos, Benefícios Socioassistenciais/Previdenciários e Rede RJ/Municipal (Págs. 39 a 45)',
+                        tip: 'Combine o guia prático por situação ("Preciso de proteção imediata", "Preciso de assistência social/INSS") no estilo do Caderno NDB/UENF (CadÚnico, Bolsa Família, BPC/LOAS, Salário-Maternidade, Aposentadoria, Meu INSS) com a Ficha Territorializada do Município ativo.',
+                        args: [
+                            'Organizar o Guia Visual por Necessidade ("Onde procurar quando..."): 1) Preciso de proteção imediata (190 / 180); 2) Sofri violência e preciso de acolhimento (DEAM, NIAM, Sala Lilás, CEAM, CREAS); 3) Preciso de atendimento de saúde; 4) Preciso de Assistência Social (CRAS, CadÚnico, Bolsa Família, BPC/LOAS - Lei 8.742/93, Benefícios Eventuais, Tarifa Social de Energia); 5) Preciso de direitos previdenciários no Meu INSS / 135 (Salário-Maternidade Urbano e Rural/Segurada Especial, Auxílio por Incapacidade Temporária, Aposentadoria por Idade Urbana/Rural e Seguro-Defeso no padrão do Caderno NDB/UENF); 6) Preciso de orientação ou defesa jurídica gratuita (Defensoria Pública RJ).',
+                            'Estruturar as três camadas da Rede de Atendimento: Rede Nacional/Federal, Rede Estadual do Rio de Janeiro e a "Ficha Territorializada do Meu Município" adaptada ao município selecionado no topo da aplicação (contendo tabela de equipamentos, o que o serviço faz, endereço, telefone/WhatsApp, dias/horários e gratuidade).'
+                        ],
+                        text: ''
+                    },
+                    'cap12_13_instrumento': {
+                        group: 'Participação Cidadã e Reunião com Poder Público',
+                        title: 'Cap. 12 e 13 + Instrumento Especial – Participação Social e Matriz da Reunião com o Poder Público (Págs. 46 a 48)',
+                        tip: 'Feche com os espaços de participação cidadã (conselhos, conferências, coletivos) e gere o Instrumento de Trabalho para a Reunião Municipal de Articulação com o Poder Público (Meta 1.4).',
+                        args: [
+                            'Desenvolver os Capítulos 12 ("Você também pode participar!") e 13 ("Quem veio antes de nós abriu caminhos. E nós?"): apresentar os Conselhos Municipais dos Direitos da Mulher, Assistência Social, Saúde, Segurança Alimentar e Economia Solidária, conferências e audiências públicas.',
+                            'Estruturar integralmente o "Instrumento Especial da Reunião Municipal com o Poder Público (Meta 1.4)": 1) Mapa Municipal Diagnóstico da Rede de Proteção (Quais serviços existem? Quais não existem? Como funciona o fluxo entre equipamentos? Quais dificuldades as mulheres encontram?); e 2) Matriz de Demandas, Compromissos e Encaminhamentos Institucionais Pactuados.'
+                        ],
+                        text: ''
+                    },
+                    'referencias': {
+                        group: 'Fechamento e Ancoragem',
+                        title: '12. Referências Bibliográficas e Normativas (Págs. 49 a 50)',
+                        tip: 'Referências ABNT consolidadas automaticamente para o Caderno Especial.',
+                        args: [],
+                        text: `BRASIL. [Constituição (1988)]. Constituição da República Federativa do Brasil de 1988. Brasília, DF: Presidência da República, 1988.\n\nBRASIL. Lei nº 8.742, de 7 de dezembro de 1993. Dispõe sobre a organização da Assistência Social (LOAS). Brasília, DF, 1993.\n\nBRASIL. Lei nº 11.340, de 7 de agosto de 2006 (Lei Maria da Penha). Brasília, DF, 2006.\n\nBRASIL. Decreto nº 11.431, de 8 de março de 2023. Institui o Programa Mulher Viver sem Violência. Brasília, DF, 2023a.\n\nBRASIL. Ministério da Educação. Portaria nº 725, de 13 de abril de 2023. Institui o Programa Mulheres Mil. Brasília, DF, 2023b.\n\nCOLLINS, Patricia Hill. Pensamento feminista negro. São Paulo: Boitempo, 2019.\n\nCRENSHAW, Kimberlé. Mapping the margins: intersectionality, identity politics, and violence against women of color. Stanford Law Review, v. 43, n. 6, 1991.\n\nNÚCLEO DE DIREITOS E BENEFÍCIOS DO PEA PESCARTE (NDB/UENF). Caderno de direitos e benefícios da comunidade de pesca artesanal. Campos dos Goytacazes, RJ: EdUENF, 2022.\n\nSAFFIOTI, Heleieth I. B. Gênero, patriarcado, violência. São Paulo: Fundação Perseu Abramo, 2004.`
+                    }
+                }
+            }
+        };
+
+        // =========================================================================
+        // 3. ESTADO DA APLICAÇÃO, MODELO GEMINI-4-ARGON E INTEGRAÇÃO GOOGLE SHEETS
+        // =========================================================================
+        const STORAGE_KEY = 'mimMotorEditorialUenf_v3_argon';
+        const DEFAULT_GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxDMyo-EVM9xKnuso7JBkzMUo21KPJb8iryvoUJLUVDW39gYIUkl7fXXHESu1xzZZcsFg/exec";
+
+        let appData = null;
+        let currentCadernoId = 'caderno_1';
+        let currentSectionId = 'capa';
+        let customAnchors = [];
+        let isBatchRunning = false;
+        let cloudSyncTimer = null;
+
+        function getGasUrl() {
+            return (localStorage.getItem('mimGasWebAppUrl') || DEFAULT_GAS_WEBAPP_URL).trim();
+        }
+
+        function setCloudStatus(state, text) {
+            const pill = document.getElementById('cloudStatusPill');
+            if (!pill) return;
+            pill.className = `cloud-status-pill ${state}`;
+            pill.innerHTML = text;
+        }
+
+        function initAppData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && parsed.workbooks && parsed.workbooks['caderno_1']) {
+                        appData = parsed.workbooks;
+                        customAnchors = parsed.anchors || JSON.parse(JSON.stringify(DEFAULT_ANCHOR_LIBRARY));
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Recriando base padrão:', e);
+                }
+            }
+            appData = JSON.parse(JSON.stringify(WORKBOOKS_MASTER));
+            customAnchors = JSON.parse(JSON.stringify(DEFAULT_ANCHOR_LIBRARY));
+            persistAll(true);
+        }
+
+        function persistAll(skipCloudAutoSync = false) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                workbooks: appData,
+                anchors: customAnchors
+            }));
+            updateAnchorBadge();
+            updateCadernoProgressUI();
+
+            if (!skipCloudAutoSync) {
+                clearTimeout(cloudSyncTimer);
+                cloudSyncTimer = setTimeout(() => {
+                    syncToGoogleSheets(true);
+                }, 2500);
+            }
+        }
+
+        window.onload = async () => {
+            initAppData();
+            const savedKey = localStorage.getItem('geminiApiKey');
+            const savedModel = localStorage.getItem('geminiApiModel') || 'gemini-4-argon';
+            if (savedKey) document.getElementById('apiKey').value = savedKey;
+            document.getElementById('apiModel').value = savedModel;
+            document.getElementById('gasWebAppUrlInput').value = getGasUrl();
+
+            renderCadernosTabs();
+            selectCaderno('caderno_1', true);
+            updateAnchorBadge();
+
+            // Carrega automaticamente os argumentos e textos gerados do Google Sheets ao abrir a ferramenta online
+            await loadFromGoogleSheets(true);
+        };
+
+        function saveKey() {
+            localStorage.setItem('geminiApiKey', document.getElementById('apiKey').value);
+            localStorage.setItem('geminiApiModel', document.getElementById('apiModel').value);
+            showToast('🔑 Chave API e Modelo (' + document.getElementById('apiModel').value + ') atualizados!');
+        }
+
+        function showToast(msg, duration = 3500) {
+            const box = document.getElementById('toast-box');
+            box.innerHTML = msg;
+            box.style.display = 'block';
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                box.style.display = 'none';
+            }, duration);
+        }
+
+        // =========================================================================
+        // 4. NAVEGAÇÃO ENTRE ABAS (OS 7 CADERNOS) E SEÇÕES DA SIDEBAR
+        // =========================================================================
+        function renderCadernosTabs() {
+            const bar = document.getElementById('cadernosTabsBar');
+            bar.innerHTML = '';
+            Object.keys(appData).forEach(cId => {
+                const c = appData[cId];
+                const totalSecs = Object.keys(c.sections).length;
+                const filledSecs = Object.values(c.sections).filter(s => s.text && s.text.trim().length > 30).length;
+                const btn = document.createElement('button');
+                btn.className = `caderno-tab ${cId === currentCadernoId ? 'active' : ''}`;
+                btn.onclick = () => selectCaderno(cId);
+                btn.innerHTML = `<span>${c.shortTab}</span> <span class="tab-badge">${filledSecs}/${totalSecs}</span>`;
+                bar.appendChild(btn);
+            });
+        }
+
+        function selectCaderno(cadernoId, skipSave = false) {
+            if (!skipSave) saveData();
+            currentCadernoId = cadernoId;
+            const caderno = appData[cadernoId];
+
+            document.getElementById('sidebarCadernoTitle').innerText = caderno.fullTitle;
+            document.getElementById('sidebarCadernoSub').innerText = `Metas: ${caderno.metas}`;
+            document.getElementById('bannerCadernoName').innerText = `${caderno.fullTitle} — ${caderno.subtitle}`;
+            document.getElementById('bannerCadernoMeta').innerText = `Produto Prático: ${caderno.produto} | Equipe: ${caderno.responsavel}`;
+
+            renderCadernosTabs();
+            renderSidebarSections();
+
+            // Carrega a primeira seção ou mantém equivalente se existir
+            const secKeys = Object.keys(caderno.sections);
+            if (!caderno.sections[currentSectionId]) {
+                currentSectionId = secKeys[0];
+            }
+            loadSection(currentSectionId, true);
+        }
+
+        function renderSidebarSections() {
+            const container = document.getElementById('sidebarNavContainer');
+            const caderno = appData[currentCadernoId];
+            container.innerHTML = '';
+
+            let lastGroup = '';
+            Object.keys(caderno.sections).forEach(secKey => {
+                const sec = caderno.sections[secKey];
+                if (sec.group !== lastGroup) {
+                    lastGroup = sec.group;
+                    const grpDiv = document.createElement('div');
+                    grpDiv.className = 'chapter-title';
+                    grpDiv.innerHTML = `<span>${lastGroup}</span>`;
+                    container.appendChild(grpDiv);
+                }
+
+                const hasContent = sec.text && sec.text.trim().length > 30;
+                const btn = document.createElement('button');
+                btn.id = `nav-${secKey}`;
+                btn.className = `nav-btn ${secKey === 'referencias' ? 'ref-nav' : ''} ${secKey === currentSectionId ? 'active' : ''}`;
+                btn.onclick = () => loadSection(secKey);
+                btn.innerHTML = `
+                    <span style="flex:1;">${sec.title}</span>
+                    <span class="status-dot ${hasContent ? 'filled' : ''}" title="${hasContent ? 'Seção com conteúdo gerado/escrito' : 'Aguardando geração'}"></span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function loadSection(sectionId, skipSave = false) {
+            if (!skipSave) saveData();
+            currentSectionId = sectionId;
+            const caderno = appData[currentCadernoId];
+            const data = caderno.sections[sectionId];
+
+            document.getElementById('sectionTitle').value = data.title;
+            document.getElementById('generatedText').value = data.text || '';
+            document.getElementById('tipText').innerText = data.tip || '';
+
+            const plannerCard = document.getElementById('plannerCard');
+            const badge = document.getElementById('paraSuggestion');
+            const argCountBadge = document.getElementById('argCount');
+
+            if (sectionId === 'referencias') {
+                plannerCard.style.display = 'none';
+                badge.innerText = 'Seção de Ancoragem Bibliográfica e Normativa (ABNT)';
+                argCountBadge.style.display = 'none';
+            } else {
+                plannerCard.style.display = 'block';
+                argCountBadge.style.display = 'inline-block';
+                badge.innerText = `Meta da Seção: ~${Math.max(4, data.args ? data.args.length : 4)} parágrafos densos (~4 a 5 páginas A4)`;
+                if (!data.args || data.args.length === 0) {
+                    const fallback = WORKBOOKS_MASTER[currentCadernoId].sections[sectionId];
+                    data.args = fallback && fallback.args ? [...fallback.args] : ['Desenvolver o tema central desta seção articulado à realidade das mulheres de Tanguá e da Rede Intermunicipal.'];
+                }
+                renderArguments();
+            }
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('nav-' + sectionId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            updateWordCounter();
+            updateCadernoProgressUI();
+        }
+
+        // =========================================================================
+        // 5. PLANEJADOR DE ARGUMENTOS GERADORES (SUGERIDOS E EDITÁVEIS)
+        // =========================================================================
+        function renderArguments() {
+            const data = appData[currentCadernoId].sections[currentSectionId];
+            const inputsContainer = document.getElementById('paragraphInputs');
+            inputsContainer.innerHTML = '';
+
+            data.args.forEach((arg, i) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'para-wrapper';
+                wrapper.innerHTML = `
+                    <span class="para-label">Argumento ${i + 1}:</span>
+                    <textarea class="para-input" placeholder="Edite o argumento ou frase geradora..." onchange="saveData()">${arg}</textarea>
+                    <button class="btn-del-arg" onclick="removeArgument(${i})" title="Remover este argumento">✕</button>
+                `;
+                inputsContainer.appendChild(wrapper);
+            });
+
+            document.getElementById('argCount').innerText = `${data.args.length} Argumentos Geradores Prontos`;
+        }
+
+        function addArgument() {
+            saveData();
+            const municipio = document.getElementById('municipioSelect').value;
+            appData[currentCadernoId].sections[currentSectionId].args.push(
+                `Novo argumento gerador: aprofundar a aplicação prática deste tópico junto aos coletivos de mulheres de ${municipio}, incluindo exemplo concreto e reflexão pedagógica.`
+            );
+            renderArguments();
+            saveData();
+        }
+
+        function removeArgument(index) {
+            saveData();
+            const args = appData[currentCadernoId].sections[currentSectionId].args;
+            if (args.length <= 1) {
+                showToast('⚠️ Mantenha pelo menos 1 argumento gerador na seção.');
+                return;
+            }
+            args.splice(index, 1);
+            renderArguments();
+            saveData();
+        }
+
+        function restoreDefaultArguments() {
+            const masterSec = WORKBOOKS_MASTER[currentCadernoId].sections[currentSectionId];
+            if (masterSec && masterSec.args) {
+                appData[currentCadernoId].sections[currentSectionId].args = JSON.parse(JSON.stringify(masterSec.args));
+                renderArguments();
+                saveData();
+                showToast('✅ Argumentos geradores originais restaurados para esta seção!');
+            }
+        }
+
+        function changeTerritory() {
+            const mun = document.getElementById('municipioSelect').value;
+            showToast(`📍 Território ativo ajustado para: <strong>${mun}</strong>. Sincronizando preferência com a planilha...`);
+            persistAll(false);
+        }
+
+        // =========================================================================
+        // 6. SALVAMENTO LOCAL + SINCRONIZAÇÃO EM NUVEM COM GOOGLE SHEETS
+        // =========================================================================
+        function saveData(skipCloud = false) {
+            const caderno = appData[currentCadernoId];
+            if (!caderno || !caderno.sections[currentSectionId]) return;
+
+            caderno.sections[currentSectionId].title = document.getElementById('sectionTitle').value;
+            caderno.sections[currentSectionId].text = document.getElementById('generatedText').value;
+
+            if (currentSectionId !== 'referencias') {
+                const inputs = document.querySelectorAll('.para-input');
+                caderno.sections[currentSectionId].args = Array.from(inputs).map(input => input.value);
+            }
+
+            persistAll(skipCloud);
+            renderSidebarSections();
+            renderCadernosTabs();
+        }
+
+        function updateWordCounter() {
+            const txt = document.getElementById('generatedText').value.trim();
+            const words = txt ? txt.split(/\s+/).length : 0;
+            const estPages = (words / 320).toFixed(1);
+            document.getElementById('wordCountBadge').innerText = `${words} palavras (~${estPages} págs A4 nesta seção)`;
+        }
+
+        function updateCadernoProgressUI() {
+            const caderno = appData[currentCadernoId];
+            const secList = Object.values(caderno.sections);
+            const filled = secList.filter(s => s.text && s.text.trim().length > 30).length;
+            let totalWords = 0;
+            secList.forEach(s => {
+                if (s.text && s.text.trim()) totalWords += s.text.trim().split(/\s+/).length;
+            });
+            const estTotalPages = Math.max(1, Math.round(totalWords / 280));
+            document.getElementById('bannerProgressText').innerText = `${filled}/${secList.length} Seções Preenchidas • ~${estTotalPages} Páginas Estimadas no Caderno`;
+        }
+
+        function clearCurrentCaderno() {
+            const caderno = appData[currentCadernoId];
+            appData[currentCadernoId] = JSON.parse(JSON.stringify(WORKBOOKS_MASTER[currentCadernoId]));
+            persistAll(false);
+            selectCaderno(currentCadernoId, true);
+            showToast(`🧹 ${caderno.shortTab} restaurado com os argumentos sugeridos e sincronizado!`);
+        }
+
+        // --- FUNÇÕES DE BANCO DE DADOS GOOGLE SHEETS ---
+        async function loadFromGoogleSheets(silent = false) {
+            const url = getGasUrl();
+            if (!url) return;
+
+            setCloudStatus('syncing', '☁️ Carregando do Sheets...');
+            if (!silent) showToast('☁️ Consultando banco de dados no Google Sheets...');
+
+            try {
+                const response = await fetch(`${url}?action=load&t=${Date.now()}`, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+
+                let loadedSectionsCount = 0;
+
+                // Suporta formato estruturado por seções (sectionsMap) ou objeto completo (workbooks)
+                if (data && data.sectionsMap && Object.keys(data.sectionsMap).length > 0) {
+                    Object.keys(data.sectionsMap).forEach(cadId => {
+                        if (!appData[cadId]) return;
+                        const remoteSecs = data.sectionsMap[cadId];
+                        Object.keys(remoteSecs).forEach(secId => {
+                            if (!appData[cadId].sections[secId]) return;
+                            const rSec = remoteSecs[secId];
+                            if (rSec.title && rSec.title.trim() !== "") {
+                                appData[cadId].sections[secId].title = rSec.title;
+                            }
+                            if (Array.isArray(rSec.args) && rSec.args.length > 0) {
+                                appData[cadId].sections[secId].args = rSec.args;
+                            }
+                            if (typeof rSec.text === 'string' && rSec.text.trim() !== "") {
+                                appData[cadId].sections[secId].text = rSec.text;
+                                loadedSectionsCount++;
+                            }
+                        });
+                    });
+                } else if (data && data.workbooks) {
+                    appData = data.workbooks;
+                    loadedSectionsCount = 1;
+                }
+
+                if (data && Array.isArray(data.anchors) && data.anchors.length > 0) {
+                    customAnchors = data.anchors;
+                }
+                if (data && data.municipio) {
+                    const sel = document.getElementById('municipioSelect');
+                    if (sel) sel.value = data.municipio;
+                }
+
+                persistAll(true);
+                selectCaderno(currentCadernoId, true);
+
+                const timeStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                if (loadedSectionsCount > 0 || (data && data.hasData)) {
+                    setCloudStatus('online', `🟢 Sheets Sincronizado (${timeStr})`);
+                    if (!silent) showToast(`✅ Argumentos e textos carregados do Google Sheets com sucesso!`);
+                } else {
+                    setCloudStatus('online', `🟢 Sheets Conectado (Base Pronta)`);
+                    // Se a planilha estiver vazia no primeiro acesso, envia os argumentos geradores iniciais para popular o banco
+                    syncToGoogleSheets(true);
+                }
+            } catch (err) {
+                console.warn('Aviso ao carregar do Google Sheets:', err);
+                setCloudStatus('offline', '🟠 Modo Cache Local (Verifique Script)');
+                if (!silent) {
+                    showToast('⚠️ Não foi possível ler da planilha agora. Verifique se o código do botão "📜 Código Google Sheets" já foi implantado no seu link.', 5500);
+                }
+            }
+        }
+
+        async function syncToGoogleSheets(silent = false) {
+            const url = getGasUrl();
+            if (!url) return;
+
+            saveData(true);
+            setCloudStatus('syncing', '☁️ Salvando no Sheets...');
+            if (!silent) showToast('💾 Enviando argumentos e textos gerados para o Google Sheets...');
+
+            const payload = {
+                action: 'saveAll',
+                municipio: document.getElementById('municipioSelect').value,
+                workbooks: appData,
+                anchors: customAnchors,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                // Usa text/plain para evitar bloqueio de preflight CORS em Web Apps do Google Apps Script
+                const response = await fetch(url, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                const timeStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                if (response.ok || response.type === 'opaque') {
+                    setCloudStatus('online', `🟢 Salvo no Sheets (${timeStr})`);
+                    if (!silent) showToast(`✅ Todos os argumentos e textos foram salvos na planilha Google Sheets às ${timeStr}!`);
+                } else {
+                    throw new Error(`Status ${response.status}`);
+                }
+            } catch (err) {
+                console.warn('Aviso ao salvar no Google Sheets:', err);
+                setCloudStatus('offline', '🟠 Salvo Local (Erro Nuvem)');
+                if (!silent) {
+                    showToast('⚠️ Salvo no navegador, mas houve falha ao gravar na Planilha Google. Confira a implantação no botão "📜 Código Google Sheets".', 5500);
+                }
+            }
+        }
+
+        function openGasModal() {
+            document.getElementById('gasWebAppUrlInput').value = getGasUrl();
+            document.getElementById('gasModal').style.display = 'flex';
+        }
+
+        function closeGasModal() {
+            document.getElementById('gasModal').style.display = 'none';
+        }
+
+        function saveGasUrlConfig() {
+            const val = document.getElementById('gasWebAppUrlInput').value.trim();
+            if (!val) {
+                showToast('⚠️ Informe uma URL válida do Google Apps Script.');
+                return;
+            }
+            localStorage.setItem('mimGasWebAppUrl', val);
+            showToast('🔗 URL do Google Sheets atualizada! Testando conexão...');
+            loadFromGoogleSheets(false);
+        }
+
+        function resetDefaultGasUrl() {
+            localStorage.setItem('mimGasWebAppUrl', DEFAULT_GAS_WEBAPP_URL);
+            document.getElementById('gasWebAppUrlInput').value = DEFAULT_GAS_WEBAPP_URL;
+            showToast('🔄 URL original restaurada!');
+            loadFromGoogleSheets(false);
+        }
+
+        function copyGasScriptCode() {
+            const codeText = document.getElementById('gasScriptCodeBlock').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = codeText;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+
+            const btn = document.getElementById('btnCopyGasCode');
+            const old = btn.innerText;
+            btn.innerText = '✅ Código Copiado!';
+            setTimeout(() => { btn.innerText = old; }, 2200);
+            showToast('📋 Código do Google Apps Script copiado! Cole no editor Apps Script da sua planilha.');
+        }
+
+        // =========================================================================
+        // 7. SISTEMA DE ANCORAGEM NATIVO (CARREGAR ITENS E ENVIAR P/ REFERENCIAS)
+        // =========================================================================
+        function updateAnchorBadge() {
+            const activeCount = customAnchors.filter(a => a.checked).length;
+            const badge = document.getElementById('anchorCountBadge');
+            if (badge) badge.innerText = activeCount;
+        }
+
+        function openAnchorModal() {
+            renderAnchorModalList();
+            document.getElementById('anchorModal').style.display = 'flex';
+        }
+
+        function closeAnchorModal() {
+            document.getElementById('anchorModal').style.display = 'none';
+            persistAll();
+        }
+
+        function renderAnchorModalList() {
+            const container = document.getElementById('anchorItemsList');
+            container.innerHTML = '';
+            customAnchors.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'anchor-item';
+                div.innerHTML = `
+                    <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleAnchorItem(${idx})" style="margin-top:3px; cursor:pointer;">
+                    <div style="flex:1; line-height:1.4;">${item.citation}</div>
+                    <button onclick="injectAnchorIntoCurrentArgs(${idx})" style="background:var(--primary-soft); color:var(--primary); border:1px solid #cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75em; font-weight:bold; cursor:pointer; white-space:nowrap;">+ Nos Argumentos</button>
+                    <button onclick="deleteAnchorItem(${idx})" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-weight:bold;">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleAnchorItem(idx) {
+            customAnchors[idx].checked = !customAnchors[idx].checked;
+            updateAnchorBadge();
+        }
+
+        function addCustomAnchorItem() {
+            const input = document.getElementById('newAnchorText');
+            const val = input.value.trim();
+            if (!val) return;
+            customAnchors.unshift({
+                id: 'custom_' + Date.now(),
+                checked: true,
+                citation: val
+            });
+            input.value = '';
+            renderAnchorModalList();
+            persistAll();
+            showToast('⚓ Novo item adicionado ao sistema de ancoragem!');
+        }
+
+        function deleteAnchorItem(idx) {
+            customAnchors.splice(idx, 1);
+            renderAnchorModalList();
+            persistAll();
+        }
+
+        function injectAnchorIntoCurrentArgs(idx) {
+            if (currentSectionId === 'referencias') {
+                showToast('⚠️ Selecione primeiro um capítulo para injetar nos argumentos.');
+                return;
+            }
+            saveData();
+            const citation = customAnchors[idx].citation;
+            appData[currentCadernoId].sections[currentSectionId].args.push(
+                `Articular e citar diretamente no texto a seguinte referência ancorada: "${citation}".`
+            );
+            renderArguments();
+            saveData();
+            showToast('⚓ Referência injetada como argumento gerador na seção atual!');
+        }
+
+        function loadAnchorFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lines = e.target.result.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 10);
+                lines.forEach(line => {
+                    customAnchors.unshift({
+                        id: 'file_' + Math.random().toString(36).slice(2, 7),
+                        checked: true,
+                        citation: line
+                    });
+                });
+                renderAnchorModalList();
+                persistAll();
+                showToast(`📄 ${lines.length} itens carregados do arquivo para a Âncora!`);
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function sendAllCheckedAnchorsToReferencias() {
+            const checkedItems = customAnchors.filter(a => a.checked).map(a => a.citation);
+            let refSec = appData[currentCadernoId].sections['referencias'];
+            let existingText = refSec.text || '';
+            let addedCount = 0;
+
+            checkedItems.forEach(cit => {
+                if (!existingText.includes(cit.substring(0, 35))) {
+                    existingText += (existingText.trim() ? '\n\n' : '') + cit;
+                    addedCount++;
+                }
+            });
+
+            refSec.text = existingText.trim();
+            if (currentSectionId === 'referencias') {
+                document.getElementById('generatedText').value = refSec.text;
+            }
+            persistAll();
+            showToast(`📥 ${addedCount} novas referências ancoradas na seção "12. Referências" deste caderno!`);
+        }
+
+        function anchorReferencesFromAI(rawReferencesBlock) {
+            if (!rawReferencesBlock || rawReferencesBlock.trim().length < 5) return 0;
+            const refSec = appData[currentCadernoId].sections['referencias'];
+            let currentRefs = refSec.text || '';
+            const lines = rawReferencesBlock.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 8);
+            let newAdded = 0;
+
+            lines.forEach(line => {
+                const cleanLine = line.replace(/^[-*•]\s*/, '').trim();
+                const prefixCheck = cleanLine.substring(0, Math.min(30, cleanLine.length));
+                if (prefixCheck && !currentRefs.includes(prefixCheck)) {
+                    currentRefs += (currentRefs.trim() ? '\n\n' : '') + cleanLine;
+                    newAdded++;
+                }
+            });
+
+            refSec.text = currentRefs.trim();
+            return newAdded;
+        }
+
+        // =========================================================================
+        // 8. INTEGRAÇÃO COM GOOGLE GEMINI API (ESTRUTURA FIEL AO EXEMPLO ANEXO)
+        // =========================================================================
+        function buildSectionPrompt(isContinuation = false, existingText = '') {
+            const caderno = appData[currentCadernoId];
+            const data = caderno.sections[currentSectionId];
+            const municipio = document.getElementById('municipioSelect').value;
+
+            let promptArgumentos = "";
+            if (data.args && data.args.length > 0) {
+                data.args.forEach((arg, index) => {
+                    if (arg.trim() !== "") {
+                        promptArgumentos += `Argumento/Tópico ${index + 1}: ${arg}\n`;
+                    }
+                });
+            }
+
+            const activeAnchors = customAnchors.filter(a => a.checked).slice(0, 10).map(a => `- ${a.citation}`).join('\n');
+
+            if (!isContinuation) {
+                return `Você é a Equipe Multidisciplinar da FIPEDS e do Núcleo Pedagógico/Direitos (inspirado no padrão editorial NDB/PEA Pescarte da UENF) redigindo a seção "${data.title}" do "${caderno.fullTitle}" (${caderno.subtitle}) do Projeto Mulheres Inspirando Mulheres – MIM (Fase II).
+
+CONTEXTO TERRITORIAL E METODOLÓGICO:
+- Território de referência atual: ${municipio} (articulado a Tanguá e aos 9 municípios da Rede Intermunicipal de Cooperação: Arraial do Cabo, Cabo Frio, Armação dos Búzios, Rio das Ostras, Macaé, Carapebus, Quissamã, Campos dos Goytacazes e São Francisco de Itabapoana).
+- Público-alvo: 300 mulheres em situação de vulnerabilidade socioeconômica e 5 a 14 projetos/coletivos socioprodutivos.
+- Metas vinculadas: ${caderno.metas} | Produto Prático do Caderno: ${caderno.produto}.
+
+ESTILO EDITORIAL DESEJADO (PADRÃO CADERNO DE DIREITOS E BENEFÍCIOS NDB / UENF - META DE ~50 PÁGINAS NO CADERNO):
+1. Escreva um texto MUITO RICO, EXTENSO, ACOLHEDOR, DIDÁTICO e COMPLETO (cerca de 1.400 a 2.000 palavras nesta seção para compor de 4 a 5 páginas A4 bem diagramadas).
+2. Use linguagem acessível de Educação Popular (Paulo Freire / bell hooks), conversando diretamente com as mulheres trabalhadoras, mas mantendo total rigor jurídico, contábil e técnico.
+3. Estruture o texto usando subtítulos claros (## Subtítulo), perguntas problematizadoras no estilo do Caderno NDB ("O que é...?", "Como funciona na prática?", "Quem tem direito / Como organizar?"), quadros comparativos em formato de tabela Markdown quando cabível e inclua ao longo do texto pelo menos dois boxes pedagógicos formatados exatamente assim:
+   [BOX: VOCÊ SABIA?] ...texto do boxe... [/BOX]
+   [BOX: EM PALAVRAS SIMPLES] ...texto do boxe... [/BOX]
+   [BOX: UMA MULHER, UMA HISTÓRIA] ...texto do boxe... [/BOX]
+   [BOX: PARE E PENSE] ...perguntas para roda de conversa... [/BOX]
+
+ARGUMENTOS GERADORES OBRIGATÓRIOS A DESENVOLVER NESTA SEÇÃO:
+${promptArgumentos}
+
+ACERVO DE REFERÊNCIAS ANCORADAS PARA FUNDAMENTAR E CITAR:
+${activeAnchors}
+
+REGRA DE ANCORAGEM FINAL:
+Ao terminar o conteúdo da seção, adicione obrigatoriamente a tag exata ---REFERENCIAS--- em uma nova linha e liste abaixo dela, em formato ABNT, todas as referências bibliográficas, leis e normas utilizadas.`;
+            } else {
+                return `Você está escrevendo e expandindo a seção "${data.title}" do "${caderno.fullTitle}" (Projeto Mulheres Inspirando Mulheres - MIM, Município de ${municipio}) para que o caderno atinja a densidade editorial de ~50 páginas no estilo do Caderno de Direitos e Benefícios NDB/UENF.
+
+ARGUMENTOS GERADORES DA SEÇÃO:
+${promptArgumentos}
+
+TEXTO GERADO ATÉ AGORA NESTA SEÇÃO:
+"""
+${existingText}
+"""
+
+INSTRUÇÃO DE CONTINUAÇÃO:
+CONTINUE A ESCRITA EXATAMENTE DE ONDE PAROU, aprofundando os argumentos pendentes, trazendo novos exemplos práticos da realidade das mulheres de ${municipio} e da Rede Intermunicipal, adicionando quadros comparativos, passo a passo prático ou boxes pedagógicos ([BOX: PARE E PENSE]...[/BOX], [BOX: EM PALAVRAS SIMPLES]...[/BOX]). Não repita o que já foi dito.
+No final, adicione a tag ---REFERENCIAS--- seguida de novas referências ABNT citadas.`;
+            }
+        }
+
+        function ejectPrompt() {
+            saveData();
+            const textPrompt = buildSectionPrompt(false);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textPrompt).then(() => {
+                    const btn = document.getElementById('btnTextEject');
+                    const originalText = btn.innerText;
+                    btn.innerText = "✅ Prompt Copiado!";
+                    setTimeout(() => { btn.innerText = originalText; }, 2000);
+                    showToast('📤 Prompt completo com argumentos e âncoras copiado para a área de transferência!');
+                });
+            } else {
+                const temp = document.createElement('textarea');
+                temp.value = textPrompt;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                temp.remove();
+                showToast('📤 Prompt copiado!');
+            }
+        }
+
+        async function fetchWithRetry(url, options, maxRetries = 2) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`Google API Erro: ${errorData.error ? errorData.error.message : "Erro desconhecido"}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+
+        async function callGeminiAPIWithFallback(apiKey, chosenModel, textPrompt) {
+            const cleanChosen = (chosenModel || 'gemini-4-argon').trim();
+            const modelsToTry = [cleanChosen];
+            if (!modelsToTry.includes('gemini-4-argon')) modelsToTry.push('gemini-4-argon');
+            if (!modelsToTry.includes('gemini-2.5-flash')) modelsToTry.push('gemini-2.5-flash');
+
+            let lastError = null;
+            for (const modelName of modelsToTry) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey.trim()}`;
+                    // Configuração otimizada para as especificações do gemini-4-argon (Saída máxima síncrona: 65.536 tokens)
+                    const maxTokens = modelName.includes('argon') ? 65536 : 8192;
+                    const options = {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: textPrompt }] }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: maxTokens
+                            }
+                        })
+                    };
+                    const response = await fetchWithRetry(url, options, 2);
+                    const result = await response.json();
+                    return result.candidates[0].content.parts[0].text;
+                } catch (err) {
+                    lastError = err;
+                }
+            }
+            throw lastError;
+        }
+
+        async function gerarTextoGemini() {
+            const apiKeyRaw = document.getElementById('apiKey').value;
+            const modelRaw = document.getElementById('apiModel').value || 'gemini-4-argon';
+            if (!apiKeyRaw) {
+                showToast('⚠️ Insira sua Chave API do Google Gemini no topo da tela!');
+                document.getElementById('apiKey').focus();
+                return;
+            }
+            saveData(true);
+            const textPrompt = buildSectionPrompt(false);
+
+            const btn = document.getElementById('btnGerar');
+            const btnText = document.getElementById('btnText');
+            const loader = document.getElementById('loader');
+            btn.disabled = true;
+            document.getElementById('btnContinuar').disabled = true;
+            loader.style.display = 'inline-block';
+            btnText.innerText = "Escrevendo com Argon...";
+
+            try {
+                const textoResposta = await callGeminiAPIWithFallback(apiKeyRaw, modelRaw, textPrompt);
+                const partes = textoResposta.split("---REFERENCIAS---");
+                document.getElementById('generatedText').value = partes[0].trim();
+
+                let anchoredCount = 0;
+                if (partes[1] && partes[1].trim().length > 5) {
+                    anchoredCount = anchorReferencesFromAI(partes[1].trim());
+                }
+                saveData(true);
+                updateWordCounter();
+                // Sincroniza imediatamente com o Google Sheets após gerar
+                syncToGoogleSheets(true);
+                showToast(`✨ Seção gerada e enviada ao Google Sheets! ${anchoredCount > 0 ? `(${anchoredCount} referências ancoradas no item 12)` : ''}`);
+            } catch (error) {
+                showToast(`❌ ${error.message}`, 5500);
+            } finally {
+                btn.disabled = false;
+                document.getElementById('btnContinuar').disabled = false;
+                loader.style.display = 'none';
+                btnText.innerText = "✨ Iniciar Escrita (Seção Atual)";
+            }
+        }
+
+        async function continuarTextoGemini() {
+            const apiKeyRaw = document.getElementById('apiKey').value;
+            const modelRaw = document.getElementById('apiModel').value || 'gemini-4-argon';
+            if (!apiKeyRaw) {
+                showToast('⚠️ Insira sua Chave API do Google Gemini no topo!');
+                document.getElementById('apiKey').focus();
+                return;
+            }
+            const textoAtual = document.getElementById('generatedText').value;
+            if (textoAtual.trim() === "") {
+                showToast('⚠️ A caixa de texto está vazia. Clique primeiro em "✨ Iniciar Escrita".');
+                return;
+            }
+            saveData(true);
+            const textPrompt = buildSectionPrompt(true, textoAtual);
+
+            const btn = document.getElementById('btnContinuar');
+            const btnText = document.getElementById('btnTextCont');
+            const loader = document.getElementById('loaderContinuar');
+            btn.disabled = true;
+            document.getElementById('btnGerar').disabled = true;
+            loader.style.display = 'inline-block';
+            btnText.innerText = "Expandindo páginas...";
+
+            try {
+                const textoResposta = await callGeminiAPIWithFallback(apiKeyRaw, modelRaw, textPrompt);
+                const partes = textoResposta.split("---REFERENCIAS---");
+                document.getElementById('generatedText').value += "\n\n" + partes[0].trim();
+
+                let anchoredCount = 0;
+                if (partes[1] && partes[1].trim().length > 5) {
+                    anchoredCount = anchorReferencesFromAI(partes[1].trim());
+                }
+                saveData(true);
+                updateWordCounter();
+                // Sincroniza imediatamente com o Google Sheets após expandir
+                syncToGoogleSheets(true);
+                showToast(`🔄 Texto expandido e salvo no Google Sheets! ${anchoredCount > 0 ? `(+${anchoredCount} referências ancoradas)` : ''}`);
+            } catch (error) {
+                showToast(`❌ ${error.message}`, 5500);
+            } finally {
+                btn.disabled = false;
+                document.getElementById('btnGerar').disabled = false;
+                loader.style.display = 'none';
+                btnText.innerText = "🔄 Continuar / Expandir Páginas";
+            }
+        }
+
+        async function gerarCadernoSequencial() {
+            const apiKeyRaw = document.getElementById('apiKey').value;
+            if (!apiKeyRaw) {
+                showToast('⚠️ Insira sua Chave API do Gemini para gerar as seções do caderno!');
+                document.getElementById('apiKey').focus();
+                return;
+            }
+            if (isBatchRunning) {
+                isBatchRunning = false;
+                showToast('⏹️ Geração em fila pausada pelo usuário.');
+                return;
+            }
+
+            isBatchRunning = true;
+            const btnTextBatch = document.getElementById('btnTextBatch');
+            const loaderBatch = document.getElementById('loaderBatch');
+            loaderBatch.style.display = 'inline-block';
+            btnTextBatch.innerText = "⏹️ Parar Fila do Caderno";
+
+            const caderno = appData[currentCadernoId];
+            const secKeys = Object.keys(caderno.sections).filter(k => k !== 'referencias' && k !== 'capa');
+
+            for (let i = 0; i < secKeys.length; i++) {
+                if (!isBatchRunning) break;
+                const key = secKeys[i];
+                const sec = caderno.sections[key];
+
+                // Gera apenas seções ainda vazias para não sobrescrever edições manuais
+                if (!sec.text || sec.text.trim().length < 50) {
+                    loadSection(key);
+                    showToast(`⚡ Fila do Caderno [${i + 1}/${secKeys.length}]: Gerando "${sec.title}"...`, 10000);
+                    await gerarTextoGemini();
+                    await new Promise(r => setTimeout(r, 1200));
+                }
+            }
+
+            isBatchRunning = false;
+            loaderBatch.style.display = 'none';
+            btnTextBatch.innerText = "⚡ Gerar Caderno Completo (Sequencial)";
+            showToast('✅ Fila de geração do Caderno concluída!');
+        }
+
+        // =========================================================================
+        // 9. FORMATAÇÃO RICA NDB/UENF E EXPORTAÇÃO PDF (CADERNO ATUAL ~50 PÁGINAS)
+        // =========================================================================
+        function formatSectionMarkdownToHTML(rawText, sectionKey) {
+            if (!rawText) return '';
+
+            // Converte Boxes Pedagógicos [BOX: TITULO] ... [/BOX]
+            let processed = rawText.replace(/\[BOX:\s*(.*?)\]([\s\S]*?)\[\/BOX\]/gi, (match, boxTitle, boxBody) => {
+                const isGold = /PARE E PENSE|MULHER|HISTÓRIA/i.test(boxTitle);
+                const boxClass = isGold ? 'ndb-box-gold' : 'ndb-box';
+                return `\n<div class="${boxClass}"><strong>📌 ${boxTitle.trim()}</strong><br>${boxBody.trim().replace(/\n/g, '<br>')}</div>\n`;
+            });
+
+            // Converte blocos de tabela Markdown simples
+            const lines = processed.split(/\r?\n/);
+            let html = '';
+            let inTable = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                let p = lines[i].trim();
+                if (!p) continue;
+
+                if (p.startsWith('|') && p.endsWith('|')) {
+                    if (/^\|[\s-:|]+\|$/.test(p)) continue; // linha separadora markdown
+                    const cells = p.split('|').slice(1, -1).map(c => c.trim());
+                    if (!inTable) {
+                        html += `<table class="ndb-table"><thead><tr>${cells.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+                        inTable = true;
+                    } else {
+                        html += `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
+                    }
+                    continue;
+                } else if (inTable) {
+                    html += `</tbody></table>`;
+                    inTable = false;
+                }
+
+                // Se já é um bloco HTML de Box
+                if (p.startsWith('<div class="ndb-box')) {
+                    html += p;
+                    continue;
+                }
+
+                // Formatação inline negrito/itálico
+                let pF = p.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+                if (pF.startsWith('### ')) {
+                    html += `<h3>${pF.replace(/^###\s+/, '')}</h3>`;
+                } else if (pF.startsWith('## ')) {
+                    html += `<h2>${pF.replace(/^##\s+/, '')}</h2>`;
+                } else if (pF.startsWith('# ')) {
+                    html += `<h2>${pF.replace(/^#\s+/, '')}</h2>`;
+                } else if (sectionKey === 'referencias') {
+                    html += `<p class="referencia">${pF.replace(/^[-*•]\s+/, '')}</p>`;
+                } else if (pF.startsWith('- ') || pF.startsWith('• ')) {
+                    html += `<p style="margin-left:0.8cm; text-indent:0;">• ${pF.replace(/^[-•]\s+/, '')}</p>`;
+                } else {
+                    html += `<p>${pF}</p>`;
+                }
+            }
+
+            if (inTable) html += `</tbody></table>`;
+            return html;
+        }
+
+        function buildPrintableCadernoHTML() {
+            saveData();
+            const caderno = appData[currentCadernoId];
+            const municipio = document.getElementById('municipioSelect').value;
+            let fullHTML = '';
+
+            // 1. CAPA ESTILO NDB / UENF AZUL ESCURO
+            fullHTML += `
+                <div class="pdf-cover-page">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #d4af37; padding-bottom:12px;">
+                            <span style="font-weight:bold; letter-spacing:1px; font-size:10pt; color:#d4af37;">PROJETO MULHERES INSPIRANDO MULHERES – MIM (FASE II)</span>
+                            <span style="font-size:9pt; color:#cbd5e1;">Padrão Editorial NDB / FIPEDS</span>
+                        </div>
+                        <div style="margin-top:3.5cm;">
+                            <div style="display:inline-block; background:#d4af37; color:#06101e; font-weight:900; padding:6px 14px; border-radius:4px; font-size:10pt; text-transform:uppercase; margin-bottom:16px;">
+                                Coleção de Cadernos Temáticos MIM • ${municipio}
+                            </div>
+                            <h1 style="font-size:26pt; line-height:1.2; margin:0 0 16px 0; color:#ffffff; font-weight:900;">${caderno.fullTitle}</h1>
+                            <p style="font-size:14pt; color:#e2e8f0; margin:0 0 24px 0; font-style:italic;">${caderno.subtitle}</p>
+                            <div style="background:rgba(255,255,255,0.08); border-left:4px solid #d4af37; padding:14px 18px; border-radius:4px; font-size:10.5pt;">
+                                <strong>Produto Prático da Oficina:</strong> ${caderno.produto}<br>
+                                <strong>Metas Vinculadas do Projeto:</strong> ${caderno.metas}<br>
+                                <strong>Responsabilidade Técnica:</strong> ${caderno.responsavel}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.25); padding-top:14px; font-size:9.5pt; color:#cbd5e1; display:flex; justify-content:space-between;">
+                        <div><strong>Execução:</strong> FIPEDS • Eixos Qualifiq | POD | (Re)Conheço</div>
+                        <div><strong>Território:</strong> ${municipio} & Rede Intermunicipal (RJ) • 2026</div>
+                    </div>
+                </div>
+            `;
+
+            // 2. SEÇÕES DO CADERNO ATIVO
+            Object.keys(caderno.sections).forEach(key => {
+                const sec = caderno.sections[key];
+                if (sec && sec.text && sec.text.trim() !== '') {
+                    const bodyHTML = formatSectionMarkdownToHTML(sec.text, key);
+                    fullHTML += `
+                        <div class="pdf-page-section">
+                            <div class="pdf-chapter-banner">
+                                <div style="font-size:8.5pt; color:#d4af37; text-transform:uppercase; font-weight:bold;">${caderno.shortTab} • ${sec.group}</div>
+                                <h1>${sec.title}</h1>
+                            </div>
+                            ${bodyHTML}
+                        </div>
+                    `;
+                }
+            });
+
+            return fullHTML;
+        }
+
+        function openPreviewModal() {
+            const html = buildPrintableCadernoHTML();
+            const caderno = appData[currentCadernoId];
+            document.getElementById('previewModalTitle').innerText = `👁️ Espelho Editorial: ${caderno.fullTitle}`;
+            document.getElementById('previewModalBody').innerHTML = `
+                <div style="background:white; max-width:21cm; margin:0 auto; padding:1.5cm; box-shadow:0 4px 20px rgba(0,0,0,0.15); border-radius:4px;">
+                    ${html}
+                </div>
+            `;
+            document.getElementById('previewModal').style.display = 'flex';
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        function generatePDF() {
+            const pdfContainer = document.getElementById('pdf-content');
+            pdfContainer.innerHTML = buildPrintableCadernoHTML();
+            if (pdfContainer.innerHTML.trim() === '') {
+                showToast('⚠️ Não há texto para exportar neste caderno.');
+                return;
+            }
+            pdfContainer.style.display = 'block';
+            window.print();
+            setTimeout(() => {
+                pdfContainer.style.display = 'none';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
