@@ -944,8 +944,8 @@
                 <input type="password" id="apiKey" class="api-input" placeholder="Cole sua Chave API do Gemini..." onchange="saveKey()">
                 <input type="text" id="apiModel" class="model-input" list="geminiModelsList" value="gemini-3.8-flash" title="Código do modelo Gemini" onchange="saveKey()">
                 <datalist id="geminiModelsList">
-                    <option value="gemini-3.8-flash">gemini-3.8-flash (Gratuito • 1.048.576 In / 65.536 Out - Recomendado)</option>
-                    <option value="gemini-4-argon">gemini-4-argon</option>
+                    <option value="gemini-3.8-flash">gemini-3.8-flash (Principal • 1.048.576 In / 65.536 Out)</option>
+                    <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Reserva Estável / Fallback)</option>
                     <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                     <option value="gemini-2.5-pro">gemini-2.5-pro</option>
                 </datalist>
@@ -2144,6 +2144,10 @@ function doPost(e) {
         // =========================================================================
         const STORAGE_KEY = 'mimMatrizIntegrada7Cadernos_v2';
         const DEFAULT_MODEL_CODE = 'gemini-3.8-flash';
+        const FALLBACK_MODEL_CODE = 'gemini-3.5-flash-lite';
+        const PRIMARY_API_ENDPOINT_BASE = 'https://googleapis.com/v1beta/models/gemini-3.8-flash:generateContent';
+        const FALLBACK_API_ENDPOINT_BASE = 'https://googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent';
+        const STANDARD_GEMINI_HOST = 'https://generativelanguage.googleapis.com';
         const DEFAULT_GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzi-mkcQM3W9E6OP-aIo3FHiijrd83f85u-cy-msujWgDAzhL2T3-McIV4MRMXmh1nO5g/exec";
 
         let appData = null;
@@ -3056,9 +3060,41 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
             });
         }
 
+        function sleepWithJitter(attemptIndex) {
+            // Exponential Backoff (2s, 4s, 8s, 16s...) + Jitter aleatório (150ms a 950ms)
+            const baseDelayMs = Math.pow(2, attemptIndex) * 1000;
+            const jitterMs = Math.floor(Math.random() * 800) + 150;
+            const totalWaitMs = baseDelayMs + jitterMs;
+            return {
+                totalWaitMs,
+                promise: new Promise(resolve => setTimeout(resolve, totalWaitMs))
+            };
+        }
+
+        function buildTargetEndpoints(cleanKey, activeModel) {
+            // Direcionamento explícito para https://googleapis.com conforme regra de resiliência,
+            // mantendo espelho seguro de rota para máxima estabilidade no navegador.
+            const isFallback = (activeModel === FALLBACK_MODEL_CODE);
+            const directBase = isFallback
+                ? FALLBACK_API_ENDPOINT_BASE
+                : `https://googleapis.com/v1beta/models/${activeModel}:generateContent`;
+            const standardBase = `${STANDARD_GEMINI_HOST}/v1beta/models/${activeModel}:generateContent`;
+            return {
+                primaryUrl: `${directBase}?key=${cleanKey}`,
+                mirrorUrl: `${standardBase}?key=${cleanKey}`
+            };
+        }
+
         async function callGeminiAPI(apiKey, chosenModel, textPrompt, forceJson = false, extraParts = []) {
-            const modelName = (chosenModel || DEFAULT_MODEL_CODE).trim();
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey.trim()}`;
+            const cleanKey = (apiKey || '').trim();
+            if (!cleanKey) {
+                throw new Error('Chave de API do Google AI Studio não informada.');
+            }
+
+            const primaryModel = (chosenModel || DEFAULT_MODEL_CODE).trim() || DEFAULT_MODEL_CODE;
+            const fallbackModel = FALLBACK_MODEL_CODE; // gemini-3.5-flash-lite
+            const maxAttempts = 5;
+
             const genConfig = {
                 temperature: forceJson ? 0.3 : 0.7,
                 maxOutputTokens: 65536
@@ -3072,20 +3108,119 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
                 extraParts.forEach(p => parts.push(p));
             }
 
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: parts }],
-                    generationConfig: genConfig
-                })
+            const requestBody = JSON.stringify({
+                contents: [{ parts: parts }],
+                generationConfig: genConfig
             });
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error ? err.error.message : 'Falha na chamada da API Gemini');
+
+            let lastError = null;
+
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                // Tentativas 1 e 2 usam o modelo principal (gemini-3.8-flash);
+                // Após 2 falhas (tentativas 3, 4 e 5), desvia dinamicamente para o fallback (gemini-3.5-flash-lite).
+                const useFallback = attempt > 2;
+                const activeModel = useFallback ? fallbackModel : primaryModel;
+                const { primaryUrl, mirrorUrl } = buildTargetEndpoints(cleanKey, activeModel);
+
+                try {
+                    if (attempt > 1) {
+                        const modeLabel = useFallback ? `Plano B [Fallback: ${activeModel}]` : `Modelo Principal [${activeModel}]`;
+                        showToast(`🔄 Tentativa ${attempt}/${maxAttempts} • ${modeLabel}...`, 3500);
+                    }
+
+                    let response = null;
+                    try {
+                        response = await fetch(primaryUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: requestBody
+                        });
+                    } catch (networkErr) {
+                        // Caso o host raiz https://googleapis.com sofra bloqueio de rede/CORS no navegador,
+                        // aciona imediatamente o espelho oficial mantendo o mesmo modelo e tentativa.
+                        response = await fetch(mirrorUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: requestBody
+                        });
+                    }
+
+                    // Captura explícita de status HTTP 429 (Rate Limit), 503 (Service Unavailable / Overloaded) e 5xx
+                    if (!response.ok) {
+                        let errPayload = {};
+                        try {
+                            errPayload = await response.json();
+                        } catch (_) {
+                            errPayload = {};
+                        }
+                        const status = response.status;
+                        const apiMsg = (errPayload && errPayload.error && errPayload.error.message)
+                            ? errPayload.error.message
+                            : `Erro HTTP ${status} no modelo ${activeModel}`;
+
+                        const isOverloadOrQuota = (
+                            status === 429 ||
+                            status === 503 ||
+                            status === 500 ||
+                            status === 502 ||
+                            status === 504 ||
+                            /quota|rate limit|overloaded|unavailable|resource_exhausted|busy/i.test(apiMsg)
+                        );
+
+                        const customErr = new Error(apiMsg);
+                        customErr.status = status;
+                        customErr.isRetryable = isOverloadOrQuota || (attempt <= 2);
+                        throw customErr;
+                    }
+
+                    const res = await response.json();
+                    const candidateText = res &&
+                        res.candidates &&
+                        res.candidates[0] &&
+                        res.candidates[0].content &&
+                        res.candidates[0].content.parts &&
+                        res.candidates[0].content.parts[0] &&
+                        res.candidates[0].content.parts[0].text;
+
+                    if (!candidateText) {
+                        const emptyErr = new Error(`Resposta sem conteúdo textual retornada pelo modelo ${activeModel}.`);
+                        emptyErr.isRetryable = true;
+                        throw emptyErr;
+                    }
+
+                    if (useFallback) {
+                        showToast(`✅ Resposta concluída via Fallback estável (${fallbackModel}) na tentativa ${attempt}/${maxAttempts}!`, 4200);
+                    }
+
+                    return candidateText;
+
+                } catch (err) {
+                    lastError = err;
+                    console.warn(`[Motor Editorial MIM] Falha na tentativa ${attempt}/${maxAttempts} (${activeModel}):`, err.message);
+
+                    // Se atingiu o limite máximo de 5 tentativas ou for erro fatal de chave inválida (400/401/403 sem relação com sobrecarga/modelo)
+                    const isAuthFatal = (err.status === 401 || err.status === 403) && !/overloaded|quota|rate/i.test(err.message || '');
+                    if (attempt >= maxAttempts || isAuthFatal) {
+                        break;
+                    }
+
+                    // Calcula Exponential Backoff (2s, 4s, 8s, 16s) + Jitter aleatório em ms
+                    const { totalWaitMs, promise } = sleepWithJitter(attempt);
+                    const nextModel = (attempt + 1 > 2) ? fallbackModel : primaryModel;
+                    const waitSeconds = (totalWaitMs / 1000).toFixed(2);
+
+                    showToast(
+                        `⏳ Servidor ocupado (${err.status || 'Rede'}). Backoff: aguardando ${waitSeconds}s antes da tentativa ${attempt + 1}/${maxAttempts} com <strong>${nextModel}</strong>...`,
+                        totalWaitMs + 600
+                    );
+
+                    await promise;
+                }
             }
-            const res = await response.json();
-            return res.candidates[0].content.parts[0].text;
+
+            throw new Error(
+                `Falha após ${maxAttempts} tentativas (incluindo Fallback ${fallbackModel}): ${lastError ? lastError.message : 'Erro desconhecido na API.'}`
+            );
         }
 
         async function gerarTextoGemini() {
