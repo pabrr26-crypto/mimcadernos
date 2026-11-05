@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motor Editorial MIM - Matriz Integrada de Formação (7 Cadernos)</title>
+    <!-- Bibliotecas para leitura nativa de DOCX (Mammoth.js) e PDF (PDF.js) no navegador -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
     <style>
         :root {
             --primary: #003366;          /* Azul Institucional */
@@ -19,6 +27,7 @@
             --success: #1e8449;          /* Verde Sucesso */
             --danger: #c0392b;           /* Vermelho Alerta/PDF */
             --dark: #06101e;             /* Azul Abissal */
+            --purple: #5b21b6;           /* Roxo IA Esboço */
         }
 
         * { box-sizing: border-box; }
@@ -187,7 +196,7 @@
 
         .topbar {
             background: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -206,22 +215,22 @@
         }
 
         .api-input {
-            padding: 8px 12px;
+            padding: 7px 10px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
-            width: 230px;
+            width: 210px;
             font-family: monospace;
-            font-size: 0.88em;
+            font-size: 0.85em;
             background-color: #f8fafc;
         }
 
         .model-input {
-            padding: 8px 10px;
+            padding: 7px 9px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
             width: 165px;
             font-family: monospace;
-            font-size: 0.85em;
+            font-size: 0.83em;
             background-color: #f8fafc;
             color: var(--primary);
             font-weight: bold;
@@ -229,17 +238,17 @@
 
         .top-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
 
         .top-buttons button, .file-label {
-            padding: 8px 13px;
+            padding: 7px 11px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.84em;
+            font-size: 0.81em;
             text-align: center;
             color: white;
             transition: 0.2s;
@@ -248,6 +257,12 @@
             gap: 5px;
         }
 
+        .btn-draft-ai {
+            background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+            border: 1px solid var(--accent) !important;
+            box-shadow: 0 2px 6px rgba(91, 33, 182, 0.25);
+        }
+        .btn-draft-ai:hover { background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%); }
         .btn-anchor { background-color: var(--primary); border: 1px solid var(--accent) !important; }
         .btn-anchor:hover { background-color: var(--primary-light); }
         .btn-preview { background-color: #112240; }
@@ -271,9 +286,9 @@
             background: linear-gradient(135deg, #0a192f 0%, #003366 100%);
             color: var(--accent);
             border: 1px solid var(--accent);
-            padding: 5px 10px;
+            padding: 5px 9px;
             border-radius: 4px;
-            font-size: 0.74em;
+            font-size: 0.72em;
             font-weight: bold;
             letter-spacing: 0.3px;
             white-space: nowrap;
@@ -283,9 +298,9 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 5px 11px;
+            padding: 5px 10px;
             border-radius: 15px;
-            font-size: 0.76em;
+            font-size: 0.74em;
             font-weight: bold;
             background-color: #f1f5f9;
             color: #334155;
@@ -477,6 +492,7 @@
         .planner-tools {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .btn-small-tool {
@@ -493,6 +509,16 @@
 
         .btn-small-tool:hover {
             background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-small-tool.purple {
+            background-color: #f3e8ff;
+            color: #5b21b6;
+            border-color: #d8b4fe;
+        }
+        .btn-small-tool.purple:hover {
+            background-color: #5b21b6;
             color: white;
         }
 
@@ -672,7 +698,7 @@
             font-weight: 600;
             z-index: 9999;
             display: none;
-            max-width: 420px;
+            max-width: 440px;
         }
 
         /* MODAIS */
@@ -690,8 +716,8 @@
         .modal-card {
             background: white;
             width: 100%;
-            max-width: 940px;
-            max-height: 88vh;
+            max-width: 960px;
+            max-height: 90vh;
             border-radius: 8px;
             display: flex;
             flex-direction: column;
@@ -712,7 +738,7 @@
         .modal-header h3 { margin: 0; font-size: 1.05em; color: var(--accent); }
         .modal-close { background: none; border: none; color: white; font-size: 1.3em; cursor: pointer; }
         .modal-body { padding: 22px; overflow-y: auto; flex: 1; }
-        .modal-footer { padding: 14px 22px; background: #f1f5f9; border-top: 1px solid #cbd5e1; display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-footer { padding: 14px 22px; background: #f1f5f9; border-top: 1px solid #cbd5e1; display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
 
         .anchor-item {
             display: flex;
@@ -724,6 +750,31 @@
             margin-bottom: 8px;
             background-color: #f8fafc;
             font-size: 0.86em;
+        }
+
+        .draft-result-box {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 4px solid var(--purple);
+            border-radius: 6px;
+            padding: 14px;
+            margin-top: 14px;
+            font-size: 0.86em;
+            max-height: 220px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .file-status-pill {
+            display: inline-block;
+            background-color: #ede9fe;
+            color: #5b21b6;
+            border: 1px solid #c4b5fd;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.78em;
+            font-weight: bold;
+            margin-top: 6px;
         }
 
         /* IMPRESSÃO / PDF NATIVO */
@@ -868,9 +919,9 @@
         </div>
 
         <div class="territory-selector-box">
-            <label for="municipioSelect">📍 Território de Referência:</label>
+            <label for="municipioSelect">📍 Território de Referência (Rede MIM):</label>
             <select id="municipioSelect" class="territory-select" onchange="changeTerritory()">
-                <option value="Tanguá">Tanguá (Polo Regional MIM)</option>
+                <option value="Tanguá">Tanguá (Território de Referência MIM)</option>
                 <option value="Campos dos Goytacazes">Campos dos Goytacazes</option>
                 <option value="Macaé">Macaé</option>
                 <option value="Cabo Frio">Cabo Frio</option>
@@ -893,21 +944,23 @@
                 <input type="password" id="apiKey" class="api-input" placeholder="Cole sua Chave API do Gemini..." onchange="saveKey()">
                 <input type="text" id="apiModel" class="model-input" list="geminiModelsList" value="gemini-3.8-flash" title="Código do modelo Gemini" onchange="saveKey()">
                 <datalist id="geminiModelsList">
-                    <option value="gemini-3.8-flash">gemini-3.8-flash (1M Ctx / 65k Saída - Recomendado)</option>
+                    <option value="gemini-3.8-flash">gemini-3.8-flash (Gratuito • 1.048.576 In / 65.536 Out - Recomendado)</option>
+                    <option value="gemini-4-argon">gemini-4-argon</option>
                     <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                     <option value="gemini-2.5-pro">gemini-2.5-pro</option>
                 </datalist>
-                <span class="argon-spec-badge">⚡ Gemini 3.8 Flash • 1M Ctx</span>
+                <span class="argon-spec-badge" title="Model code: gemini-3.8-flash | Input token limit: 1,048,576 | Output token limit: 65,536 | Inputs: Text, Image, Video, Audio, and PDF">⚡ Gemini 3.8 Flash • 1M In / 65K Out</span>
                 <span id="cloudStatusPill" class="cloud-status-pill syncing">☁️ Conectando ao Sheets...</span>
             </div>
             <div class="top-buttons">
-                <button class="btn-cloud-load" onclick="loadFromGoogleSheets(false)">☁️ Carregar do Sheets</button>
-                <button class="btn-cloud-save" onclick="syncToGoogleSheets(false)">💾 Salvar no Sheets</button>
-                <button class="btn-gas-code" onclick="openGasModal()">📜 Código Google Sheets</button>
+                <button class="btn-draft-ai" onclick="openDraftModal()">📄 Importar Esboço (DOCX/PDF/IA)</button>
+                <button class="btn-cloud-load" onclick="loadFromGoogleSheets(false)">☁️ Carregar Sheets</button>
+                <button class="btn-cloud-save" onclick="syncToGoogleSheets(false)">💾 Salvar Sheets</button>
+                <button class="btn-gas-code" onclick="openGasModal()">📜 Código Sheets</button>
                 <button class="btn-anchor" onclick="openAnchorModal()">⚓ Acervo & Âncora (<span id="anchorCountBadge">0</span>)</button>
                 <button class="btn-preview" onclick="openPreviewModal()">👁️ Espelho</button>
                 <button class="btn-clear" onclick="clearCurrentCaderno()">Reiniciar Aba</button>
-                <button class="btn-pdf" onclick="generatePDF()">📥 PDF (Caderno Atual)</button>
+                <button class="btn-pdf" onclick="generatePDF()">📥 PDF</button>
             </div>
         </div>
 
@@ -930,13 +983,13 @@
                 <input type="text" id="sectionTitle" class="section-title" onchange="saveData()">
 
                 <div class="badges-container">
-                    <div class="info-badge" id="paraSuggestion">Meta Editorial: ~4 a 5 páginas A4 nesta seção</div>
+                    <div class="info-badge" id="paraSuggestion">Meta Editorial: ~4 a 5 páginas A4 nesta seção (Teto: 50 págs/caderno)</div>
                     <div class="info-badge" style="background-color:#fef3c7; color:#92400e; border-color:#fde68a;" id="argCount">0 Argumentos Geradores</div>
                     <div class="info-badge" style="background-color:#dcfce7; color:#166534; border-color:#bbf7d0;" id="wordCountBadge">0 palavras (~0 págs)</div>
                 </div>
 
                 <div class="creative-tip" id="creativeTip">
-                    <strong>💡 Questão Problematizadora e Conteúdo Técnico:</strong>
+                    <strong>💡 Questão Problematizadora e Conteúdo Técnico (Matriz Pedagógica MIM):</strong>
                     <span id="tipText"></span>
                 </div>
 
@@ -945,6 +998,7 @@
                     <div class="planner-header">
                         <h3>🎯 Matriz de Argumentos e Tópicos Geradores (Editáveis)</h3>
                         <div class="planner-tools">
+                            <button class="btn-small-tool purple" onclick="openDraftModal()">📄 Carregar de Esboço (DOCX/PDF/IA)</button>
                             <button class="btn-small-tool" onclick="restoreDefaultArguments()">🔄 Restaurar Matriz Oficial</button>
                             <button class="btn-small-tool" onclick="openAnchorModal()">⚓ Injetar da Âncora</button>
                         </div>
@@ -974,9 +1028,61 @@
 
                 <div class="editor-label-bar">
                     <h3 style="color: var(--primary); margin: 0;">📄 Conteúdo Redigido da Seção (Editável):</h3>
-                    <span style="font-size: 0.8em; color: #64748b;">Citações após <code>---REFERENCIAS---</code> vão para o item 10. Referências</span>
+                    <span style="font-size: 0.8em; color: #64748b;">Citações após <code>---REFERENCIAS---</code> vão automaticamente para a Seção 10. Referências</span>
                 </div>
-                <textarea id="generatedText" class="generated-area" oninput="saveData(); updateWordCounter();" placeholder="Clique em '✨ Iniciar Escrita' para gerar o texto fundamentado nos argumentos da Matriz MIM acima, ou redija livremente aqui..."></textarea>
+                <textarea id="generatedText" class="generated-area" oninput="saveData(); updateWordCounter();" placeholder="Clique em '✨ Iniciar Escrita' para gerar o texto fundamentado nos argumentos da Matriz MIM acima com o Gemini 3.8 Flash, ou redija livremente aqui..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: IMPORTAR E PROCESSAR ESBOÇO DO CADERNO COM IA (DOCX, PDF, TXT, MD) -->
+    <div class="modal-overlay" id="draftModal">
+        <div class="modal-card">
+            <div class="modal-header" style="background: linear-gradient(135deg, #2e1065 0%, #5b21b6 100%);">
+                <h3>📄 Carregar Esboço do Caderno (Leitura de DOCX, PDF e Texto via Gemini 3.8 Flash)</h3>
+                <button class="modal-close" onclick="closeDraftModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-top:0; font-size:0.9em; color:#334155; line-height:1.45;">
+                    Carregue um ou mais ficheiros de esboço (<strong>Word <code>.docx</code></strong>, <strong><code>.pdf</code></strong>, <code>.txt</code>, <code>.md</code>, <code>.json</code>, <code>.html</code>) ou cole o rascunho abaixo. O <strong>Gemini 3.8 Flash</strong> analisará o documento à luz da <strong>Matriz Pedagógica MIM</strong> e do <strong>Plano de Trabalho (Tanguá e Rede Intermunicipal)</strong> para carregar automaticamente os <strong>Argumentos Geradores</strong> nas seções e as <strong>Referências (ABNT)</strong> na Seção 10 e no Acervo Âncora.
+                </p>
+
+                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; background:#f8fafc; padding:12px; border-radius:6px; border:1px solid #cbd5e1; align-items:center;">
+                    <div style="flex:1; min-width:210px;">
+                        <label style="display:block; font-size:0.78em; font-weight:bold; color:var(--primary); margin-bottom:4px;">📘 Caderno de Destino:</label>
+                        <select id="draftTargetCaderno" style="width:100%; padding:8px; border:1px solid #94a3b8; border-radius:4px; font-weight:bold; color:var(--primary);"></select>
+                    </div>
+                    <div style="flex:1; min-width:210px;">
+                        <label style="display:block; font-size:0.78em; font-weight:bold; color:var(--primary); margin-bottom:4px;">⚙️ Modo de Inserção dos Argumentos:</label>
+                        <select id="draftMergeMode" style="width:100%; padding:8px; border:1px solid #94a3b8; border-radius:4px; font-weight:600;">
+                            <option value="append">Mesclar (Adicionar aos argumentos existentes da Matriz)</option>
+                            <option value="replace">Substituir (Usar apenas os argumentos extraídos do esboço)</option>
+                        </select>
+                    </div>
+                    <div style="padding-top:16px; display:flex; gap:6px; align-items:center;">
+                        <label class="file-label" style="background:var(--purple); padding:9px 14px; font-size:0.84em;">
+                            📂 Carregar DOCX / PDF / TXT
+                            <input type="file" id="draftFileInput" multiple accept=".docx,.pdf,.txt,.md,.json,.csv,.html" onchange="handleDraftFileUpload(event)">
+                        </label>
+                        <button onclick="clearDraftInput()" style="background:#e2e8f0; color:#334155; border:none; padding:9px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:0.8em;" title="Limpar texto do esboço">🧹 Limpar</button>
+                    </div>
+                </div>
+
+                <div id="draftFileStatusContainer" style="margin-bottom:8px; display:none;">
+                    <span id="draftFileStatusText" class="file-status-pill"></span>
+                </div>
+
+                <label style="display:block; font-size:0.84em; font-weight:bold; color:var(--primary); margin-bottom:6px;">📝 Conteúdo Extraído do Esboço / Anotações da Oficina (Editável):</label>
+                <textarea id="draftRawText" style="width:100%; min-height:220px; padding:12px; border:1px solid #cbd5e1; border-radius:6px; font-family:inherit; font-size:0.9em; line-height:1.45; resize:vertical;" placeholder="Carregue um arquivo .DOCX ou .PDF acima (o texto aparecerá aqui automaticamente) ou cole o esboço do caderno..."></textarea>
+
+                <div class="draft-result-box" id="draftResultBox"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeDraftModal()" style="background:#64748b; color:white; border:none; padding:9px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">Fechar</button>
+                <button id="btnProcessDraft" onclick="processDraftWithAI()" style="background:linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%); color:white; border:1px solid var(--accent); padding:9px 20px; border-radius:4px; font-weight:bold; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                    <span id="btnProcessDraftText">🧠 Processar Esboço e Carregar Argumentos & Referências</span>
+                    <div id="loaderDraft" class="loader"></div>
+                </button>
             </div>
         </div>
     </div>
@@ -985,22 +1091,22 @@
     <div class="modal-overlay" id="anchorModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>⚓ Acervo de Normas, Leis e Referenciais da Matriz MIM</h3>
+                <h3>⚓ Acervo de Normas, Leis e Referenciais da Matriz MIM (Tanguá & Rede)</h3>
                 <button class="modal-close" onclick="closeAnchorModal()">×</button>
             </div>
             <div class="modal-body">
                 <p style="margin-top:0; font-size:0.9em; color:#334155;">
-                    Itens e marcos jurídicos fundamentais para fundamentar os cadernos da formação.
+                    Marcos jurídicos e teórico-metodológicos oficiais do Projeto MIM para fundamentar os 7 cadernos.
                 </p>
                 <div style="background:#f0f4f8; padding:14px; border-radius:6px; border:1px solid #cbd5e1; margin-bottom:16px;">
                     <div style="display:flex; gap:8px; margin-bottom:8px;">
                         <input type="text" id="newAnchorText" style="flex:1; padding:8px; border:1px solid #cbd5e1; border-radius:4px;" placeholder="Ex: BRASIL. Lei nº 15.068/2024 (Política Nacional de Economia Solidária)...">
                         <button onclick="addCustomAnchorItem()" style="background:var(--primary); color:white; border:none; padding:8px 14px; border-radius:4px; font-weight:bold; cursor:pointer;">Ancorar</button>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label class="file-label" style="background:#475569; padding:5px 10px; font-size:0.78em;">
-                            📄 Carregar Arquivo de Referências
-                            <input type="file" accept=".txt,.md" onchange="loadAnchorFile(event)">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <label class="file-label" style="background:#475669; padding:5px 10px; font-size:0.78em;">
+                            📄 Carregar Arquivo de Referências (.docx, .pdf, .txt, .md)
+                            <input type="file" accept=".docx,.pdf,.txt,.md" onchange="loadAnchorFile(event)">
                         </label>
                         <button onclick="sendAllCheckedAnchorsToReferencias()" style="background:var(--success); color:white; border:none; padding:6px 12px; border-radius:4px; font-size:0.8em; font-weight:bold; cursor:pointer;">
                             📥 Enviar Marcadas para Seção 10. Referências
@@ -1221,11 +1327,13 @@ function doPost(e) {
 
     <script>
         // =========================================================================
-        // 1. ÂNCORAS BIBLIOGRÁFICAS E NORMATIVAS OFICIAIS DA MATRIZ MIM
+        // 1. ÂNCORAS BIBLIOGRÁFICAS E NORMATIVAS OFICIAIS (MATRIZ MIM + TANGUÁ)
         // =========================================================================
         const DEFAULT_ANCHOR_LIBRARY = [
             { id: 'ref_ecosol_lei', checked: true, citation: 'BRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária; cria o Sistema Nacional de Economia Solidária (Sinaes); e altera o Código Civil. Brasília, DF, 2024.' },
-            { id: 'ref_ecosol_dec', checked: true, citation: 'BRASIL. Decreto nº 12.784, de 19 de dezembro de 2025. Regulamenta a Lei nº 15.068/2024 (Política Nacional de Economia Solidária). Brasília, DF, 2025.' },
+            { id: 'ref_ecosol_dec', checked: true, citation: 'BRASIL. Decreto nº 12.784, de 19 de dezembro de 2025. Regulamenta a Lei nº 15.068/2024, que dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária. Brasília, DF, 2025.' },
+            { id: 'ref_mulheres_mil', checked: true, citation: 'BRASIL. Ministério da Educação. Portaria nº 725, de 13 de abril de 2023. Institui o Programa Mulheres Mil. Diário Oficial da União, Brasília, DF, 14 abr. 2023.' },
+            { id: 'ref_mulher_viver', checked: true, citation: 'BRASIL. Decreto nº 11.431, de 8 de março de 2023. Institui o Programa Mulher Viver sem Violência. Diário Oficial da União, Brasília, DF, 9 mar. 2023.' },
             { id: 'ref_mrosc', checked: true, citation: 'BRASIL. Lei nº 13.019, de 31 de julho de 2014. Estabelece o regime jurídico das parcerias entre a administração pública e as organizações da sociedade civil (MROSC). Brasília, DF, 2014.' },
             { id: 'ref_mrosc_dec', checked: true, citation: 'BRASIL. Decreto nº 8.726, de 27 de abril de 2016. Regulamenta a Lei nº 13.019/2014 no âmbito federal. Brasília, DF, 2016.' },
             { id: 'ref_coop_lei', checked: true, citation: 'BRASIL. Lei nº 5.764, de 16 de dezembro de 1971. Define a Política Nacional de Cooperativismo e institui o regime jurídico das sociedades cooperativas. Brasília, DF, 1971.' },
@@ -1236,120 +1344,143 @@ function doPost(e) {
             { id: 'ref_lgpd', checked: true, citation: 'BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). Brasília, DF, 2018.' },
             { id: 'ref_cdc', checked: true, citation: 'BRASIL. Lei nº 8.078, de 11 de setembro de 1990. Código de Proteção e Defesa do Consumidor. Brasília, DF, 1990.' },
             { id: 'ref_cc2002', checked: true, citation: 'BRASIL. Lei nº 10.406, de 10 de janeiro de 2002. Institui o Código Civil (especialmente arts. 44, 45, 53 a 61). Brasília, DF, 2002.' },
-            { id: 'ref_freire', checked: true, citation: 'FREIRE, Paulo. Pedagogia da autonomia: saberes necessários à prática educativa. São Paulo: Paz e Terra, 1996.' },
+            { id: 'ref_ibge_genero', checked: true, citation: 'INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA. Estatísticas de gênero: indicadores sociais das mulheres no Brasil. 3. ed. Rio de Janeiro: IBGE, 2024.' },
+            { id: 'ref_freire_aut', checked: true, citation: 'FREIRE, Paulo. Pedagogia da autonomia: saberes necessários à prática educativa. São Paulo: Paz e Terra, 1996.' },
+            { id: 'ref_freire_op', checked: true, citation: 'FREIRE, Paulo. Pedagogia do oprimido. 17. ed. Rio de Janeiro: Paz e Terra, 1987.' },
             { id: 'ref_singer', checked: true, citation: 'SINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.' },
             { id: 'ref_sen', checked: true, citation: 'SEN, Amartya. Desenvolvimento como liberdade. São Paulo: Companhia das Letras, 2010.' },
             { id: 'ref_ostrom', checked: true, citation: 'OSTROM, Elinor. Governing the commons: the evolution of institutions for collective action. Cambridge: Cambridge University Press, 1990.' },
+            { id: 'ref_collins', checked: true, citation: 'COLLINS, Patricia Hill. Pensamento feminista negro: conhecimento, consciência e a política do empoderamento. São Paulo: Boitempo, 2019.' },
+            { id: 'ref_crenshaw', checked: true, citation: 'CRENSHAW, Kimberlé. Mapping the margins: intersectionality, identity politics, and violence against women of color. Stanford Law Review, v. 43, n. 6, 1991.' },
+            { id: 'ref_fraser', checked: true, citation: 'FRASER, Nancy. A justiça social na globalização: redistribuição, reconhecimento e participação. Revista Crítica de Ciências Sociais, Coimbra, n. 63, 2002.' },
+            { id: 'ref_saffioti', checked: true, citation: 'SAFFIOTI, Heleieth I. B. Gênero, patriarcado, violência. São Paulo: Fundação Perseu Abramo, 2004.' },
+            { id: 'ref_dagnino', checked: true, citation: 'DAGNINO, Renato. Tecnologia social: contribuições conceituais e metodológicas. Campina Grande: EDUEPB; Florianópolis: Insular, 2014.' },
+            { id: 'ref_franca_filho', checked: true, citation: 'FRANÇA FILHO, Genauto Carvalho de; CUNHA, Eduardo Vivian da. Incubação de redes locais de economia solidária. Organizações & Sociedade, Salvador, v. 16, n. 51, 2009.' },
+            { id: 'ref_mance', checked: true, citation: 'MANCE, Euclides André. Redes de colaboração solidária: aspectos econômico-filosóficos. Petrópolis, RJ: Vozes, 2002.' },
+            { id: 'ref_fals_borda', checked: true, citation: 'FALS-BORDA, Orlando. Conocimiento y poder popular: lecciones con campesinos de Nicaragua, México y Colombia. Bogotá: Siglo XXI Editores, 1985.' },
+            { id: 'ref_hooks', checked: true, citation: 'HOOKS, bell. Ensinando a transgredir: a educação como prática da liberdade. São Paulo: WMF Martins Fontes, 2013.' },
+            { id: 'ref_guba', checked: true, citation: 'GUBA, Egon G.; LINCOLN, Yvonna S. Fourth generation evaluation. Newbury Park: Sage, 1989.' },
             { id: 'ref_hirata', checked: true, citation: 'HIRATA, Helena; KERGOAT, Danièle. Novas configurações da divisão sexual do trabalho. Cadernos de Pesquisa, São Paulo, v. 37, n. 132, 2007.' },
             { id: 'ref_rosa', checked: true, citation: 'ROSA, Cláudio Afrânio. Como elaborar um plano de negócios. Brasília, DF: Sebrae, 2013.' },
             { id: 'ref_franklin', checked: true, citation: 'FRANKLIN, Mitchell; GRAYBEAL, Patty; COOPER, Dixon. Principles of accounting: managerial accounting. Houston: OpenStax, 2019.' }
         ];
 
         // =========================================================================
-        // 2. MATRIZ DE ARGUMENTOS GERADORES DOS 7 CADERNOS OFICIAIS MIM
+        // 2. MATRIZ DE ARGUMENTOS GERADORES DOS 7 CADERNOS OFICIAIS MIM (10 SEÇÕES)
         // =========================================================================
         const WORKBOOKS_MASTER = {
             'caderno_1': {
                 id: 'caderno_1',
                 shortTab: 'C1 • Identidade & EcoSol',
                 fullTitle: 'Caderno 1 – Organização Coletiva, Economia Solidária e Autonomia Econômica',
-                subtitle: 'Formas de Organização, Economia Solidária e Identidade Produtiva (Oficina 1 - 5h)',
+                subtitle: 'Formas de Organização, Economia Solidária e Identidade Produtiva (Oficina 1 - 5h: 3h síncronas + 2h assíncronas)',
                 perguntaCentral: 'Quem somos, o que produzimos e por que precisamos nos organizar coletivamente?',
-                produto: 'Ficha de Identificação e Diagnóstico Produtivo + Mapa da Identidade e do Território',
+                produto: 'Diagnóstico da identidade produtiva e mapeamento das iniciativas (Ficha de Identificação + Mapa da Identidade)',
                 sections: {
                     'apresentacao': {
                         group: 'Abertura & Diretrizes',
-                        title: '1. Apresentação do Caderno e Objetivos de Aprendizagem',
-                        tip: 'Compreender diferentes formas de organização coletiva, princípios da economia solidária e mapeamento produtivo.',
+                        title: '1. Apresentação do Caderno',
+                        tip: 'Situar a finalidade do caderno, a importância da incubação social e a conexão entre Tanguá e a Rede Intermunicipal de Cooperação.',
                         args: [
-                            'O trabalho coletivo amplia a capacidade produtiva, a partilha de saberes e o poder de negociação das trabalhadoras em seus territórios.',
-                            'A escolha de uma forma de organização jurídica deve decorrer dos objetivos concretos e das condições do coletivo, nunca anteceder o reconhecimento de sua identidade produtiva.',
-                            'Diferenciar claramente finalidade institucional de atividade econômica e tipologia formal de denominações como ONG, OSC e instituto.'
+                            'O percurso formativo do MIM constrói uma ponte prática entre a qualificação profissional e a inclusão socioprodutiva efetiva das mulheres e coletivos nos territórios.',
+                            'A escolha de uma forma jurídica deve decorrer dos objetivos concretos e das condições reais do coletivo, nunca anteceder o reconhecimento de sua identidade produtiva.',
+                            'Articular a diversidade produtiva de Tanguá (agricultura familiar, citricultura, artesanato, agroindústria, turismo rural e serviços) às aprendizagens comunitárias da Rede Intermunicipal.'
+                        ],
+                        text: ''
+                    },
+                    'objetivos': {
+                        group: 'Abertura & Diretrizes',
+                        title: '2. Objetivos de Aprendizagem',
+                        tip: 'Explicitar os conhecimentos e capacidades a desenvolver: formas de organização coletiva, princípios da economia solidária e mapeamento produtivo.',
+                        args: [
+                            'Compreender as diferentes formas de organização coletiva e distinguir finalidade institucional, ramo produtivo e regime jurídico.',
+                            'Reconhecer os princípios da economia solidária (autogestão, cooperação, solidariedade e valorização do trabalho) e as capacidades que sustentam a autonomia econômica.',
+                            'Identificar saberes, vocações, recursos e barreiras produtivas para construir o diagnóstico inicial de cada iniciativa participante.'
                         ],
                         text: ''
                     },
                     'comecar_conversa': {
                         group: 'Problematização & Realidade',
-                        title: '2. Para Começar Nossa Conversa: Caso Caminhos do Bairro',
-                        tip: 'Problematização a partir do caso fictício de 8 pessoas com atividades de alimentação, costura e serviços.',
+                        title: '3. Para Começar Nossa Conversa',
+                        tip: 'Questões problematizadoras: Por que algumas atividades conseguem melhores resultados coletivamente? Como distribuir tarefas de maneira justa?',
                         args: [
-                            'Produzir coletivamente exige pactuar responsabilidades, regras de convivência e critérios justos de destinação dos resultados.',
-                            'A vontade de se organizar precisa superar a confusão entre defender direitos coletivos, prestar serviços comunitários ou comercializar produtos.',
-                            'As tarefas invisíveis de cuidado e reprodução social precisam ser reconhecidas na distribuição do tempo de participação.'
+                            'O trabalho coletivo amplia capacidades produtivas, compartilhamento de saberes e poder de negociação diante de fornecedores, mercados e poder público.',
+                            'Produzir coletivamente exige pactuar responsabilidades, divisão justa do trabalho e critérios transparentes para a destinação dos resultados.',
+                            'Reconhecer o impacto da sobrecarga de trabalho doméstico e de cuidado não remunerado (média de 21,3h semanais para mulheres segundo o IBGE) nas condições reais de participação.'
                         ],
                         text: ''
                     },
                     'conceitos': {
                         group: 'Fundamentação Técnica',
-                        title: '3. Vamos Compreender os Conceitos: Formas Jurídicas e EcoSol',
-                        tip: 'Fundamentação jurídica (Código Civil art. 44, Lei 15.068/2024, Singer 2002).',
+                        title: '4. Vamos Compreender os Conceitos',
+                        tip: 'Diferença entre associação, cooperativa, sindicato, colônia e fundação; distinção entre forma jurídica e ONG, OSC e instituto; Lei nº 15.068/2024.',
                         args: [
-                            'A economia solidária articula atividade econômica, autogestão democrática e valorização justa do trabalho humano contra a exploração.',
-                            'A Lei nº 15.068/2024 incluiu expressamente os empreendimentos de economia solidária no art. 44 do Código Civil e instituiu o Sinaes.',
-                            'Associação tem finalidade não econômica e não distribui superávit; cooperativa realiza atividade econômica de proveito comum com retorno de sobras proporcionais às operações.'
+                            'As organizações possuem finalidades e regimes distintos no Código Civil (arts. 44 a 61): associações têm fins não econômicos, enquanto cooperativas organizam atividade econômica de proveito comum.',
+                            'Distinguir rigorosamente tipologia jurídica de denominações usuais ou qualificações como ONG, instituto e Organização da Sociedade Civil (OSC, definida pela Lei nº 13.019/2014).',
+                            'A Lei nº 15.068/2024 e o Decreto nº 12.784/2025 instituíram a Política Nacional de Economia Solidária (Sinaes) e incluíram os empreendimentos de economia solidária no art. 44 do Código Civil.'
                         ],
                         text: ''
                     },
                     'realidade': {
                         group: 'Aplicação Territorial',
-                        title: '4. Trazendo para Nossa Realidade: Saberes e Ativos Locais',
-                        tip: 'Diagnóstico territorial, saberes locais e identidade produtiva segundo Milton Santos.',
+                        title: '5. Trazendo para Nossa Realidade',
+                        tip: 'Quais conhecimentos, recursos e atividades existem em nossa comunidade? Diagnóstico territorial, interseccionalidade e agrupamento produtivo.',
                         args: [
-                            'O território não é apenas um endereço no mapa, mas um conjunto vivo de relações, recursos materiais, saberes e barreiras institucionais.',
-                            'Identificar ativos territoriais disponíveis e distingui-los daqueles que dependem de autorização, licença ou cessão de uso formal.',
-                            'O agrupamento por natureza produtiva respeita o setor real (alimentos, artesanato, costura, pesca) sem forçar fusão institucional de grupos.'
+                            'O território integra o diagnóstico das oportunidades produtivas, reunindo saberes locais, equipamentos públicos, redes comunitárias e vocações econômicas.',
+                            'A leitura interseccional (gênero, raça, classe, geração e território) impede tratar as participantes como grupo homogêneo e orienta estratégias reais de acesso e participação.',
+                            'O agrupamento por natureza produtiva considera a atividade efetivamente desenvolvida (alimentos, artesanato, beneficiamento, pesca, serviços) sem confundi-la com a forma jurídica.'
                         ],
                         text: ''
                     },
                     'oficina_pratica': {
                         group: 'Prática & Instrumentos',
-                        title: '5. Construindo Coletivamente: Diagnóstico Produtivo',
-                        tip: 'Condução dos Apêndices A, B e C para caracterização do coletivo.',
+                        title: '6. Construindo Coletivamente (Atividade Síncrona - 3h)',
+                        tip: 'Apresentação das ideias e projetos, construção do Mapa da Identidade Produtiva e agrupamento inicial por natureza produtiva (180 minutos).',
                         args: [
-                            'Sistematizar quem participa, o que produz, quem usa ou compra e quais são as barreiras imediatas de transporte, equipamentos e tempo.',
-                            'Elaborar o Mapa da Identidade e do Território integrando recursos existentes, parceiros e condições a verificar.',
-                            'Registrar no agrupamento produtivo a atividade principal, as atividades complementares e as afinidades identificadas na oficina.'
+                            'Conduzir a roda de acolhimento, problematização e construção conceitual dialogada respeitando a distribuição pedagógica das 3 horas síncronas.',
+                            'Preencher a Ficha de Identificação e Diagnóstico Produtivo registrando quem participa, o que produz, recursos disponíveis e principais dificuldades.',
+                            'Elaborar coletivamente o Mapa da Identidade e do Território e realizar o agrupamento inicial das iniciativas por natureza produtiva.'
                         ],
                         text: ''
                     },
                     'assincrona': {
                         group: 'Trabalho de Campo',
-                        title: '6. Atividade Assíncrona: Escuta no Território (2 Horas)',
-                        tip: 'Roteiro de consulta de 120 minutos com integrantes ausentes e verificação de dados.',
+                        title: '7. Atividade Assíncrona (2 Horas)',
+                        tip: 'Levantamento de atividades, recursos, conhecimentos e demandas junto aos demais integrantes do coletivo (120 minutos).',
                         args: [
-                            'A atividade assíncrona busca escutar integrantes que não estiveram na oficina e validar as informações do diagnóstico sem exigir despesas ou internet.',
-                            'Conferir com o coletivo recursos, saberes e demandas reais, distinguindo dados verificados de impressões e estimativas.',
-                            'Organizar a devolutiva do diagnóstico validado para subsidiar a escolha jurídico-organizacional do Caderno 2.'
+                            'Organizar a tarefa de 120 minutos (20 min organização, 50 min consulta no território, 40 min sistematização e 10 min registro) sem exigir conectividade excludente.',
+                            'Consultar integrantes ausentes para validar saberes, equipamentos disponíveis, barreiras de deslocamento ou cuidado e expectativas em relação ao coletivo.',
+                            'Consolidar os registros escritos ou orais na Ficha de Identificação para entrega e devolutiva pedagógica no encontro seguinte.'
                         ],
                         text: ''
                     },
                     'sintese_avaliacao': {
                         group: 'Consolidação',
-                        title: '7. O que Construímos e Avaliação de Aprendizagem',
-                        tip: 'Síntese das capacidades desenvolvidas e critérios de avaliação formativa.',
+                        title: '8. O que Construímos',
+                        tip: 'Sintetizar os aprendizados, revisar o produto (Diagnóstico da identidade produtiva) e registrar dúvidas e necessidades de apoio.',
                         args: [
-                            'A avaliação pedagógica é formativa e verifica se o coletivo consegue explicar sua atividade, diferenciar produto de forma jurídica e reconhecer a autogestão.',
-                            'Um diagnóstico honesto registra o que se sabe e explicita como pendência o que ainda precisa ser verificado com assessoria.',
-                            'A conclusão do diagnóstico alimenta o Portfólio de Estruturação do Empreendimento Coletivo.'
+                            'Revisar coletivamente se a atividade principal, os recursos, os saberes, as dificuldades e a natureza produtiva foram claramente identificados no instrumento.',
+                            'Avaliar formativamente a compreensão do grupo sobre cooperação, economia solidária e distinção entre atividade econômica e forma jurídica.',
+                            'Integrar a Ficha de Identificação e Diagnóstico Produtivo como primeiro produto do Portfólio de Estruturação do Empreendimento Coletivo.'
                         ],
                         text: ''
                     },
                     'preparacao_prox': {
                         group: 'Consolidação',
-                        title: '8. Preparação para a Próxima Oficina (Caderno 2)',
-                        tip: 'Ponte metodológica entre o diagnóstico inicial e a análise de governança.',
+                        title: '9. Preparação para a Próxima Oficina (Caderno 2)',
+                        tip: 'Explicitar como o diagnóstico produtivo subsidiará a análise organizacional e jurídica do Módulo 2.',
                         args: [
-                            'A identidade produtiva reconhecida neste caderno constitui o insumo indispensável para analisar o modelo jurídico e de governança no Módulo 2.',
-                            'Levar para o Caderno 2 a relação de participantes, recursos próprios e emprestados, e as dúvidas sobre remuneração do trabalho e destinação de resultados.'
+                            'O diagnóstico da identidade produtiva construído neste módulo constitui a base obrigatória para analisar a natureza jurídica e a governança no Caderno 2.',
+                            'Orientar os grupos a trazerem para a Oficina 2 dúvidas sobre formalização, estatuto, CNPJ e eventuais documentos constitutivos de organizações já existentes.'
                         ],
                         text: ''
                     },
                     'referencias': {
                         group: 'Fechamento & Ancoragem',
                         title: '10. Referências e Materiais de Apoio',
-                        tip: 'Consolidação de normas e fontes bibliográficas em padrão ABNT.',
+                        tip: 'Reunir bibliografia, legislação e fontes institucionais verificáveis em padrão ABNT.',
                         args: [],
-                        text: `BRASIL. Lei nº 10.406, de 10 de janeiro de 2002. Institui o Código Civil (especialmente arts. 44, 53 a 61). Brasília, DF, 2002.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nFREIRE, Paulo. Pedagogia da autonomia: saberes necessários à prática educativa. São Paulo: Paz e Terra, 1996.\n\nSINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.`
+                        text: `BRASIL. Lei nº 10.406, de 10 de janeiro de 2002. Institui o Código Civil (especialmente arts. 44, 53 a 61). Brasília, DF, 2002.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Dispõe sobre os empreendimentos de economia solidária e a Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nBRASIL. Decreto nº 12.784, de 19 de dezembro de 2025. Regulamenta a Lei nº 15.068/2024. Brasília, DF, 2025.\n\nCRENSHAW, Kimberlé. Mapping the margins: intersectionality, identity politics, and violence against women of color. Stanford Law Review, v. 43, n. 6, 1991.\n\nFREIRE, Paulo. Pedagogia da autonomia: saberes necessários à prática educativa. São Paulo: Paz e Terra, 1996.\n\nSEN, Amartya. Desenvolvimento como liberdade. São Paulo: Companhia das Letras, 2010.\n\nSINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.`
                     }
                 }
             },
@@ -1358,102 +1489,108 @@ function doPost(e) {
                 id: 'caderno_2',
                 shortTab: 'C2 • Governança & Jurídico',
                 fullTitle: 'Caderno 2 – Governança, Autogestão e Funcionamento dos Coletivos',
-                subtitle: 'Natureza Produtiva e Forma de Organização Adequada (Oficina 2 - 5h)',
+                subtitle: 'Natureza Produtiva e Forma de Organização Adequada (Oficina 2 - 5h: 3h síncronas + 2h assíncronas)',
                 perguntaCentral: 'Qual forma de organização atende melhor à nossa atividade, aos nossos objetivos e à nossa realidade?',
-                produto: 'Proposta fundamentada de modelo organizacional e jurídico + Matriz de Adequação',
+                produto: 'Proposta fundamentada de modelo organizacional e jurídico (Matriz de Adequação Jurídico-Organizacional)',
                 sections: {
                     'apresentacao': {
                         group: 'Abertura & Diretrizes',
-                        title: '1. Apresentação do Caderno e Objetivos',
-                        tip: 'Analisar finalidade institucional, forma jurídica compatível e responsabilidades.',
+                        title: '1. Apresentação do Caderno',
+                        tip: 'Situar a relação entre identidade produtiva reconhecida no Módulo 1 e a escolha consciente do modelo organizacional e jurídico.',
                         args: [
-                            'A natureza jurídica e a estrutura de funcionamento de uma organização devem servir rigorosamente aos objetivos comuns dos trabalhadores.',
-                            'Formalizar envolve direitos, acesso a políticas públicas e obrigações fiscais, tributárias, contábeis e administrativas contínuas.',
-                            'ONG e instituto não são tipos jurídicos autônomos; a condição de OSC decorre da Lei nº 13.019/2014 para parcerias e não abrange todas as cooperativas indistintamente.'
+                            'A personalidade jurídica e o arranjo organizacional são meios para realizar os objetivos do coletivo, e não fins burocráticos em si mesmos.',
+                            'Respeitar a trajetória de grupos informais, coletivos mistos, associações e cooperativas, avaliando quando formalizar, manter ou regularizar a organização.'
+                        ],
+                        text: ''
+                    },
+                    'objetivos': {
+                        group: 'Abertura & Diretrizes',
+                        title: '2. Objetivos de Aprendizagem',
+                        tip: 'Analisar características dos projetos e identificar modelos organizacionais e jurídicos compatíveis com finalidades e condições reais.',
+                        args: [
+                            'Relacionar finalidade institucional e natureza produtiva à escolha ou revisão da forma jurídica mais adequada.',
+                            'Compreender os direitos, custos e obrigações legais, fiscais, contábeis e administrativas decorrentes da formalização.',
+                            'Estruturar princípios e regras básicas de autogestão, participação democrática e tomada de decisão coletiva.'
                         ],
                         text: ''
                     },
                     'comecar_conversa': {
                         group: 'Problematização & Realidade',
-                        title: '2. Para Começar: Caso Costura em Rede e Escolhas Organizacionais',
-                        tip: 'Análise do caso fictício Costura em Rede (8 integrantes) e comparação entre associação e cooperativa.',
+                        title: '3. Para Começar Nossa Conversa',
+                        tip: 'Queremos representar uma categoria, organizar atividade econômica ou promover finalidade social? Quais compromissos assumimos ao formalizar?',
                         args: [
-                            'O arranjo do coletivo Costura em Rede ilustra a necessidade de compatibilizar a atividade econômica comum com a vontade de partilha do trabalho e dos resultados.',
-                            'Usar o "CNPJ emprestado" de outra entidade ou abrir MEI individual para uma atividade coletiva gera riscos tributários, trabalhistas e quebra de transparência.',
-                            'A cooperativa de trabalho (Lei nº 12.690/2012) exige no mínimo sete sócios, autogestão e autonomia real, vedando qualquer intermediação de mão de obra subordinada.'
+                            'Problematizar situações concretas em que grupos confundem representação comunitária com comercialização direta de produtos e serviços.',
+                            'Analisar os riscos reais do uso de "CNPJ emprestado" ou da abertura de MEI individual para encobrir empreendimentos coletivos.',
+                            'Debater quem decide e como as decisões são tomadas para evitar concentração de poder ou sobrecarga em poucas lideranças.'
                         ],
                         text: ''
                     },
                     'conceitos': {
                         group: 'Fundamentação Técnica',
-                        title: '3. Modelos Jurídicos, Autogestão e Governança Democrática',
-                        tip: 'Estatuto, assembleia, destinação de resultados e governança segundo Ostrom e Singer.',
+                        title: '4. Vamos Compreender os Conceitos',
+                        tip: 'Constituição, estatuto, regimento, assembleia, capacidade jurídica, contratos e destinação de resultados (Código Civil, Lei 5.764/1971, Lei 13.019/2014, Ostrom).',
                         args: [
-                            'A autogestão diferencia deliberação soberana (assembleia geral), execução administrativa coordenada e fiscalização independente.',
-                            'A destinação dos resultados precisa respeitar cada regime: associações não podem partilhar sobras entre associados, enquanto cooperativas deliberam sobre fundos e sobras.',
-                            'O Código Civil e a Lei nº 15.068/2024 acolhem o empreendimento de economia solidária com registro mercantil facultado na Junta Comercial e aplicação subsidiária das associações.'
+                            'ONG e instituto não são tipos jurídicos autônomos; OSC é qualificação da Lei nº 13.019/2014 que abrange associações e determinadas cooperativas previstas em lei.',
+                            'Associações e cooperativas possuem regimes distintos de destinação de receitas e sobras (Lei nº 5.764/1971 e Lei nº 12.690/2012), não podendo ser tratadas como equivalentes.',
+                            'A governança de bens e recursos comuns (Elinor Ostrom) exige regras claras construídas pelas próprias participantes, prestação de contas e espaços soberanos de deliberação.'
                         ],
                         text: ''
                     },
                     'realidade': {
                         group: 'Aplicação Territorial',
-                        title: '4. Situações Concretas por Natureza Produtiva',
-                        tip: 'Exemplos didáticos: horta em associação existente, pesca em colônia, cooperativa de serviços e artesanato.',
+                        title: '5. Trazendo para Nossa Realidade',
+                        tip: 'Em quais condições poderemos comercializar, celebrar parcerias e receber recursos em Tanguá e nos municípios da Rede?',
                         args: [
-                            'Na produção de alimentos em associação existente, a comercialização deve custear a finalidade social sem transformar o superávit em divisão de lucro entre membros.',
-                            'Colônias de pescadores (Lei nº 11.699/2008) são órgãos de representação de classe e não se confundem automaticamente com cooperativas de produção ou beneficiamento.',
-                            'Em cooperativas de serviços, é imprescindível afastar o risco de fraude trabalhista decorrente da terceirização disfarçada de autonomia.'
+                            'Analisar os requisitos concretos para grupos de agricultura familiar, citricultura, artesanato, beneficiamento de pescado e serviços nos territórios do MIM.',
+                            'Avaliar a viabilidade administrativa e orçamentária de manter contador, livros obrigatórios, atas registradas e certidões negativas atualizadas.'
                         ],
                         text: ''
                     },
                     'oficina_pratica': {
                         group: 'Prática & Instrumentos',
-                        title: '5. Construção da Matriz de Adequação Jurídico-Organizacional',
-                        tip: 'Preenchimento dos Apêndices B e D com critérios qualitativos.',
+                        title: '6. Construindo Coletivamente (Atividade Síncrona - 3h)',
+                        tip: 'Estudo comparativo de modelos organizacionais, em grupos por natureza produtiva, e preenchimento da Matriz de Adequação.',
                         args: [
-                            'Comparar duas alternativas plausíveis por meio dos 7 critérios da matriz, anotando atende, atende sob condição, não atende ou não verificado.',
-                            'Uma incompatibilidade jurídica ou a falta de documento essencial não pode ser compensada por notas numéricas arbitrárias.',
-                            'Construir o Pacto de Funcionamento com regras transparentes sobre deliberação, delegação de tarefas, prestação de contas e tratamento de conflitos.'
+                            'Realizar estudo comparativo entre alternativas organizacionais (grupo informal, associação, cooperativa, empreendimento solidário) por natureza produtiva.',
+                            'Preencher a Matriz de Adequação Jurídico-Organizacional justificando a escolha de novo modelo ou a manutenção/regularização do modelo existente.'
                         ],
                         text: ''
                     },
                     'assincrona': {
                         group: 'Trabalho de Campo',
-                        title: '6. Atividade Assíncrona: Consulta aos Integrantes e Documentos',
-                        tip: 'Exercício de 120 minutos para checar documentos constitutivos e pactuar o modelo.',
+                        title: '7. Atividade Assíncrona (2 Horas)',
+                        tip: 'Consulta aos integrantes sobre objetivos, responsabilidades e modelo pretendido; verificação inicial de documentos constitutivos.',
                         args: [
-                            'Consultar os demais membros da iniciativa sobre os compromissos, responsabilidades e modelo organizacional pretendido.',
-                            'Nas organizações já constituídas, verificar o estatuto vigente, atas de eleição, regularidade cadastral e certidões aplicáveis.',
-                            'Registrar as pendências documentais no Apêndice F com os respectivos prazos e responsáveis por articular assessoria.'
+                            'Consultar as demais integrantes da iniciativa sobre objetivos coletivos, disponibilidade para assumir cargos de gestão e modelo organizacional pretendido.',
+                            'Nas organizações já constituídas, realizar a verificação inicial do estatuto social, ata da diretoria vigente, CNPJ e pendências cadastrais.'
                         ],
                         text: ''
                     },
                     'sintese_avaliacao': {
                         group: 'Consolidação',
-                        title: '7. O que Construímos e Avaliação Formativa',
-                        tip: 'Validação da proposta fundamentada e plano de regularização.',
+                        title: '8. O que Construímos',
+                        tip: 'Revisão da Matriz de Adequação Jurídico-Organizacional, justificativa do modelo e registro de pendências.',
                         args: [
-                            'A aprendizagem é demonstrada pela capacidade do grupo de explicar por que uma forma é adequada e quais pendências impedem a formalização imediata.',
-                            'O produto valida um dos 4 caminhos: constituir, manter, regularizar/rever ou aprofundar a análise antes de deliberar.',
-                            'A proposta aprovada pelo grupo orienta diretamente a estruturação do projeto de trabalho e renda no Módulo 3.'
+                            'Consolidar a Matriz de Adequação Jurídico-Organizacional com justificativa fundamentada e lista clara de pendências documentais ou formativas.',
+                            'Incorporar o produto ao Portfólio de Estruturação, cientes de que a conclusão pedagógica orienta, mas não substitui o ato formal de registro em cartório ou junta.'
                         ],
                         text: ''
                     },
                     'preparacao_prox': {
                         group: 'Consolidação',
-                        title: '8. Preparação para a Próxima Oficina (Caderno 3)',
-                        tip: 'Transição da escolha de governança para o escopo produtivo.',
+                        title: '9. Preparação para a Próxima Oficina (Caderno 3)',
+                        tip: 'Como a proposta organizacional orientará a estruturação do projeto produtivo no Módulo 3.',
                         args: [
-                            'A estrutura jurídica preliminar fornece o chão seguro para dimensionar as atividades, metas, equipamentos e custos no projeto do Módulo 3.'
+                            'A definição da finalidade e do modelo organizacional servirá de alicerce para estruturar o escopo do Projeto de Geração de Trabalho e Renda no Caderno 3.'
                         ],
                         text: ''
                     },
                     'referencias': {
                         group: 'Fechamento & Ancoragem',
                         title: '10. Referências e Materiais de Apoio',
-                        tip: 'Bases normativas de direito societário, civil e cooperativo.',
+                        tip: 'Legislação civil, cooperativista, MROSC e governança.',
                         args: [],
-                        text: `BRASIL. Lei nº 5.764, de 16 de dezembro de 1971. Política Nacional de Cooperativismo. Brasília, DF, 1971.\n\nBRASIL. Lei nº 10.406, de 10 de janeiro de 2002. Institui o Código Civil. Brasília, DF, 2002.\n\nBRASIL. Lei nº 12.690, de 19 de julho de 2012. Cooperativas de Trabalho. Brasília, DF, 2012.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nOSTROM, Elinor. Beyond markets and states: polycentric governance of complex economic systems. American Economic Review, 2010.`
+                        text: `BRASIL. Lei nº 5.764, de 16 de dezembro de 1971. Define a Política Nacional de Cooperativismo. Brasília, DF, 1971.\n\nBRASIL. Lei nº 10.406, de 10 de janeiro de 2002. Institui o Código Civil. Brasília, DF, 2002.\n\nBRASIL. Lei nº 12.690, de 19 de julho de 2012. Dispõe sobre Cooperativas de Trabalho. Brasília, DF, 2012.\n\nBRASIL. Lei nº 13.019, de 31 de julho de 2014. Marco Regulatório das Organizações da Sociedade Civil (MROSC). Brasília, DF, 2014.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nOSTROM, Elinor. Governing the commons: the evolution of institutions for collective action. Cambridge: Cambridge University Press, 1990.`
                     }
                 }
             },
@@ -1462,101 +1599,106 @@ function doPost(e) {
                 id: 'caderno_3',
                 shortTab: 'C3 • Projeto Trabalho & Renda',
                 fullTitle: 'Caderno 3 – Construindo um Projeto de Geração de Trabalho e de Renda',
-                subtitle: 'Natureza produtiva, território, demanda e capacidades do coletivo (Oficina 3 - 5h)',
+                subtitle: 'Estruturação de projetos de geração de trabalho e renda (Oficina 3 - 5h: 3h síncronas + 2h assíncronas)',
                 perguntaCentral: 'Como transformar nossa ideia produtiva em um projeto coletivo viável?',
-                produto: 'Projeto produtivo preliminar estruturado + Quadro de Trabalho e Capacidade',
+                produto: 'Primeira versão estruturada do projeto de geração de trabalho e renda (Projeto Produtivo Preliminar)',
                 sections: {
                     'apresentacao': {
                         group: 'Abertura & Diretrizes',
-                        title: '1. Apresentação do Caderno e Objetivos',
-                        tip: 'Revisar escopo produtivo, demanda real, capacidade instalada e resultados verificáveis.',
+                        title: '1. Apresentação do Caderno',
+                        tip: 'Transformar a vocação produtiva e o arranjo coletivo em um projeto estruturado e coerente.',
                         args: [
-                            'Uma boa ideia só se converte em projeto emancipatório quando responde a uma necessidade concreta e delimitada da comunidade.',
-                            'A produção depende rigorosamente da capacidade operacional real, infraestrutura disponível e jornada compatível com a vida das trabalhadoras.',
-                            'Estabelecer metas e resultados verificáveis que distingam atividades realizadas, entregas concretas e impacto social no território.'
+                            'Um projeto coletivo viável articula diagnóstico territorial, necessidade concreta de mercado ou da comunidade, capacidades instaladas e metas verificáveis.',
+                            'Superar a distância entre a qualificação técnica e a organização prática da produção e do trabalho coletivo.'
+                        ],
+                        text: ''
+                    },
+                    'objetivos': {
+                        group: 'Abertura & Diretrizes',
+                        title: '2. Objetivos de Aprendizagem',
+                        tip: 'Revisar e fortalecer o escopo produtivo articulando território, demanda, capacidades disponíveis e resultados pretendidos.',
+                        args: [
+                            'Delimitar o problema ou oportunidade, a justificativa e o escopo produtivo da iniciativa.',
+                            'Mapear recursos humanos, materiais, infraestrutura e capacidade operacional real do coletivo.',
+                            'Definir objetivos, metas, indicadores, atividades, cronograma e formas de divisão e remuneração do trabalho.'
                         ],
                         text: ''
                     },
                     'comecar_conversa': {
                         group: 'Problematização & Realidade',
-                        title: '2. Para Começar: Projeto Não é Apenas Lista de Desejos',
-                        tip: 'Problematização a partir da experiência do piloto de 12 semanas do coletivo Costura em Rede.',
+                        title: '3. Para Começar Nossa Conversa',
+                        tip: 'Qual problema ou oportunidade nosso projeto enfrenta? O que temos e o que precisamos? Quem trabalhará e quanto tempo será necessário?',
                         args: [
-                            'O coletivo Costura em Rede aprende que elogios e promessas informais não equivalem a encomendas confirmadas ou demanda solvente.',
-                            'Distinguir a necessidade social da população do público comprador e pagante daquela oferta determinada.',
-                            'A geração de renda exige planejar a divisão técnica do trabalho, o tempo de dedicação e a remuneração antes de iniciar a operação.'
+                            'Uma boa ideia precisa responder a uma necessidade concreta: distinguir claramente o problema social enfrentado da oferta produtiva que o grupo desenvolverá.',
+                            'Avaliar de forma realista quem trabalhará, quanto tempo cada mulher pode dedicar considerando sua jornada de cuidado e como o trabalho será reconhecido.'
                         ],
                         text: ''
                     },
                     'conceitos': {
                         group: 'Fundamentação Técnica',
-                        title: '3. Marco Lógico, Escopo e Encadear Ações e Resultados',
-                        tip: 'Modelo lógico segundo Cassiolato & Gueresi e Marco Lógico (Cepal).',
+                        title: '4. Vamos Compreender os Conceitos',
+                        tip: 'Diagnóstico, demanda, escopo, capacidade operacional, objetivos, metas, indicadores e divisão do trabalho.',
                         args: [
-                            'O modelo lógico explicita o nexo causal entre insumos mobilizados, atividades executadas, produtos entregues e resultados alcançados.',
-                            'Delimitar o escopo significa pactuar com precisão o que entra nesta etapa e o que deliberadamente fica para etapas futuras de expansão.',
-                            'As metas devem ser verificáveis com quantidade, qualidade e prazo, apoiadas em indicadores claros e meios de comprovação idôneos.'
+                            'Estruturar o encadeamento lógico entre problema/oportunidade, objetivos geral e específicos, atividades, produtos e resultados verificáveis.',
+                            'Compreender capacidade operacional, gargalos produtivos e divisão técnica e social do trabalho sob os princípios da autogestão e equidade de gênero.'
                         ],
                         text: ''
                     },
                     'realidade': {
                         group: 'Aplicação Territorial',
-                        title: '4. Capacidade Operacional, Gargalos e Jornada de Cuidado',
-                        tip: 'Dimensionamento de capacidade produtiva e divisão sexual do trabalho (Hirata & Kergoat).',
+                        title: '5. Trazendo para Nossa Realidade',
+                        tip: 'Adequação sociotécnica do projeto às cadeias produtivas de Tanguá e dos municípios da Rede Intermunicipal.',
                         args: [
-                            'A capacidade produtiva é limitada pelo gargalo do processo e não pela capacidade teórica ou nominal de uma máquina isolada.',
-                            'O planejamento deve incorporar a sobrecarga doméstica e reprodutiva das mulheres, evitando prever jornadas impossíveis de sustentar.',
-                            'Mapear recursos confirmados, sob condição e a adquirir, sem lançar apoios esperados como ativos já garantidos.'
+                            'Aplicar o conceito de tecnologia social e reaplicabilidade adaptativa (Dagnino, 2014) para adequar o projeto às condições reais de infraestrutura e insumos do território.',
+                            'Separar recursos já garantidos pelo grupo daqueles que dependem de parcerias, cessão de espaço público ou aquisição futura.'
                         ],
                         text: ''
                     },
                     'oficina_pratica': {
                         group: 'Prática & Instrumentos',
-                        title: '5. Elaboração da Primeira Versão do Projeto Produtivo',
-                        tip: 'Preenchimento do Apêndice C (Projeto estruturado) e Apêndice D (Processo e Cronograma).',
+                        title: '6. Construindo Coletivamente (Atividade Síncrona - 3h)',
+                        tip: 'Elaboração orientada do projeto produtivo com problema, justificativa, objetivos, participantes, atividades, recursos, metas e cronograma.',
                         args: [
-                            'Redigir problema/oportunidade, justificativa com evidências, objetivos geral e específicos, e descrição clara da oferta.',
-                            'Mapear o fluxo do processo produtivo desde as compras até a entrega final, identificando responsáveis e condições de trabalho.',
-                            'Elaborar o cronograma em semanas ou meses com marcos de decisão e condicionantes de avanço devidamente destacados.'
+                            'Redigir de forma participativa os blocos estruturantes do projeto produtivo preliminar utilizando linguagem clara e objetiva.',
+                            'Detalhar o quadro de atividades, recursos necessários, metas quantitativas/qualitativas e cronograma de execução.'
                         ],
                         text: ''
                     },
                     'assincrona': {
                         group: 'Trabalho de Campo',
-                        title: '6. Atividade Assíncrona: Consulta de Demanda e Recursos',
-                        tip: 'Escuta exploratória com compradores e checagem de maquinário (120 minutos).',
+                        title: '7. Atividade Assíncrona (2 Horas)',
+                        tip: 'Validação da proposta com as demais integrantes e complementação das informações sobre demanda, recursos e responsabilidades.',
                         args: [
-                            'Realizar escuta exploratória com potenciais compradores para testar a utilidade da oferta, volume desejado e faixa de preço aceitável.',
-                            'Conferir as condições de funcionamento, segurança e titularidade dos equipamentos previstos para a produção.',
-                            'Ajustar o projeto produtivo com os dados obtidos e registrar a validação das alterações com o grupo.'
+                            'Validar a primeira versão do projeto com todas as integrantes do coletivo e colher sugestões de ajuste.',
+                            'Levantar informações complementares no território sobre demanda local, disponibilidade de equipamentos e divisão de responsabilidades.'
                         ],
                         text: ''
                     },
                     'sintese_avaliacao': {
                         group: 'Consolidação',
-                        title: '7. O que Construímos e Critérios de Verificação',
-                        tip: 'Avaliação da consistência interna entre atividades, metas e recursos.',
+                        title: '8. O que Construímos',
+                        tip: 'Verificação da coerência entre problema/oportunidade, objetivos, atividades, recursos e metas.',
                         args: [
-                            'Verificar se o projeto responde satisfatoriamente às perguntas: o que faremos, com quem, como, com quais recursos e como saberemos se deu certo.',
-                            'A primeira versão não comprova viabilidade econômica final, mas serve de base sólida para os cálculos do Módulo 4.'
+                            'Conferir se o Projeto Produtivo Preliminar explicita como a atividade contribuirá efetivamente para o trabalho, a renda e a autonomia do coletivo.',
+                            'Integrar a primeira versão estruturada do projeto ao Portfólio de Estruturação do Empreendimento Coletivo.'
                         ],
                         text: ''
                     },
                     'preparacao_prox': {
                         group: 'Consolidação',
-                        title: '8. Preparação para a Próxima Oficina (Caderno 4)',
-                        tip: 'Envio dos insumos operacionais para as planilhas financeiras.',
+                        title: '9. Preparação para a Próxima Oficina (Caderno 4)',
+                        tip: 'Como o projeto fornecerá a base para o modelo de governança e a análise econômico-financeira do Módulo 4.',
                         args: [
-                            'O projeto produtivo fornece a base operacional para estruturar a planilha de viabilidade econômico-financeira e o modelo de governança no Caderno 4.'
+                            'A lista de recursos, equipamentos, insumos e atividades definida neste caderno servirá de base direta para a planilha econômico-financeira do Caderno 4.'
                         ],
                         text: ''
                     },
                     'referencias': {
                         group: 'Fechamento & Ancoragem',
                         title: '10. Referências e Materiais de Apoio',
-                        tip: 'Fontes sobre planejamento, tecnologia social e desenvolvimento.',
+                        tip: 'Referências de planejamento, tecnologia social e divisão do trabalho.',
                         args: [],
-                        text: `CASSIOLATO, Martha; GUERESI, Simone. Como elaborar modelo lógico. Brasília, DF: Ipea, 2010.\n\nHIRATA, Helena; KERGOAT, Danièle. Novas configurações da divisão sexual do trabalho. Cadernos de Pesquisa, 2007.\n\nROSA, Cláudio Afrânio. Como elaborar um plano de negócios. Brasília, DF: Sebrae, 2013.\n\nSEN, Amartya. Desenvolvimento como liberdade. São Paulo: Companhia das Letras, 2010.`
+                        text: `DAGNINO, Renato. Tecnologia social: contribuições conceituais e metodológicas. Campina Grande: EDUEPB; Florianópolis: Insular, 2014.\n\nHIRATA, Helena; KERGOAT, Danièle. Novas configurações da divisão sexual do trabalho. Cadernos de Pesquisa, v. 37, n. 132, 2007.\n\nROSA, Cláudio Afrânio. Como elaborar um plano de negócios. Brasília, DF: Sebrae, 2013.\n\nSEN, Amartya. Desenvolvimento como liberdade. São Paulo: Companhia das Letras, 2010.`
                     }
                 }
             },
@@ -1565,101 +1707,106 @@ function doPost(e) {
                 id: 'caderno_4',
                 shortTab: 'C4 • Gestão & Viabilidade',
                 fullTitle: 'Caderno 4 – Organização, Gestão e Viabilidade Econômico-Financeira',
-                subtitle: 'Modelo de governança e planilha econômico-financeira de cada iniciativa (Oficina 4 - 5h)',
+                subtitle: 'Modelo de governança e planilha econômico-financeira de cada iniciativa (Oficina 4 - 5h: 3h síncronas + 2h assíncronas)',
                 perguntaCentral: 'Como organizar, administrar e sustentar economicamente nossa iniciativa?',
-                produto: 'Modelo de governança e planilha econômico-financeira preliminar',
+                produto: 'Proposta de governança e planilha de viabilidade econômico-financeira preliminar',
                 sections: {
                     'apresentacao': {
                         group: 'Abertura & Diretrizes',
-                        title: '1. Apresentação do Caderno e Objetivos',
-                        tip: 'Estruturar governança e analisar investimentos, custos, receitas e sustentabilidade.',
+                        title: '1. Apresentação do Caderno',
+                        tip: 'Articular a gestão democrática cotidiana à sustentabilidade econômico-financeira do empreendimento como um todo.',
                         args: [
-                            'A administração democrática de uma iniciativa coletiva exige regras transparentes, controles simples e prestação de contas periódica.',
-                            'A viabilidade econômico-financeira decorre do planejamento rigoroso de investimentos iniciais, capital de giro e fluxo de caixa.',
-                            'Entrada de dinheiro e resultado econômico positivo são conceitos distintos que jamais devem ser confundidos no planejamento.'
+                            'Neste módulo, a análise econômico-financeira abrange o empreendimento coletivo como um todo, preparando a base para o cálculo unitário do Módulo 5.',
+                            'A emancipação organizacional exige que as próprias mulheres compreendam os números, gerenciem recursos e tomem decisões fundamentadas.'
+                        ],
+                        text: ''
+                    },
+                    'objetivos': {
+                        group: 'Abertura & Diretrizes',
+                        title: '2. Objetivos de Aprendizagem',
+                        tip: 'Estruturar mecanismos de governança e administração e analisar investimentos, custos, receitas e sustentabilidade.',
+                        args: [
+                            'Pactuar regras transparentes de governança interna, atribuições administrativas, controle financeiro e prestação de contas.',
+                            'Levantar investimentos iniciais, fontes de recursos, capital de giro, custos fixos/variáveis, despesas e estimativa de receitas.',
+                            'Distinguir fluxo de caixa (entradas e saídas financeiras) de resultado econômico e avaliar cenários de viabilidade.'
                         ],
                         text: ''
                     },
                     'comecar_conversa': {
                         group: 'Problematização & Realidade',
-                        title: '2. Para Começar: Custos e Caixa do Piloto Costura em Rede',
-                        tip: 'Análise dos números do caso: R$ 6.488 saídas operacionais, R$ 1.800 máquinas, déficit de R$ 818 e pico de caixa de R$ 4.232.',
+                        title: '3. Para Começar Nossa Conversa',
+                        tip: 'Como prevenir conflitos e garantir participação? Quanto precisamos investir? Entrada de dinheiro e resultado econômico são iguais?',
                         args: [
-                            'No caso Costura em Rede, o projeto prevê saídas operacionais de R$ 6.488,00, investimento de R$ 1.800,00 e receita prevista de R$ 5.760,00.',
-                            'O resultado econômico do piloto de 12 semanas apresenta déficit de R$ 818,00 após considerar R$ 90,00 de depreciação de máquinas.',
-                            'O fluxo de caixa aponta um pico de necessidade de cobertura financeira de R$ 4.232,00 na etapa P1 antes de receber as vendas.'
+                            'A ausência de controles claros e de separação entre o caixa do coletivo e o dinheiro doméstico gera desconfiança e fragiliza a autogestão.',
+                            'Problematizar por que um grupo pode ter dinheiro entrando nas vendas do dia e, ainda assim, acumular prejuízo econômico ou faltar capital de giro para repor insumos.'
                         ],
                         text: ''
                     },
                     'conceitos': {
                         group: 'Fundamentação Técnica',
-                        title: '3. Contabilidade Gerencial: Custos, Despesas e Fluxo de Caixa',
-                        tip: 'Fundamentos de contabilidade gerencial (Franklin, Graybeal & Cooper 2019).',
+                        title: '4. Vamos Compreender os Conceitos',
+                        tip: 'Governança, prestação de contas, investimento inicial, capital de giro, fluxo de caixa, custos, despesas e resultado econômico.',
                         args: [
-                            'Classificar custos diretos (apropriáveis à produção) e indiretos (compartilhados), bem como fixos (no período) e variáveis (ao volume).',
-                            'Depreciação reflete o consumo econômico do equipamento ao longo do tempo e não se confunde com o desembolso financeiro da compra.',
-                            'O capital de giro é o montante indispensável para sustentar pagamentos de insumos e trabalho enquanto as receitas não entram em caixa.'
+                            'Diferenciar tecnicamente investimento fixo, capital de giro, custos de produção, despesas operacionais, depreciação, recebimentos e resultado econômico.',
+                            'Estruturar instrumentos simples e auditáveis de gestão: livro-caixa, registro de retiradas pelo trabalho, fundo de reserva e balancete para assembleia.'
                         ],
                         text: ''
                     },
                     'realidade': {
                         group: 'Aplicação Territorial',
-                        title: '4. Governança, Prestação de Contas e Reserva de Caixa',
-                        tip: 'Controles práticos de livro-caixa, deliberações e remuneração.',
+                        title: '5. Trazendo para Nossa Realidade',
+                        tip: 'Análise de viabilidade preliminar, sazonalidade e riscos nos contextos produtivos de Tanguá e região.',
                         args: [
-                            'Instituir cadernos ou planilhas de controle financeiro com separação total entre dinheiro pessoal e recursos do coletivo.',
-                            'A remuneração do trabalho deve ser planejada como custo ou destinação pactuada, e não tratada como simples sobra eventual.',
-                            'Constituir fundo de reserva comunitário para cobrir imprevistos operacionais, manutenção de maquinário e oscilações de mercado.'
+                            'Considerar o efeito da sazonalidade (safra agrícola, períodos festivos, turismo e defeso) sobre a necessidade de capital de giro dos coletivos.',
+                            'Mapear riscos operacionais e financeiros reais do território e planejar medidas preventivas de proteção ao trabalho das mulheres.'
                         ],
                         text: ''
                     },
                     'oficina_pratica': {
                         group: 'Prática & Instrumentos',
-                        title: '5. Construção da Planilha Econômico-Financeira Preliminar',
-                        tip: 'Preenchimento conjunto do modelo financeiro em nível do empreendimento como um todo.',
+                        title: '6. Construindo Coletivamente (Atividade Síncrona - 3h)',
+                        tip: 'Construção participativa do modelo de governança e da planilha inicial com investimentos, custos, despesas, receitas e caixa.',
                         args: [
-                            'Preencher investimentos iniciais e fontes de recursos, discriminando itens já possuídos de itens a adquirir.',
-                            'Estimar custos fixos do período (espaço, energia, apoio, comunicação) e custos variáveis associados ao lote pretendido.',
-                            'Calcular o saldo acumulado de caixa etapa por etapa para identificar o momento crítico de maior falta financeira.'
+                            'Elaborar o quadro de governança interna definindo funções de coordenação, tesouraria, compras, produção, comercialização e rodízio de tarefas.',
+                            'Preencher a planilha econômico-financeira preliminar do empreendimento com investimentos, custos mensais, receitas previstas e saldo de caixa.'
                         ],
                         text: ''
                     },
                     'assincrona': {
                         group: 'Trabalho de Campo',
-                        title: '6. Atividade Assíncrona: Levantamento de Preços e Cotações',
-                        tip: 'Cotação real no comércio local, fontes e datas das estimativas (120 minutos).',
+                        title: '7. Atividade Assíncrona (2 Horas)',
+                        tip: 'Levantamento de preços, cotações, recursos disponíveis e responsabilidades de gestão, registrando fontes e datas.',
                         args: [
-                            'Pesquisar preços reais de insumos e equipamentos no comércio local, anotando sempre fornecedor, data e condições de pagamento.',
-                            'Revisar com o coletivo as estimativas adotadas, substituindo palpites por cotações verificadas.',
-                            'Identificar quem assumirá os controles de caixa e os procedimentos de conferência coletiva.'
+                            'Realizar pesquisa prática de preços e cotações de insumos, embalagens e equipamentos no comércio local, anotando fornecedor e data.',
+                            'Revisar os valores lançados na planilha preliminar com base nas cotações reais e confirmar as responsáveis por cada rotina de gestão.'
                         ],
                         text: ''
                     },
                     'sintese_avaliacao': {
                         group: 'Consolidação',
-                        title: '7. O que Construímos e Avaliação de Viabilidade',
-                        tip: 'Avaliação da solidez das premissas econômicas globais do empreendimento.',
+                        title: '8. O que Construímos',
+                        tip: 'Verificação das responsabilidades, regras e estimativas econômico-financeiras com suas respectivas fontes.',
                         args: [
-                            'A planilha deste módulo analisa a iniciativa como um todo; o detalhamento unitário por produto será realizado no Módulo 5.',
-                            'Reconhecer um déficit ou necessidade de caixa é demonstração de rigor técnico que protege o grupo contra falências prematuras.'
+                            'Avaliar se a proposta de governança e a planilha econômico-financeira preliminar apresentam dados consistentes e fontes verificadas.',
+                            'Integrar o modelo de governança e a planilha preliminar ao Portfólio de Estruturação do Empreendimento Coletivo.'
                         ],
                         text: ''
                     },
                     'preparacao_prox': {
                         group: 'Consolidação',
-                        title: '8. Preparação para a Próxima Oficina (Caderno 5)',
-                        tip: 'Transição das contas globais para a ficha técnica de produto e preço.',
+                        title: '9. Preparação para a Próxima Oficina (Caderno 5)',
+                        tip: 'Como as estimativas globais serão refinadas no Módulo 5 com custo unitário, preço, margem e capacidade produtiva.',
                         args: [
-                            'Os valores apurados neste módulo serão refinados no Caderno 5 para calcular custo unitário, margem e ponto de equilíbrio por produto.'
+                            'Os custos globais levantados neste módulo serão desdobrados no Caderno 5 para calcular o custo unitário, o preço de venda e a margem de cada produto ou serviço.'
                         ],
                         text: ''
                     },
                     'referencias': {
                         group: 'Fechamento & Ancoragem',
                         title: '10. Referências e Materiais de Apoio',
-                        tip: 'Referências em contabilidade gerencial e autogestão.',
+                        tip: 'Referências de contabilidade gerencial, autogestão e incubação.',
                         args: [],
-                        text: `FRANKLIN, Mitchell; GRAYBEAL, Patty; COOPER, Dixon. Principles of accounting: managerial accounting. Houston: OpenStax, 2019.\n\nROSA, Cláudio Afrânio. Como elaborar um plano de negócios. Brasília, DF: Sebrae, 2013.\n\nSINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.`
+                        text: `FRANKLIN, Mitchell; GRAYBEAL, Patty; COOPER, Dixon. Principles of accounting: managerial accounting. Houston: OpenStax, 2019.\n\nFRANÇA FILHO, Genauto Carvalho de; CUNHA, Eduardo Vivian da. Incubação de redes locais de economia solidária. Organizações & Sociedade, v. 16, n. 51, 2009.\n\nROSA, Cláudio Afrânio. Como elaborar um plano de negócios. Brasília, DF: Sebrae, 2013.\n\nSINGER, Paul. Introdução à economia solidária. São Paulo: Fundação Perseu Abramo, 2002.`
                     }
                 }
             },
@@ -1668,100 +1815,105 @@ function doPost(e) {
                 id: 'caderno_5',
                 shortTab: 'C5 • Custos, Preço & Oferta',
                 fullTitle: 'Caderno 5 – Da Produção ao Mercado I: Custos, Preço e Preparação para Comercializar',
-                subtitle: 'Ficha de produto/serviço, custo unitário, preço, margem e capacidade produtiva (Oficina 5 - 5h)',
+                subtitle: 'Ficha de produto/serviço, custo unitário, preço, margem e capacidade produtiva (Oficina 5 - 5h: 3h síncronas + 2h assíncronas)',
                 perguntaCentral: 'Quanto custa produzir, quanto precisamos cobrar e quanto conseguimos entregar?',
-                produto: 'Ficha de produto/serviço, custo unitário, preço, margem e capacidade produtiva',
+                produto: 'Ficha de produto/serviço, cálculo do custo unitário, preço proposto, margem e capacidade produtiva',
                 sections: {
                     'apresentacao': {
                         group: 'Abertura & Diretrizes',
-                        title: '1. Apresentação do Caderno e Objetivos',
-                        tip: 'Transformar proposta produtiva em oferta economicamente estruturada com ficha técnica.',
+                        title: '1. Apresentação do Caderno',
+                        tip: 'Passar da visão global do empreendimento (Módulo 4) para a estruturação técnica e econômica de cada produto ou serviço.',
                         args: [
-                            'O preço de venda precisa cobrir os custos reais da produção, inclusive a remuneração digna do trabalho e perdas técnicas.',
-                            'Não é possível calcular com rigor o que ainda não foi especificado: a ficha técnica delimita a unidade de venda e o padrão de entrega.',
-                            'Vender em volume não assegura resultado positivo se o preço unitário for insuficiente para cobrir custos e despesas operacionais.'
+                            'Transformar a proposta produtiva em oferta economicamente estruturada exige conhecer com exatidão o custo de cada unidade e a capacidade real de entrega.',
+                            'Combater a invisibilidade e a subvalorização do trabalho feminino garantindo que o tempo de produção seja integralmente remunerado no custo.'
+                        ],
+                        text: ''
+                    },
+                    'objetivos': {
+                        group: 'Abertura & Diretrizes',
+                        title: '2. Objetivos de Aprendizagem',
+                        tip: 'Definir ficha técnica do produto/serviço, calcular custo unitário, preço, margem de contribuição, ponto de equilíbrio e capacidade.',
+                        args: [
+                            'Elaborar a ficha técnica de um produto ou serviço prioritário com unidade de medida, componentes, padrão de qualidade e rendimento.',
+                            'Calcular custos fixos e variáveis unitários, tempo de trabalho remunerado, formação de preço, margem de contribuição e ponto de equilíbrio.',
+                            'Dimensionar a capacidade produtiva periódica considerando gargalos, perdas técnicas e disponibilidade real das trabalhadoras.'
                         ],
                         text: ''
                     },
                     'comecar_conversa': {
                         group: 'Problematização & Realidade',
-                        title: '2. Para Começar: Contas de Costura em Rede no Lote de 72 Bolsas',
-                        tip: 'Análise de R$ 18 de material, R$ 26,67 de trabalho (128h x R$ 15), custo médio de R$ 66,06 em P1 e R$ 91,36 no piloto.',
+                        title: '3. Para Começar Nossa Conversa',
+                        tip: 'Sabemos quanto custa cada unidade? Estamos incluindo o tempo de quem trabalha? Vender muito garante resultado positivo?',
                         args: [
-                            'No coletivo Costura em Rede, o custo de materiais por bolsa é R$ 18,00 e o trabalho em P1 soma 128 horas a R$ 15,00 (R$ 26,67 por bolsa).',
-                            'Os gastos totais de P1 geram custo gerencial de R$ 66,06 por bolsa; para cobrir todo o piloto (P0+P1+P2), a média sobe para R$ 91,36.',
-                            'Incluir uma taxa comercial de 4% reduz a margem de contribuição unitária de R$ 62,00 para R$ 58,80, alterando o resultado final.'
+                            'Problematizar a prática comum de copiar preços da concorrência ou multiplicar apenas o gasto de matéria-prima sem incluir trabalho, gás, energia e perdas.',
+                            'Demonstrar por que vender grande quantidade com margem negativa ou preço mal calculado aumenta o cansaço do grupo e gera prejuízo financeiro.'
                         ],
                         text: ''
                     },
                     'conceitos': {
                         group: 'Fundamentação Técnica',
-                        title: '3. Formação de Preço, Margem de Contribuição e Ponto de Equilíbrio',
-                        tip: 'Fórmula Preço = C / (1 - t - m), distinção entre margem sobre venda e markup, CPC 16.',
+                        title: '4. Vamos Compreender os Conceitos',
+                        tip: 'Custo unitário, rateio, remuneração do trabalho, formação de preço, margem sobre a venda vs. acréscimo sobre custo (markup) e ponto de equilíbrio.',
                         args: [
-                            'A margem de contribuição (preço menos custos e despesas variáveis) indica quanto cada unidade vendida ajuda a cobrir gastos fixos.',
-                            'Markup aplica acréscimo sobre o custo; margem sobre a venda divide pelo complemento percentual [Preço = C / (1 - t - m)].',
-                            'Ponto de equilíbrio em unidades (Gastos Fixos / Margem de Contribuição Unitária) aponta o volume mínimo para não ter prejuízo.',
-                            'O rendimento aproveitável da matéria-prima deve incorporar perdas normais sem duplicar percentuais de rateio.'
+                            'Explicitar os componentes do custo unitário: insumos diretos ajustados pelas perdas técnicas, embalagens, valor da hora de trabalho e rateio de gastos fixos.',
+                            'Evitar confundir margem sobre o preço de venda com percentual de acréscimo sobre o custo (markup), demonstrando a fórmula correta de precificação.',
+                            'Calcular a margem de contribuição unitária e o ponto de equilíbrio para saber quantas unidades precisam ser vendidas para pagar todos os custos.'
                         ],
                         text: ''
                     },
                     'realidade': {
                         group: 'Aplicação Territorial',
-                        title: '4. Capacidade Real, Gargalos e Limites da Oferta',
-                        tip: 'Medição de horas-máquina úteis (54h para 72 bolsas) e restrições de acabamento e segurança.',
+                        title: '5. Trazendo para Nossa Realidade',
+                        tip: 'Padrão de qualidade, prazos, conservação, rotulagem e capacidade de entrega nas cadeias produtivas locais.',
                         args: [
-                            'Calcular a capacidade real a partir das horas úteis de máquinas e pessoas, descontando tempos de manutenção, pausas e preparação.',
-                            'Descontos comerciais reduzem diretamente a margem e exigem volumes maiores que podem estourar a capacidade máxima do grupo.',
-                            'Avaliar as quatro dimensões da oferta antes da venda: técnica, econômica, comercial e jurídica/sanitária.'
+                            'Adequar a apresentação, conservação, peso/medida e rotulagem às exigências sanitárias e comerciais de alimentos, derivados da citricultura, artesanato e serviços em Tanguá e região.',
+                            'Compatibilizar o volume ofertado com a capacidade real de produção sem impor jornadas exaustivas às participantes.'
                         ],
                         text: ''
                     },
                     'oficina_pratica': {
                         group: 'Prática & Instrumentos',
-                        title: '5. Preenchimento da Ficha Técnica e Exercício de Precificação',
-                        tip: 'Elaboração dos Apêndices A, B e C para uma oferta prioritária do coletivo.',
+                        title: '6. Construindo Coletivamente (Atividade Síncrona - 3h)',
+                        tip: 'Preenchimento da ficha de um produto/serviço prioritário e exercício orientado de custo unitário, preço e margem.',
                         args: [
-                            'Preencher a ficha do produto/serviço definindo unidade de venda, especificações, o que inclui e o que não inclui.',
-                            'Montar a memória de custos levantando materiais, horas-pessoa dedicadas, gastos compartilhados e despesas de comercialização.',
-                            'Calcular o preço proposto, simular cenários de desconto e conferir se o ponto de equilíbrio cabe na capacidade do coletivo.'
+                            'Preencher a Ficha Técnica do Produto ou Serviço informando unidade de medida, período de referência, lista de insumos e etapas de preparo.',
+                            'Realizar o cálculo passo a passo do custo unitário, do preço de venda sugerido, da margem e da capacidade máxima de entrega mensal.'
                         ],
                         text: ''
                     },
                     'assincrona': {
                         group: 'Trabalho de Campo',
-                        title: '6. Atividade Assíncrona: Conferência de Tempos e Consumo',
-                        tip: 'Medição prática de tempo de preparo e conferência de consumo real de insumos (120 minutos).',
+                        title: '7. Atividade Assíncrona (2 Horas)',
+                        tip: 'Conferência dos valores e do tempo de produção, verificação da capacidade de entrega e ajustes da ficha e da planilha.',
                         args: [
-                            'Cronometrar ou medir o tempo real de produção de uma unidade para testar a estimativa de horas de trabalho adotada.',
-                            'Conferir o rendimento real da matéria-prima e verificar se custos indiretos foram esquecidos no orçamento.',
-                            'Revisar a ficha técnica e os cálculos de preço antes de apresentá-los aos canais de comercialização do Módulo 6.'
+                            'Medir na prática o tempo real gasto em cada lote produtivo e o rendimento efetivo das matérias-primas.',
+                            'Conferir e ajustar os valores da ficha técnica e da planilha de custo unitário junto ao coletivo.'
                         ],
                         text: ''
                     },
                     'sintese_avaliacao': {
                         group: 'Consolidação',
-                        title: '7. O que Construímos e Validação da Oferta',
-                        tip: 'Verificação da solidez do preço calculado contra armadilhas de autoexploração.',
+                        title: '8. O que Construímos',
+                        tip: 'Revisão da Ficha da Oferta e dos cálculos econômicos (unidade, custo, preço, margem e capacidade explicitados).',
                         args: [
-                            'Uma oferta fortalecida não promete tudo pelo menor preço, mas demonstra o custo real e remunera dignamente o trabalho.',
-                            'O produto valida ficha técnica, custo unitário, preço proposto, margem e capacidade para alimentar o plano de comercialização.'
+                            'Validar se a ficha de produto/serviço apresenta com transparência a unidade de medida, os componentes de custo, a remuneração do trabalho e a margem.',
+                            'Incorporar a Ficha da Oferta e Memória de Cálculo ao Portfólio de Estruturação do Empreendimento Coletivo.'
                         ],
                         text: ''
                     },
                     'preparacao_prox': {
                         group: 'Consolidação',
-                        title: '8. Preparação para a Próxima Oficina (Caderno 6)',
-                        tip: 'Confrontar a oferta estruturada com compradores, canais e exigências de mercado.',
+                        title: '9. Preparação para a Próxima Oficina (Caderno 6)',
+                        tip: 'Como a oferta estruturada será utilizada na escolha dos mercados e canais de comercialização do Módulo 6.',
                         args: [
-                            'A ficha e os limites de preço serão confrontados no Caderno 6 com as exigências dos canais de venda e prazos de recebimento.'
+                            'Com o preço mínimo, a margem e a capacidade de entrega definidos, o coletivo estará pronto para selecionar canais de venda e construir o plano comercial no Caderno 6.'
                         ],
                         text: ''
                     },
                     'referencias': {
                         group: 'Fechamento & Ancoragem',
                         title: '10. Referências e Materiais de Apoio',
-                        tip: 'Normas de custos, precificação e regras têxteis/sanitárias.',
+                        tip: 'Fontes de contabilidade de custos, precificação e gestão.',
                         args: [],
                         text: `COMITÊ DE PRONUNCIAMENTOS CONTÁBEIS. Pronunciamento Técnico CPC 16 (R1): estoques. Brasília, DF, 2009.\n\nFRANKLIN, Mitchell; GRAYBEAL, Patty; COOPER, Dixon. Principles of accounting: managerial accounting. Houston: OpenStax, 2019.\n\nROSA, Cláudio Afrânio. Como elaborar um plano de negócios. Brasília, DF: Sebrae, 2013.`
                     }
@@ -1772,101 +1924,107 @@ function doPost(e) {
                 id: 'caderno_6',
                 shortTab: 'C6 • Comercialização & Mercados',
                 fullTitle: 'Caderno 6 – Da Produção ao Mercado II: Comercialização, Oportunidades e Continuidade',
-                subtitle: 'Plano simplificado de comercialização e continuidade (Oficina 6 - 5h)',
+                subtitle: 'Plano simplificado de comercialização e continuidade (Oficina 6 - 5h: 3h síncronas + 2h assíncronas)',
                 perguntaCentral: 'Para quem vamos vender, como acessar mercados e como manter nossa atividade?',
-                produto: 'Plano simplificado de comercialização e continuidade',
+                produto: 'Plano simplificado de comercialização e continuidade (compradores, canais, comunicação, parcerias, responsáveis e prazos)',
                 sections: {
                     'apresentacao': {
                         group: 'Abertura & Diretrizes',
-                        title: '1. Apresentação do Caderno e Objetivos',
-                        tip: 'Definir mercados, canais de venda, comunicação, parcerias e plano de continuidade.',
+                        title: '1. Apresentação do Caderno',
+                        tip: 'Conectar a oferta precificada no Módulo 5 aos mercados reais, redes solidárias e estratégias de continuidade.',
                         args: [
-                            'Conhecer o público comprador e as condições de pagamento orienta decisões comerciais seguras para o coletivo.',
-                            'Cada canal de comercialização impõe custos específicos (frete, taxas de plataforma, embalagem) e exigências documentais próprias.',
-                            'A identidade territorial e solidária deve ser comunicada com ética, sem apelar para estereótipos de vulnerabilidade ou promessas enganosas.'
+                            'A comercialização na economia solidária articula viabilidade econômica, comércio justo, valorização da identidade territorial e redes de cooperação.',
+                            'Preparar estratégias de continuidade compatíveis com o estágio de maturidade de cada iniciativa acompanhada pelo MIM.'
+                        ],
+                        text: ''
+                    },
+                    'objetivos': {
+                        group: 'Abertura & Diretrizes',
+                        title: '2. Objetivos de Aprendizagem',
+                        tip: 'Definir mercados, canais de venda, comunicação, parcerias, necessidades de fomento e próximos passos para continuidade.',
+                        args: [
+                            'Identificar segmentos de compradores, demandas reais e proposta de valor dos produtos e serviços do coletivo.',
+                            'Comparar custos, logística e exigências documentais de diferentes canais (venda direta, feiras, canais digitais, mercados institucionais como PNAE e PAA).',
+                            'Elaborar o plano simplificado de comercialização, comunicação ética e continuidade com metas, responsáveis e prazos.'
                         ],
                         text: ''
                     },
                     'comecar_conversa': {
                         group: 'Problematização & Realidade',
-                        title: '2. Para Começar: O Maior Preço Nem Sempre Rende Mais',
-                        tip: 'Comparação de canais no caso Costura em Rede: venda direta (R$ 58,80), plataforma (R$ 51,20) e revenda (R$ 49,00).',
+                        title: '3. Para Começar Nossa Conversa',
+                        tip: 'Quem precisa ou deseja comprar nossos produtos? Onde e como vender com condições adequadas de entrega e recebimento?',
                         args: [
-                            'Na comparação didática de Costura em Rede, vender a R$ 90 na plataforma gera contribuição líquida menor (R$ 51,20) que a venda direta a R$ 80 (R$ 58,80).',
-                            'Uma feira só é viável se as vendas adicionais cobrirem transporte, estrutura do estande e o tempo das trabalhadoras destacadas.',
-                            'As consultas exploratórias com compradores não representam pedidos contratados e não autorizam estocar produção antes do tempo.'
+                            'Conhecer o público comprador evita produzir sem destino certo; cada canal de venda possui taxas, prazos de pagamento e custos logísticos próprios.',
+                            'Refletir sobre como apresentar a história das mulheres e a identidade territorial do grupo como diferencial ético de valor, sem apelar ao assistencialismo.'
                         ],
                         text: ''
                     },
                     'conceitos': {
                         group: 'Fundamentação Técnica',
-                        title: '3. Canais de Venda, Direitos do Consumidor e Compras Públicas',
-                        tip: 'Código de Defesa do Consumidor, Decreto do Comércio Eletrônico, PNAE (Lei 15.226/2025) e PAA.',
+                        title: '4. Vamos Compreender os Conceitos',
+                        tip: 'Canais de comercialização, logística, CDC, LGPD, compras públicas (PNAE Lei 15.226/2025 e PAA Lei 14.628/2023) e redes solidárias (Mance).',
                         args: [
-                            'O Código de Defesa do Consumidor e as regras do comércio eletrônico aplicam-se a vendas diretas ou digitais, inclusive o direito de arrependimento de 7 dias.',
-                            'Desde 2026, a Lei nº 15.226/2025 elevou para 45% o mínimo federal do PNAE destinado a compras da agricultura familiar credenciada via CAF.',
-                            'O PAA (Lei nº 14.628/2023) constitui canal institucional específico para alimentos da agricultura familiar e cozinhas solidárias.'
+                            'Analisar modalidades de comercialização: circuitos curtos, feiras territoriais, encomendas via redes sociais e compras governamentais (PAA e PNAE com mínimo de 45% para agricultura familiar pela Lei nº 15.226/2025).',
+                            'Observar os direitos básicos do consumidor (Lei nº 8.078/1990) e a proteção de dados pessoais de clientes (LGPD - Lei nº 13.709/2018).',
+                            'Compreender as redes de colaboração solidária (Euclides Mance) e a Rede Intermunicipal do MIM como espaços de intercâmbio, compras conjuntas e circulação de produtos.'
                         ],
                         text: ''
                     },
                     'realidade': {
                         group: 'Aplicação Territorial',
-                        title: '4. Redes de Cooperação, Proteção de Dados e Continuidade',
-                        tip: 'Redes solidárias (Mance), boas práticas da LGPD e decisões de expansão, redução ou pausa.',
+                        title: '5. Trazendo para Nossa Realidade',
+                        tip: 'Condições concretas de acesso a feiras, mercados locais e canais institucionais em Tanguá e nos municípios da Rede.',
                         args: [
-                            'Redes de cooperação viabilizam frete compartilhado, compras conjuntas de insumos e pontos coletivos de exposição sem transferir CNPJs.',
-                            'A LGPD impõe cuidado rigoroso no manuseio de dados de clientes, proibindo a exposição de contatos em grupos abertos de mensagens.',
-                            'A continuidade pode exigir acelerar vendas, mas também pode exigir reduzir o ritmo ou pausar para resolver exigências sanitárias e fiscais.'
+                            'O acesso a mercados institucionais e canais formais deve ser analisado conforme a natureza produtiva, a documentação atual da organização e as exigências sanitárias/fiscais aplicáveis.',
+                            'Identificar parcerias locais, eventos, pontos de venda e possibilidades de experimentação e intercâmbio entre os 10 municípios da Rede MIM.'
                         ],
                         text: ''
                     },
                     'oficina_pratica': {
                         group: 'Prática & Instrumentos',
-                        title: '5. Elaboração do Plano de Comercialização e Ações de 90 Dias',
-                        tip: 'Preenchimento dos Apêndices B, D e E com compradores e indicadores.',
+                        title: '6. Construindo Coletivamente (Atividade Síncrona - 3h)',
+                        tip: 'Mapeamento de compradores e canais, comparação de custos e exigências e construção do plano de comercialização e continuidade.',
                         args: [
-                            'Definir a oferta prioritária, segmentos de compradores, canal inicial de teste e mensagem de comunicação verificável.',
-                            'Mapear parcerias confirmadas versus em negociação, estabelecendo limites de concessão de desconto e prazos de recebimento.',
-                            'Pactuar a matriz de compromissos com marcos práticos de 30, 60 e 90 dias, associando responsáveis e evidências de cumprimento.'
+                            'Mapear compradores potenciais e comparar os canais de comercialização viáveis para a oferta prioritária do grupo.',
+                            'Construir o Plano Simplificado de Comercialização e Continuidade definindo estratégias de divulgação, logística, parcerias, responsáveis e prazos de 30, 60 e 90 dias.'
                         ],
                         text: ''
                     },
                     'assincrona': {
                         group: 'Trabalho de Campo',
-                        title: '6. Atividade Assíncrona: Escuta de Compradores e Canais',
-                        tip: 'Conversa orientada com compradores potenciais ou canais parceiros (120 minutos).',
+                        title: '7. Atividade Assíncrona (2 Horas)',
+                        tip: 'Consulta inicial a potenciais compradores ou parceiros, levantamento das condições de acesso aos canais e revisão das ações.',
                         args: [
-                            'Conversar com compradores potenciais usando o roteiro de escuta para registrar necessidades, exigências de qualidade e prazos.',
-                            'Conferir exigências regulatórias, prazos de liquidação e tarifas bancárias ou de máquinas de cartão.',
-                            'Atualizar o plano comercial e sistematizar necessidades de fomento e infraestrutura que alimentarão o Módulo 7.'
+                            'Realizar consulta prática junto a potenciais compradores, feiras ou parceiros locais para verificar interesse, exigências de entrega e formas de pagamento.',
+                            'Revisar o plano comercial com o coletivo e listar as necessidades de equipamentos ou investimentos que dependerão de captação de recursos no Módulo 7.'
                         ],
                         text: ''
                     },
                     'sintese_avaliacao': {
                         group: 'Consolidação',
-                        title: '7. O que Construímos e Avaliação Formativa',
-                        tip: 'Avaliação da clareza comercial e autonomia do coletivo.',
+                        title: '8. O que Construímos',
+                        tip: 'Revisão do Plano de Comercialização e Continuidade (compradores, canais, ações, responsáveis e prazos definidos).',
                         args: [
-                            'Avaliar se o coletivo sabe para quem vende, por qual caminho, com quais custos logísticos e sob quais salvaguardas de direitos.',
-                            'O plano simplificado de comercialização integra o portfólio e prepara o levantamento de oportunidades de apoio externo no Caderno 7.'
+                            'Avaliar a exequibilidade do Plano Simplificado de Comercialização e Continuidade e o grau de autonomia comercial do coletivo.',
+                            'Integrar o plano comercial ao Portfólio de Estruturação do Empreendimento Coletivo.'
                         ],
                         text: ''
                     },
                     'preparacao_prox': {
                         group: 'Consolidação',
-                        title: '8. Preparação para a Próxima Oficina (Caderno 7)',
-                        tip: 'Identificação prévia das carências que dependem de editais e fomento.',
+                        title: '9. Preparação para a Próxima Oficina (Caderno 7)',
+                        tip: 'Como as necessidades de investimento e apoio identificadas serão relacionadas às oportunidades analisadas no Módulo 7.',
                         args: [
-                            'As demandas de investimentos e apoio técnico que não cabem no fluxo de vendas imediato serão levadas para análise de editais no Caderno 7.'
+                            'As demandas de infraestrutura, equipamentos e capital de fomento identificadas para expandir a produção e a comercialização orientarão a busca de editais no Caderno 7.'
                         ],
                         text: ''
                     },
                     'referencias': {
                         group: 'Fechamento & Ancoragem',
                         title: '10. Referências e Materiais de Apoio',
-                        tip: 'Legislação do consumidor, dados, agricultura familiar e comércio justo.',
+                        tip: 'Legislação de compras públicas, defesa do consumidor, LGPD e redes solidárias.',
                         args: [],
-                        text: `BRASIL. Lei nº 8.078, de 11 de setembro de 1990. Código de Defesa do Consumidor. Brasília, DF, 1990.\n\nBRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). Brasília, DF, 2018.\n\nBRASIL. Lei nº 14.628, de 20 de julho de 2023. Programa de Aquisição de Alimentos (PAA). Brasília, DF, 2023.\n\nBRASIL. Lei nº 15.226, de 30 de setembro de 2025. PNAE Agricultura Familiar 45%. Brasília, DF, 2025.`
+                        text: `BRASIL. Lei nº 8.078, de 11 de setembro de 1990. Código de Defesa do Consumidor. Brasília, DF, 1990.\n\nBRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). Brasília, DF, 2018.\n\nBRASIL. Lei nº 14.628, de 20 de julho de 2023. Institui o Programa de Aquisição de Alimentos (PAA). Brasília, DF, 2023.\n\nBRASIL. Lei nº 15.226, de 30 de setembro de 2025. Estabelece o mínimo de 45% da agricultura familiar no PNAE. Brasília, DF, 2025.\n\nMANCE, Euclides André. Redes de colaboração solidária: aspectos econômico-filosóficos. Petrópolis, RJ: Vozes, 2002.`
                     }
                 }
             },
@@ -1875,112 +2033,117 @@ function doPost(e) {
                 id: 'caderno_7',
                 shortTab: 'C7 • Captação & Editais',
                 fullTitle: 'Caderno 7 – Captação de Recursos conforme a Natureza Produtiva',
-                subtitle: 'Editais, chamadas públicas e privadas, captação e submissão de projetos (Oficina 7 - 5h)',
+                subtitle: 'Editais, chamadas públicas e privadas, captação e submissão de projetos (Oficina 7 - 5h: 3h síncronas + 2h assíncronas)',
                 perguntaCentral: 'Onde encontrar oportunidades e como preparar nosso projeto para concorrer?',
-                produto: 'Mapa de oportunidades, verificação de elegibilidade e proposta de submissão',
+                produto: 'Mapa de oportunidades, checklist documental e proposta preparada para submissão',
                 sections: {
                     'apresentacao': {
                         group: 'Abertura & Diretrizes',
-                        title: '1. Apresentação do Caderno e Objetivos',
-                        tip: 'Identificar fontes, analisar elegibilidade de editais e adequar propostas.',
+                        title: '1. Apresentação do Caderno',
+                        tip: 'Culminância do percurso formativo de 35 horas: mobilizar os 6 produtos anteriores para acessar financiamentos e consolidar a emancipação organizacional.',
                         args: [
-                            'A captação de recursos começa quando o grupo conhece sua necessidade real e não pelo valor anunciado em uma chamada pública.',
-                            'Apoio responsável fortalece capacidades e autonomia do coletivo; não compra o silêncio, a imagem ou a identidade da comunidade.',
-                            'Distinguir fontes (quem apoia), recursos (o que se obtém) e instrumentos jurídicos (o contrato formal e suas exigências).'
+                            'O Módulo 7 integra todos os instrumentos anteriores do Portfólio (diagnóstico, modelo jurídico, projeto, planilha financeira, ficha de custo e plano comercial) para a captação qualificada de recursos.',
+                            'Fortalecer a capacidade autônoma das mulheres para ler editais, verificar elegibilidade, elaborar propostas e prestar contas com integridade.'
+                        ],
+                        text: ''
+                    },
+                    'objetivos': {
+                        group: 'Abertura & Diretrizes',
+                        title: '2. Objetivos de Aprendizagem',
+                        tip: 'Identificar oportunidades de financiamento, analisar critérios de elegibilidade e adequar projetos às exigências das chamadas.',
+                        args: [
+                            'Mapear fontes públicas e privadas de fomento compatíveis com a natureza produtiva e o estágio de formalização de cada coletivo.',
+                            'Analisar editais verificando elegibilidade, objeto, despesas financiáveis, contrapartidas, prazos e documentação exigida.',
+                            'Adequar o projeto produtivo e o orçamento aos requisitos de uma chamada específica e compreender as obrigações de execução e prestação de contas.'
                         ],
                         text: ''
                     },
                     'comecar_conversa': {
                         group: 'Problematização & Realidade',
-                        title: '2. Para Começar: Caso Costura em Rede e a Chamada de Máquinas',
-                        tip: 'Análise de edital que financia R$ 1.800 de máquinas mas deixa descoberto R$ 2.432 de caixa operacional.',
+                        title: '3. Para Começar Nossa Conversa',
+                        tip: 'Nosso coletivo pode participar desta chamada? O que a chamada financia? Como demonstrar capacidade de execução e prestar contas?',
                         args: [
-                            'No caso Costura em Rede, uma chamada didática de R$ 2.500 cobre a compra de máquinas (R$ 1.800), mas proíbe custeio e capital de giro.',
-                            'Mesmo com o apoio aprovado para máquinas, ainda faltam R$ 2.432 de caixa em P1, provando que recurso vinculado não vira dinheiro livre.',
-                            'A decisão madura consiste em preparar a proposta sem antecipar compras, resolver pendências de elegibilidade e negociar outras fontes.'
+                            'Nem todo edital atende a qualquer organização: concorrer sem verificar elegibilidade jurídica, territorial ou temática gera frustração e desperdício de energia do grupo.',
+                            'O recurso captado é vinculado ao objeto aprovado; exige planejamento rigoroso entre despesas de capital (equipamentos) e custeio operacional.'
                         ],
                         text: ''
                     },
                     'conceitos': {
                         group: 'Fundamentação Técnica',
-                        title: '3. MROSC, Regimes Jurídicos, Elegibilidade e Orçamento',
-                        tip: 'Lei 13.019/2014 (fomento, colaboração, cooperação), Lei 14.903/2024 (cultura), despesas elegíveis e glosa.',
+                        title: '4. Vamos Compreender os Conceitos',
+                        tip: 'Elegibilidade, despesas elegíveis, rubricas, contrapartidas, MROSC (Lei 13.019/2014), Fomento à Cultura (Lei 14.903/2024), execução e prestação de contas.',
                         args: [
-                            'O Marco Regulatório das OSCs (Lei nº 13.019/2014) disciplina termos de fomento, colaboração e acordos de cooperação com regras rígidas de tempo de CNPJ.',
-                            'A Lei nº 14.903/2024 institui o marco do fomento à cultura admitindo coletivos sem personalidade jurídica em seleções culturais específicas.',
-                            'Dois filtros de leitura do edital: primeiro o filtro eliminatório da elegibilidade jurídica e territorial; depois a qualidade técnica da proposta.',
-                            'No orçamento, despesas elegíveis devem ter nexo direto com as metas; é terminantemente proibido o duplo financiamento da mesma despesa.'
+                            'Distinguir os instrumentos jurídicos de parceria pública (Termo de Fomento, Termo de Colaboração e Acordo de Cooperação na Lei nº 13.019/2014) e os marcos específicos como a Lei nº 14.903/2024 (cultura, que admite coletivos sem CNPJ).',
+                            'Compreender a estrutura técnica de um edital: objeto, público-alvo, vedações, matriz de avaliação/pontuação, rubricas orçamentárias (custeio vs. investimento) e glosa de despesas.',
+                            'Planejar o ciclo posterior à seleção: assinatura do instrumento, conta bancária específica, cotações, rastreabilidade de notas fiscais, relatórios de cumprimento do objeto e prestação de contas.'
                         ],
                         text: ''
                     },
                     'realidade': {
                         group: 'Aplicação Territorial',
-                        title: '4. Fotografia das Chamadas Reais e Canais Oficiais',
-                        tip: 'Exemplos didáticos: Proninc/Finep, PNAB local, Fundo Brasil e painéis públicos.',
+                        title: '5. Trazendo para Nossa Realidade',
+                        tip: 'Fontes oficiais de oportunidades para Tanguá e municípios da Rede Intermunicipal e encaminhamentos para a Fase III prospectiva.',
                         args: [
-                            'Pesquisar em fontes oficiais (Transferegov, Diários Oficiais, portais institucionais) e conferir sempre retificações de prazos e exigências.',
-                            'No Proninc/Finep, a candidatura exige arranjo com ICTs ou incubadoras tecnológicas, não cabendo ao coletivo propor isoladamente.',
-                            'Chamadas culturais (PNAB) exigem comprovação de ação cultural efetiva e não servem para mascarar negócios comerciais sem aderência.'
+                            'Explorar canais verificáveis de chamadas públicas federais, estaduais e municipais, fundos independentes, editais de economia solidária, agricultura familiar, cultura e fomento privado.',
+                            'Quando a submissão imediata não for possível por ausência de edital aberto ou pendência documental, estruturar a proposta-base e o plano de regularização para oportunidades futuras e para a Fase III.'
                         ],
                         text: ''
                     },
                     'oficina_pratica': {
                         group: 'Prática & Instrumentos',
-                        title: '5. Preenchimento da Matriz de Elegibilidade e Minuta de Proposta',
-                        tip: 'Preenchimento dos Apêndices B, C, D e E (Minuta de submissão).',
+                        title: '6. Construindo Coletivamente (Atividade Síncrona - 3h)',
+                        tip: 'Busca e leitura orientadas de oportunidades em fontes oficiais, verificação de elegibilidade e adequação do projeto a uma chamada.',
                         args: [
-                            'Preencher a Matriz de Elegibilidade assinalando Atende (A), Não Atende (N), Pendente (P) ou Não se Aplica (NA) com evidências documentais.',
-                            'Redigir a minuta de proposta adaptando o projeto produtivo ao formulário da chamada sem prometer metas inexequíveis.',
-                            'Elaborar a memória de cálculo orçamentária e a lista de documentos institucionais e certidões necessárias na fase de envio.'
+                            'Construir o Mapa de Oportunidades de Financiamento por natureza produtiva e aplicar a Matriz de Elegibilidade e Checklist Documental.',
+                            'Realizar o exercício prático de adequação do projeto do coletivo (objetivos, metas, orçamento e cronograma) ao formulário de uma chamada compatível.'
                         ],
                         text: ''
                     },
                     'assincrona': {
                         group: 'Trabalho de Campo',
-                        title: '6. Atividade Assíncrona: Conferência Documental e Validação',
-                        tip: 'Verificação de certidões, leitura cruzada e deliberação do grupo (120 minutos).',
+                        title: '7. Atividade Assíncrona (2 Horas)',
+                        tip: 'Levantamento da documentação, preenchimento da matriz de elegibilidade e complementação da proposta conforme requisitos.',
                         args: [
-                            'Reunir o coletivo para realizar a leitura cruzada da proposta, garantindo que o texto reflita compromissos aceitos pelo grupo.',
-                            'Conferir a pasta de documentos institucionais, atas de eleição e certidões de regularidade perante os órgãos oficiais.',
-                            'Adotar uma das quatro decisões fundamentadas: preparar submissão, solicitar esclarecimento, preparar-se para edital futuro ou não concorrer.'
+                            'Organizar a pasta documental do coletivo (estatuto, atas, certidões, comprovantes de endereço e portfólio de atuação) e apontar documentos pendentes.',
+                            'Revisar e validar com todas as integrantes a minuta final da proposta preparada para submissão.'
                         ],
                         text: ''
                     },
                     'sintese_avaliacao': {
                         group: 'Consolidação',
-                        title: '7. Acompanhamento, Prestação de Contas e Portfólio Final',
-                        tip: 'Acompanhamento pós-envio, resposta a diligências, prestação de contas e fechamento do portfólio.',
+                        title: '8. O que Construímos',
+                        tip: 'Consolidação do Mapa de Oportunidades, proposta de submissão e fechamento do Portfólio de Estruturação do Empreendimento Coletivo.',
                         args: [
-                            'Submeter a proposta é apenas uma etapa: o grupo deve monitorar convocações, responder a diligências no prazo e guardar protocolos.',
-                            'A prestação de contas comprova a execução física das metas e o cumprimento do plano de trabalho, prevenindo riscos de glosa de valores.',
-                            'Consolidar os 7 produtos construídos nas oficinas no Portfólio de Estruturação do Empreendimento Coletivo do MIM.'
+                            'Conferir se a elegibilidade foi verificada, os documentos conferidos e as pendências ou o protocolo de envio devidamente registrados.',
+                            'Consolidar os 7 produtos construídos ao longo das 35 horas no Portfólio de Estruturação do Empreendimento Coletivo.'
                         ],
                         text: ''
                     },
                     'preparacao_prox': {
                         group: 'Consolidação',
-                        title: '8. Continuidade do Coletivo e Emancipação',
-                        tip: 'Pactuação do plano de continuidade e autonomia.',
+                        title: '9. Estratégia de Continuidade e Emancipação Organizacional',
+                        tip: 'Definição dos encaminhamentos de continuidade de cada coletivo na Rede Intermunicipal e encerramento do percurso.',
                         args: [
-                            'Encerrar o percurso formativo de 35 horas com um plano de ação próprio para os próximos 30, 60 e 90 dias com autonomia de gestão.'
+                            'Pactuar a estratégia de continuidade pós-Fase II, fortalecendo a emancipação organizacional, a articulação com políticas públicas em Tanguá e a participação ativa na Rede Intermunicipal de Cooperação.'
                         ],
                         text: ''
                     },
                     'referencias': {
                         group: 'Fechamento & Ancoragem',
                         title: '10. Referências e Materiais de Apoio',
-                        tip: 'Bases normativas do MROSC, captação ética e prestação de contas.',
+                        tip: 'Normas do MROSC, fomento, integridade e avaliação participativa.',
                         args: [],
-                        text: `ASSOCIAÇÃO BRASILEIRA DE CAPTADORES DE RECURSOS. Código de ética. ABCR, 2026.\n\nBRASIL. Lei nº 13.019, de 31 de julho de 2014. Marco Regulatório das Organizações da Sociedade Civil (MROSC). Brasília, DF, 2014.\n\nBRASIL. Decreto nº 8.726, de 27 de abril de 2016. Regulamenta o MROSC no Governo Federal. Brasília, DF, 2016.\n\nBRASIL. Lei nº 14.903, de 27 de junho de 2024. Marco regulatório do fomento à cultura. Brasília, DF, 2024.\n\nBRASIL. Presidência da República. Manual MROSC: do planejamento à prestação de contas. Brasília, DF, 2025.`
+                        text: `BRASIL. Lei nº 13.019, de 31 de julho de 2014. Estabelece o regime jurídico das parcerias entre a administração pública e as organizações da sociedade civil (MROSC). Brasília, DF, 2014.\n\nBRASIL. Decreto nº 8.726, de 27 de abril de 2016. Regulamenta a Lei nº 13.019/2014. Brasília, DF, 2016.\n\nBRASIL. Lei nº 14.903, de 27 de junho de 2024. Marco regulatório do fomento à cultura. Brasília, DF, 2024.\n\nBRASIL. Lei nº 15.068, de 23 de dezembro de 2024. Política Nacional de Economia Solidária. Brasília, DF, 2024.\n\nGUBA, Egon G.; LINCOLN, Yvonna S. Fourth generation evaluation. Newbury Park: Sage, 1989.`
                     }
                 }
             }
         };
 
         // =========================================================================
-        // 3. ESTADO DA APLICAÇÃO E CONFIGURAÇÃO
+        // 3. ESTADO DA APLICAÇÃO E CONFIGURAÇÃO (MODELO PADRÃO: GEMINI 3.8 FLASH)
         // =========================================================================
-        const STORAGE_KEY = 'mimMatrizIntegrada7Cadernos_v1';
+        const STORAGE_KEY = 'mimMatrizIntegrada7Cadernos_v2';
+        const DEFAULT_MODEL_CODE = 'gemini-3.8-flash';
         const DEFAULT_GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzi-mkcQM3W9E6OP-aIo3FHiijrd83f85u-cy-msujWgDAzhL2T3-McIV4MRMXmh1nO5g/exec";
 
         let appData = null;
@@ -1989,6 +2152,7 @@ function doPost(e) {
         let customAnchors = [];
         let isBatchRunning = false;
         let cloudSyncTimer = null;
+        let pendingPdfInlineParts = []; // Armazena PDFs escaneados para envio multimodal direto ao Gemini 3.8 Flash
 
         function getGasUrl() {
             return (localStorage.getItem('mimGasWebAppUrl') || DEFAULT_GAS_WEBAPP_URL).trim();
@@ -2002,13 +2166,30 @@ function doPost(e) {
         }
 
         function initAppData() {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('mimMatrizIntegrada7Cadernos_v1');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
                     if (parsed && parsed.workbooks && parsed.workbooks['caderno_7']) {
-                        appData = parsed.workbooks;
+                        appData = JSON.parse(JSON.stringify(WORKBOOKS_MASTER));
+                        Object.keys(appData).forEach(cId => {
+                            if (parsed.workbooks[cId] && parsed.workbooks[cId].sections) {
+                                Object.keys(appData[cId].sections).forEach(sId => {
+                                    const savedSec = parsed.workbooks[cId].sections[sId];
+                                    if (savedSec) {
+                                        if (savedSec.title) appData[cId].sections[sId].title = savedSec.title;
+                                        if (Array.isArray(savedSec.args) && savedSec.args.length > 0) appData[cId].sections[sId].args = savedSec.args;
+                                        if (savedSec.text) appData[cId].sections[sId].text = savedSec.text;
+                                    }
+                                });
+                            }
+                        });
                         customAnchors = parsed.anchors || JSON.parse(JSON.stringify(DEFAULT_ANCHOR_LIBRARY));
+                        DEFAULT_ANCHOR_LIBRARY.forEach(defItem => {
+                            if (!customAnchors.some(a => a.id === defItem.id || a.citation.substring(0, 30) === defItem.citation.substring(0, 30))) {
+                                customAnchors.push(defItem);
+                            }
+                        });
                         return;
                     }
                 } catch (e) {
@@ -2039,7 +2220,12 @@ function doPost(e) {
         window.onload = async () => {
             initAppData();
             const savedKey = localStorage.getItem('geminiApiKey');
-            const savedModel = localStorage.getItem('geminiApiModel') || 'gemini-3.8-flash';
+            // Define gemini-3.8-flash como modelo padrão
+            let savedModel = localStorage.getItem('geminiApiModel');
+            if (!savedModel || savedModel === 'gemini-2.5-flash' || savedModel === 'gemini-4-argon') {
+                savedModel = DEFAULT_MODEL_CODE;
+                localStorage.setItem('geminiApiModel', DEFAULT_MODEL_CODE);
+            }
             if (savedKey) document.getElementById('apiKey').value = savedKey;
             document.getElementById('apiModel').value = savedModel;
             document.getElementById('gasWebAppUrlInput').value = getGasUrl();
@@ -2054,10 +2240,10 @@ function doPost(e) {
         function saveKey() {
             localStorage.setItem('geminiApiKey', document.getElementById('apiKey').value);
             localStorage.setItem('geminiApiModel', document.getElementById('apiModel').value);
-            showToast('🔑 Chave e Modelo Gemini atualizados!');
+            showToast('🔑 Chave e Modelo Gemini 3.8 Flash atualizados!');
         }
 
-        function showToast(msg, duration = 3500) {
+        function showToast(msg, duration = 3800) {
             const box = document.getElementById('toast-box');
             box.innerHTML = msg;
             box.style.display = 'block';
@@ -2068,7 +2254,99 @@ function doPost(e) {
         }
 
         // =========================================================================
-        // 4. RENDERIZAÇÃO DAS ABAS (7 CADERNOS) E SEÇÕES DA SIDEBAR
+        // 4. EXTRATOR UNIVERSAL DE ARQUIVOS: DOCX, PDF E TEXTO
+        // =========================================================================
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64String = reader.result.split(',')[1];
+                    resolve(base64String);
+                };
+                reader.onerror = err => reject(err);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function extractTextFromAnyFile(file) {
+            const fileName = file.name || 'arquivo';
+            const ext = fileName.split('.').pop().toLowerCase();
+
+            // 1. Leitura nativa de arquivos Word (.docx) com Mammoth.js
+            if (ext === 'docx') {
+                if (!window.mammoth) {
+                    throw new Error('Biblioteca Mammoth.js não carregada. Verifique sua conexão com a internet.');
+                }
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await window.mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                return {
+                    text: (result.value || '').trim(),
+                    inlinePart: null,
+                    type: 'DOCX'
+                };
+            }
+
+            // 2. Leitura nativa de arquivos PDF (.pdf) com PDF.js + fallback multimodal Gemini 3.8 Flash
+            if (ext === 'pdf') {
+                let extractedPdfText = '';
+                if (window.pdfjsLib) {
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        const pageTexts = [];
+                        for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+                            const page = await pdfDoc.getPage(pageNum);
+                            const textContent = await page.getTextContent();
+                            const pageStr = textContent.items.map(item => item.str).join(' ');
+                            if (pageStr.trim()) {
+                                pageTexts.push(`[Página ${pageNum}]\n${pageStr.trim()}`);
+                            }
+                        }
+                        extractedPdfText = pageTexts.join('\n\n');
+                    } catch (pdfErr) {
+                        console.warn('Erro na extração via PDF.js, ativando envio multimodal para o Gemini 3.8 Flash:', pdfErr);
+                    }
+                }
+
+                // Se o PDF for escaneado (pouco ou nenhum texto extraível), prepara o binário Base64 para o Gemini 3.8 Flash ler visualmente
+                if (extractedPdfText.replace(/\s+/g, '').length < 80) {
+                    const b64 = await fileToBase64(file);
+                    return {
+                        text: `[PDF Anexado para leitura visual/multimodal pelo Gemini 3.8 Flash: ${fileName}]`,
+                        inlinePart: {
+                            inlineData: {
+                                mimeType: 'application/pdf',
+                                data: b64
+                            }
+                        },
+                        type: 'PDF (Multimodal)'
+                    };
+                }
+
+                return {
+                    text: extractedPdfText,
+                    inlinePart: null,
+                    type: 'PDF'
+                };
+            }
+
+            // 3. Arquivos de texto plano (.txt, .md, .json, .csv, .html)
+            const plainText = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = err => reject(err);
+                reader.readAsText(file);
+            });
+
+            return {
+                text: (plainText || '').trim(),
+                inlinePart: null,
+                type: ext.toUpperCase()
+            };
+        }
+
+        // =========================================================================
+        // 5. RENDERIZAÇÃO DAS ABAS (7 CADERNOS) E SEÇÕES DA SIDEBAR
         // =========================================================================
         function renderCadernosTabs() {
             const bar = document.getElementById('cadernosTabsBar');
@@ -2155,7 +2433,7 @@ function doPost(e) {
             } else {
                 plannerCard.style.display = 'block';
                 argCountBadge.style.display = 'inline-block';
-                badge.innerText = `Meta da Seção: ~${Math.max(3, data.args ? data.args.length : 3)} parágrafos densos (~4 páginas A4)`;
+                badge.innerText = `Meta da Seção: ~${Math.max(3, data.args ? data.args.length : 3)} parágrafos densos (~4 a 5 págs A4 | Limite: 50 págs/caderno)`;
                 if (!data.args || data.args.length === 0) {
                     const fallback = WORKBOOKS_MASTER[currentCadernoId].sections[sectionId];
                     data.args = fallback && fallback.args ? [...fallback.args] : ['Desenvolver o argumento técnico da matriz articulando à realidade concreta do coletivo.'];
@@ -2172,7 +2450,7 @@ function doPost(e) {
         }
 
         // =========================================================================
-        // 5. GESTÃO DOS ARGUMENTOS GERADORES
+        // 6. GESTÃO DOS ARGUMENTOS GERADORES
         // =========================================================================
         function renderArguments() {
             const data = appData[currentCadernoId].sections[currentSectionId];
@@ -2197,7 +2475,7 @@ function doPost(e) {
             saveData();
             const municipio = document.getElementById('municipioSelect').value;
             appData[currentCadernoId].sections[currentSectionId].args.push(
-                `Aprofundar a aplicação deste argumento no contexto produtivo de ${municipio}, explicitando responsabilidades, prazos e metodologia participativa.`
+                `Aprofundar a aplicação deste argumento no contexto produtivo de ${municipio} e da Rede Intermunicipal, explicitando responsabilidades, prazos e metodologia participativa.`
             );
             renderArguments();
             saveData();
@@ -2232,7 +2510,224 @@ function doPost(e) {
         }
 
         // =========================================================================
-        // 6. PERSISTÊNCIA LOCAL E GOOGLE SHEETS
+        // 7. IMPORTAR E PROCESSAR ESBOÇO COM IA (DOCX, PDF E TEXTO)
+        // =========================================================================
+        function openDraftModal() {
+            const select = document.getElementById('draftTargetCaderno');
+            select.innerHTML = '';
+            Object.keys(appData).forEach(cId => {
+                const opt = document.createElement('option');
+                opt.value = cId;
+                opt.innerText = appData[cId].fullTitle;
+                if (cId === currentCadernoId) opt.selected = true;
+                select.appendChild(opt);
+            });
+            document.getElementById('draftResultBox').style.display = 'none';
+            document.getElementById('draftModal').style.display = 'flex';
+        }
+
+        function closeDraftModal() {
+            document.getElementById('draftModal').style.display = 'none';
+        }
+
+        function clearDraftInput() {
+            document.getElementById('draftRawText').value = '';
+            pendingPdfInlineParts = [];
+            document.getElementById('draftFileStatusContainer').style.display = 'none';
+            document.getElementById('draftResultBox').style.display = 'none';
+            showToast('🧹 Campo de esboço limpo.');
+        }
+
+        async function handleDraftFileUpload(event) {
+            const files = Array.from(event.target.files || []);
+            if (files.length === 0) return;
+
+            const statusContainer = document.getElementById('draftFileStatusContainer');
+            const statusText = document.getElementById('draftFileStatusText');
+            const textarea = document.getElementById('draftRawText');
+
+            statusContainer.style.display = 'block';
+            statusText.innerText = `⏳ Lendo ${files.length} arquivo(s)...`;
+
+            let combinedTexts = textarea.value.trim() ? [textarea.value.trim()] : [];
+            const loadedFileNames = [];
+
+            try {
+                for (const file of files) {
+                    const extracted = await extractTextFromAnyFile(file);
+                    loadedFileNames.push(`${file.name} (${extracted.type})`);
+                    if (extracted.inlinePart) {
+                        pendingPdfInlineParts.push(extracted.inlinePart);
+                    }
+                    if (extracted.text) {
+                        combinedTexts.push(`=== ARQUIVO: ${file.name} ===\n${extracted.text}`);
+                    }
+                }
+
+                textarea.value = combinedTexts.join('\n\n');
+                statusText.innerText = `✅ Carregado(s): ${loadedFileNames.join(', ')}`;
+                showToast(`📂 ${files.length} arquivo(s) lido(s) com sucesso! Clique em Processar Esboço.`);
+            } catch (err) {
+                console.error('Erro ao ler arquivo de esboço:', err);
+                statusText.innerText = `❌ Erro na leitura: ${err.message}`;
+                showToast(`❌ Falha ao ler arquivo: ${err.message}`, 5000);
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        async function processDraftWithAI() {
+            const apiKeyRaw = document.getElementById('apiKey').value;
+            const modelRaw = document.getElementById('apiModel').value || DEFAULT_MODEL_CODE;
+            const rawDraft = document.getElementById('draftRawText').value.trim();
+            const targetCadernoId = document.getElementById('draftTargetCaderno').value;
+            const mergeMode = document.getElementById('draftMergeMode').value;
+            const municipio = document.getElementById('municipioSelect').value;
+
+            if (!apiKeyRaw) {
+                showToast('⚠️ Cole sua Chave API do Gemini na barra superior antes de processar o esboço!');
+                document.getElementById('apiKey').focus();
+                return;
+            }
+            if (!rawDraft && pendingPdfInlineParts.length === 0) {
+                showToast('⚠️ Carregue um arquivo (.docx, .pdf, .txt) ou cole um texto de esboço válido para processar.');
+                return;
+            }
+
+            const btn = document.getElementById('btnProcessDraft');
+            const btnText = document.getElementById('btnProcessDraftText');
+            const loader = document.getElementById('loaderDraft');
+            const resultBox = document.getElementById('draftResultBox');
+
+            btn.disabled = true;
+            loader.style.display = 'inline-block';
+            btnText.innerText = "Analisando documento com Gemini 3.8 Flash...";
+            resultBox.style.display = 'none';
+
+            const targetCad = appData[targetCadernoId];
+            const sectionDescriptors = Object.keys(targetCad.sections)
+                .filter(k => k !== 'referencias')
+                .map(k => `- "${k}": ${targetCad.sections[k].title} (Foco: ${targetCad.sections[k].tip})`)
+                .join('\n');
+
+            const extractionPrompt = `Você é a Coordenação Técnico-Pedagógica do Projeto Mulheres Inspirando Mulheres (MIM), especialista na Matriz Pedagógica Integrada de Formação (7 Cadernos, 35h) e no Plano de Trabalho de Tanguá e da Rede Intermunicipal de Cooperação (Arraial do Cabo, Cabo Frio, Armação dos Búzios, Rio das Ostras, Macaé, Carapebus, Quissamã, Campos dos Goytacazes e São Francisco do Itabapoana).
+
+Sua tarefa é analisar o ESBOÇO DE CADERNO enviado pelo usuário (texto extraído de DOCX/PDF e/ou anexo PDF) e extrair automaticamente:
+1. Os ARGUMENTOS GERADORES E TÓPICOS FRASAIS densos e acionáveis para cada uma das seções do "${targetCad.fullTitle}" (Pergunta Central: "${targetCad.perguntaCentral}" | Produto: "${targetCad.produto}" | Território de referência: ${municipio}).
+2. Todas as REFERÊNCIAS BIBLIOGRÁFICAS E LEGISLAÇÕES/NORMAS (formatadas rigorosamente no padrão ABNT NBR 6023) citadas, implícitas ou necessárias para fundamentar o esboço.
+
+SEÇÕES DISPONÍVEIS NO CADERNO (use exatamente estas chaves no JSON):
+${sectionDescriptors}
+
+ESBOÇO ENVIADO PELO USUÁRIO:
+"""
+${rawDraft}
+"""
+
+REGRAS DE RESPOSTA:
+Retorne EXCLUSIVAMENTE um objeto JSON válido (sem blocos markdown \`\`\`json) seguindo exatamente esta estrutura:
+{
+  "resumoAnalise": "Breve síntese do que foi identificado no esboço",
+  "sectionsArgs": {
+    "apresentacao": ["Argumento 1...", "Argumento 2..."],
+    "objetivos": ["Argumento 1...", "Argumento 2..."],
+    "comecar_conversa": ["Argumento 1...", "Argumento 2..."],
+    "conceitos": ["Argumento 1...", "Argumento 2..."],
+    "realidade": ["Argumento 1...", "Argumento 2..."],
+    "oficina_pratica": ["Argumento 1...", "Argumento 2..."],
+    "assincrona": ["Argumento 1...", "Argumento 2..."],
+    "sintese_avaliacao": ["Argumento 1...", "Argumento 2..."],
+    "preparacao_prox": ["Argumento 1..."]
+  },
+  "referenciasABNT": [
+    "SOBRENOME, Nome. Título da obra. Cidade: Editora, Ano.",
+    "BRASIL. Lei nº X, de data. Ementa. Brasília, DF, Ano."
+  ]
+}`;
+
+            try {
+                const rawResponse = await callGeminiAPI(apiKeyRaw, modelRaw, extractionPrompt, true, pendingPdfInlineParts);
+                let cleanJson = rawResponse.trim().replace(/^```json\s*/i, '').replace(/```$/i, '').trim();
+                const firstBrace = cleanJson.indexOf('{');
+                const lastBrace = cleanJson.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1) {
+                    cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+                }
+
+                const parsed = JSON.parse(cleanJson);
+                let totalArgsLoaded = 0;
+                let updatedSectionsCount = 0;
+
+                if (parsed.sectionsArgs && typeof parsed.sectionsArgs === 'object') {
+                    Object.keys(parsed.sectionsArgs).forEach(secKey => {
+                        if (targetCad.sections[secKey] && secKey !== 'referencias') {
+                            const newArgs = Array.isArray(parsed.sectionsArgs[secKey])
+                                ? parsed.sectionsArgs[secKey].map(a => String(a).trim()).filter(a => a.length > 5)
+                                : [];
+                            if (newArgs.length > 0) {
+                                if (mergeMode === 'replace') {
+                                    targetCad.sections[secKey].args = newArgs;
+                                } else {
+                                    const existing = targetCad.sections[secKey].args || [];
+                                    newArgs.forEach(na => {
+                                        if (!existing.some(ex => ex.toLowerCase().includes(na.substring(0, 25).toLowerCase()))) {
+                                            existing.push(na);
+                                        }
+                                    });
+                                    targetCad.sections[secKey].args = existing;
+                                }
+                                totalArgsLoaded += newArgs.length;
+                                updatedSectionsCount++;
+                            }
+                        }
+                    });
+                }
+
+                let newRefsCount = 0;
+                if (Array.isArray(parsed.referenciasABNT) && parsed.referenciasABNT.length > 0) {
+                    const refBlock = parsed.referenciasABNT.join('\n');
+                    newRefsCount = anchorReferencesFromAI(refBlock, targetCadernoId);
+                    parsed.referenciasABNT.forEach(refStr => {
+                        const cleanRef = String(refStr).trim();
+                        if (cleanRef.length > 12) {
+                            const existsInAnchor = customAnchors.some(a => a.citation.toLowerCase().includes(cleanRef.substring(0, 30).toLowerCase()));
+                            if (!existsInAnchor) {
+                                customAnchors.unshift({
+                                    id: 'draft_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                                    checked: true,
+                                    citation: cleanRef
+                                });
+                            }
+                        }
+                    });
+                }
+
+                persistAll(false);
+                selectCaderno(targetCadernoId, true);
+
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = `
+                    <strong style="color:var(--purple); font-size:0.95em;">✅ Esboço Processado com Sucesso para ${targetCad.shortTab} (via ${modelRaw})!</strong><br>
+                    <p style="margin:6px 0;"><strong>Síntese da IA:</strong> ${parsed.resumoAnalise || 'Argumentos e referências mapeados conforme a Matriz Pedagógica MIM.'}</p>
+                    <ul style="margin:6px 0; padding-left:18px;">
+                        <li><strong>${totalArgsLoaded} argumentos geradores</strong> distribuídos em <strong>${updatedSectionsCount} seções</strong> do caderno (${mergeMode === 'replace' ? 'Modo Substituição' : 'Modo Mesclagem'}).</li>
+                        <li><strong>${parsed.referenciasABNT ? parsed.referenciasABNT.length : 0} referências identificadas</strong> (${newRefsCount} novas adicionadas à Seção 10 e ao Acervo Âncora).</li>
+                    </ul>
+                `;
+
+                showToast(`🧠 Esboço carregado! ${totalArgsLoaded} argumentos e ${parsed.referenciasABNT ? parsed.referenciasABNT.length : 0} referências sincronizados.`);
+            } catch (err) {
+                console.error(err);
+                showToast(`❌ Erro ao processar esboço: ${err.message}`, 5500);
+            } finally {
+                btn.disabled = false;
+                loader.style.display = 'none';
+                btnText.innerText = "🧠 Processar Esboço e Carregar Argumentos & Referências";
+            }
+        }
+
+        // =========================================================================
+        // 8. PERSISTÊNCIA LOCAL E GOOGLE SHEETS
         // =========================================================================
         function saveData(skipCloud = false) {
             const caderno = appData[currentCadernoId];
@@ -2267,7 +2762,8 @@ function doPost(e) {
                 if (s.text && s.text.trim()) totalWords += s.text.trim().split(/\s+/).length;
             });
             const estTotalPages = Math.max(1, Math.round(totalWords / 280));
-            document.getElementById('bannerProgressText').innerText = `${filled}/${secList.length} Seções Preenchidas • ~${estTotalPages} Páginas Estimadas`;
+            const limitAlert = estTotalPages > 50 ? ' ⚠️ (Acima do limite de 50 págs)' : '';
+            document.getElementById('bannerProgressText').innerText = `${filled}/${secList.length} Seções Preenchidas • ~${estTotalPages}/50 Páginas Estimadas${limitAlert}`;
         }
 
         function clearCurrentCaderno() {
@@ -2287,7 +2783,6 @@ function doPost(e) {
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
 
-                let loadedSectionsCount = 0;
                 if (data && data.sectionsMap) {
                     Object.keys(data.sectionsMap).forEach(cadId => {
                         if (!appData[cadId]) return;
@@ -2299,7 +2794,6 @@ function doPost(e) {
                             if (Array.isArray(rSec.args) && rSec.args.length > 0) appData[cadId].sections[secId].args = rSec.args;
                             if (rSec.text && rSec.text.trim() !== '') {
                                 appData[cadId].sections[secId].text = rSec.text;
-                                loadedSectionsCount++;
                             }
                         });
                     });
@@ -2331,7 +2825,7 @@ function doPost(e) {
                 updatedAt: new Date().toISOString()
             };
             try {
-                const response = await fetch(url, {
+                await fetch(url, {
                     method: 'POST', redirect: 'follow',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload)
@@ -2371,17 +2865,13 @@ function doPost(e) {
 
         function copyGasScriptCode() {
             const codeText = document.getElementById('gasScriptCodeBlock').innerText;
-            const temp = document.createElement('textarea');
-            temp.value = codeText;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            temp.remove();
-            showToast('📋 Código copiado!');
+            navigator.clipboard.writeText(codeText).then(() => {
+                showToast('📋 Código copiado!');
+            });
         }
 
         // =========================================================================
-        // 7. ÂNCORAS NATIVAS
+        // 9. ÂNCORAS NATIVAS (COM SUPORTE A DOCX, PDF, TXT E MD)
         // =========================================================================
         function updateAnchorBadge() {
             const activeCount = customAnchors.filter(a => a.checked).length;
@@ -2447,18 +2937,27 @@ function doPost(e) {
             showToast('⚓ Referência inserida como argumento gerador!');
         }
 
-        function loadAnchorFile(event) {
+        async function loadAnchorFile(event) {
             const file = event.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const lines = e.target.result.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 10);
-                lines.forEach(line => customAnchors.unshift({ id: 'file_' + Math.random().toString(36).slice(2, 7), checked: true, citation: line }));
+            try {
+                const extracted = await extractTextFromAnyFile(file);
+                const lines = (extracted.text || '').split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 12);
+                lines.forEach(line => {
+                    customAnchors.unshift({
+                        id: 'file_' + Math.random().toString(36).slice(2, 7),
+                        checked: true,
+                        citation: line
+                    });
+                });
                 renderAnchorModalList();
                 persistAll();
+                showToast(`⚓ ${lines.length} itens importados de "${file.name}"!`);
+            } catch (err) {
+                showToast(`❌ Erro ao ler arquivo de referências: ${err.message}`, 5000);
+            } finally {
                 event.target.value = '';
-            };
-            reader.readAsText(file);
+            }
         }
 
         function sendAllCheckedAnchorsToReferencias() {
@@ -2471,12 +2970,13 @@ function doPost(e) {
             refSec.text = existingText.trim();
             if (currentSectionId === 'referencias') document.getElementById('generatedText').value = refSec.text;
             persistAll();
-            showToast('📥 Referências ancoradas no item 10!');
+            showToast('📥 Referências ancoradas na Seção 10!');
         }
 
-        function anchorReferencesFromAI(rawReferencesBlock) {
+        function anchorReferencesFromAI(rawReferencesBlock, targetCadId = null) {
             if (!rawReferencesBlock || rawReferencesBlock.trim().length < 5) return 0;
-            const refSec = appData[currentCadernoId].sections['referencias'];
+            const cadKey = targetCadId || currentCadernoId;
+            const refSec = appData[cadKey].sections['referencias'];
             let currentRefs = refSec.text || '';
             const lines = rawReferencesBlock.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 8);
             let newAdded = 0;
@@ -2493,7 +2993,7 @@ function doPost(e) {
         }
 
         // =========================================================================
-        // 8. PROMPTS E CHAMADA GEMINI API
+        // 10. PROMPTS E CHAMADA GEMINI 3.8 FLASH API (1.048.576 IN / 65.536 OUT)
         // =========================================================================
         function buildSectionPrompt(isContinuation = false, existingText = '') {
             const caderno = appData[currentCadernoId];
@@ -2506,22 +3006,24 @@ function doPost(e) {
                     if (arg.trim() !== "") promptArgumentos += `Argumento Gerador ${index + 1}: ${arg}\n`;
                 });
             }
-            const activeAnchors = customAnchors.filter(a => a.checked).slice(0, 8).map(a => `- ${a.citation}`).join('\n');
+            const activeAnchors = customAnchors.filter(a => a.checked).slice(0, 12).map(a => `- ${a.citation}`).join('\n');
 
             if (!isContinuation) {
                 return `Você é a Coordenação Pedagógica e Técnica do Projeto Mulheres Inspirando Mulheres (MIM), redigindo a seção "${data.title}" do "${caderno.fullTitle}" (${caderno.subtitle}).
 
-CONTEXTO FORMATIVO DO MIM:
-- Território de aplicação: ${municipio} e municípios da Rede Regional.
-- Eixo temático: ${caderno.subtitle}. Pergunta geradora: "${caderno.perguntaCentral}".
-- Produto esperado: ${caderno.produto}.
+CONTEXTO FORMATIVO E TERRITORIAL DO MIM:
+- Território de Referência: ${municipio}, articulado à Rede Intermunicipal de Cooperação (Arraial do Cabo, Cabo Frio, Armação dos Búzios, Rio das Ostras, Macaé, Carapebus, Quissamã, Campos dos Goytacazes e São Francisco de Itabapoana).
+- Público-alvo: 300 mulheres e 5 a 14 projetos ou coletivos de geração de trabalho e renda (grupos mistos, coletivos informais, associações e cooperativas em áreas como agricultura familiar, citricultura, artesanato, agroindústria, pesca artesanal, turismo rural e serviços).
+- Eixo temático: ${caderno.subtitle}.
+- Pergunta Geradora Central: "${caderno.perguntaCentral}".
+- Produto Esperado da Oficina: ${caderno.produto}.
 
-DIRETRIZES DE ESTILO E RIGOR PEDAGÓGICO:
-1. Redija um texto denso, acolhedor e profundo (1.400 a 2.000 palavras), adequado para compor o caderno pedagógico de 5 horas de formação.
-2. Aplique a pedagogia crítica de Paulo Freire (partir da prática e da problematização) com o rigor técnico da economia solidária (Paul Singer) e as exigências legais vigentes.
-3. Estruture em subtítulos (##), inclua quadros conceituais em tabelas Markdown quando pertinente e insira boxes pedagógicos com as tags:
-   [BOX: PARA CONVERSAR NA RODA] ...perguntas reflexivas... [/BOX]
-   [BOX: ATENÇÃO AO DETALHE JURÍDICO / CONTÁBIL] ...esclarecimento técnico... [/BOX]
+DIRETRIZES DE ESTILO E RIGOR PEDAGÓGICO (MATRIZ MIM):
+1. Redija um texto denso, acolhedor, dialógico e rigoroso (entre 1.300 e 1.800 palavras para esta seção, respeitando o teto editorial de 50 páginas para o caderno completo).
+2. Aplique a educação popular (Paulo Freire; bell hooks), a pesquisa-ação (Fals-Borda), a interseccionalidade (Crenshaw; Collins; Fraser; Saffioti), a abordagem das capacidades (Amartya Sen), a tecnologia social e reaplicabilidade adaptativa (Dagnino), a governança dos comuns (Ostrom) e a economia solidária (Paul Singer; França Filho & Cunha; Mance; Lei nº 15.068/2024 e Decreto nº 12.784/2025).
+3. Estruture em subtítulos (##), inclua quadros operacionais ou instrumentos práticos em tabelas Markdown quando pertinente e insira boxes pedagógicos com as tags:
+   [BOX: PARA CONVERSAR NA RODA] ...questões problematizadoras ligadas à vivência das mulheres... [/BOX]
+   [BOX: ATENÇÃO AO DETALHE TÉCNICO E JURÍDICO] ...esclarecimento rigoroso sobre legislação, gestão ou contabilidade... [/BOX]
 
 ARGUMENTOS GERADORES OBRIGATÓRIOS DA SEÇÃO:
 ${promptArgumentos}
@@ -2530,19 +3032,19 @@ REFERENCIAIS E BASES NORMATIVAS ANCORADAS:
 ${activeAnchors}
 
 REGRA DE ANCORAGEM FINAL:
-Ao concluir, inclua a tag ---REFERENCIAS--- em linha única e cite em padrão ABNT as referências utilizadas.`;
+Ao concluir o texto da seção, inclua obrigatoriamente a tag ---REFERENCIAS--- em linha única e liste abaixo dela, em padrão ABNT NBR 6023, todas as referências e leis citadas.`;
             } else {
-                return `Continue a escrita da seção "${data.title}" do "${caderno.fullTitle}" do Projeto MIM (${municipio}), aprofundando os conceitos e instrumentos práticos.
+                return `Continue a escrita da seção "${data.title}" do "${caderno.fullTitle}" do Projeto MIM (${municipio}), aprofundando os conceitos, exemplos práticos das cadeias produtivas locais e instrumentos de preenchimento pelo coletivo.
 
 TEXTO JÁ GERADO:
 """
 ${existingText}
 """
 
-ARGUMENTOS GERADORES PENDENTES:
+ARGUMENTOS GERADORES DA SEÇÃO:
 ${promptArgumentos}
 
-Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, inclua ---REFERENCIAS--- e as citações ABNT.`;
+Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, inclua ---REFERENCIAS--- e as citações ABNT utilizadas.`;
             }
         }
 
@@ -2550,25 +3052,37 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
             saveData();
             const textPrompt = buildSectionPrompt(false);
             navigator.clipboard.writeText(textPrompt).then(() => {
-                showToast('📤 Prompt da seção copiado para a área de transferência!');
+                showToast('📤 Prompt completo da seção copiado para a área de transferência!');
             });
         }
 
-        async function callGeminiAPI(apiKey, chosenModel, textPrompt) {
-            const modelName = (chosenModel || 'gemini-3.8-flash').trim();
+        async function callGeminiAPI(apiKey, chosenModel, textPrompt, forceJson = false, extraParts = []) {
+            const modelName = (chosenModel || DEFAULT_MODEL_CODE).trim();
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey.trim()}`;
-            const maxTokens = 65536;
+            const genConfig = {
+                temperature: forceJson ? 0.3 : 0.7,
+                maxOutputTokens: 65536
+            };
+            if (forceJson) {
+                genConfig.responseMimeType = "application/json";
+            }
+
+            const parts = [{ text: textPrompt }];
+            if (Array.isArray(extraParts) && extraParts.length > 0) {
+                extraParts.forEach(p => parts.push(p));
+            }
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: textPrompt }] }],
-                    generationConfig: { temperature: 0.7, maxOutputTokens: maxTokens }
+                    contents: [{ parts: parts }],
+                    generationConfig: genConfig
                 })
             });
             if (!response.ok) {
                 const err = await response.json();
-                throw new Error(err.error ? err.error.message : 'Falha na API');
+                throw new Error(err.error ? err.error.message : 'Falha na chamada da API Gemini');
             }
             const res = await response.json();
             return res.candidates[0].content.parts[0].text;
@@ -2576,7 +3090,7 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
 
         async function gerarTextoGemini() {
             const apiKeyRaw = document.getElementById('apiKey').value;
-            const modelRaw = document.getElementById('apiModel').value || 'gemini-3.8-flash';
+            const modelRaw = document.getElementById('apiModel').value || DEFAULT_MODEL_CODE;
             if (!apiKeyRaw) {
                 showToast('⚠️ Cole sua Chave API do Gemini no topo!');
                 document.getElementById('apiKey').focus();
@@ -2591,17 +3105,17 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
             btn.disabled = true;
             document.getElementById('btnContinuar').disabled = true;
             loader.style.display = 'inline-block';
-            btnText.innerText = "Redigindo seção...";
+            btnText.innerText = "Redigindo com Gemini 3.8 Flash...";
 
             try {
-                const textoResposta = await callGeminiAPI(apiKeyRaw, modelRaw, textPrompt);
+                const textoResposta = await callGeminiAPI(apiKeyRaw, modelRaw, textPrompt, false);
                 const partes = textoResposta.split("---REFERENCIAS---");
                 document.getElementById('generatedText').value = partes[0].trim();
                 if (partes[1] && partes[1].trim().length > 5) anchorReferencesFromAI(partes[1].trim());
                 saveData(true);
                 updateWordCounter();
                 syncToGoogleSheets(true);
-                showToast('✨ Seção redigida com base na Matriz MIM!');
+                showToast('✨ Seção redigida com Gemini 3.8 Flash e referências ancoradas na Seção 10!');
             } catch (err) {
                 showToast(`❌ ${err.message}`, 5000);
             } finally {
@@ -2614,7 +3128,7 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
 
         async function continuarTextoGemini() {
             const apiKeyRaw = document.getElementById('apiKey').value;
-            const modelRaw = document.getElementById('apiModel').value || 'gemini-3.8-flash';
+            const modelRaw = document.getElementById('apiModel').value || DEFAULT_MODEL_CODE;
             if (!apiKeyRaw) return;
             const textoAtual = document.getElementById('generatedText').value;
             if (!textoAtual.trim()) return;
@@ -2631,14 +3145,14 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
             btnText.innerText = "Expandindo...";
 
             try {
-                const textoResposta = await callGeminiAPI(apiKeyRaw, modelRaw, textPrompt);
+                const textoResposta = await callGeminiAPI(apiKeyRaw, modelRaw, textPrompt, false);
                 const partes = textoResposta.split("---REFERENCIAS---");
                 document.getElementById('generatedText').value += "\n\n" + partes[0].trim();
                 if (partes[1] && partes[1].trim().length > 5) anchorReferencesFromAI(partes[1].trim());
                 saveData(true);
                 updateWordCounter();
                 syncToGoogleSheets(true);
-                showToast('🔄 Texto expandido!');
+                showToast('🔄 Texto expandido com sucesso!');
             } catch (err) {
                 showToast(`❌ ${err.message}`, 5000);
             } finally {
@@ -2676,7 +3190,7 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
                 const sec = caderno.sections[key];
                 if (!sec.text || sec.text.trim().length < 50) {
                     loadSection(key);
-                    showToast(`⚡ Fila: Redigindo "${sec.title}"...`, 8000);
+                    showToast(`⚡ Fila (Gemini 3.8 Flash): Redigindo "${sec.title}"...`, 8000);
                     await gerarTextoGemini();
                     await new Promise(r => setTimeout(r, 1500));
                 }
@@ -2685,11 +3199,11 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
             isBatchRunning = false;
             loaderBatch.style.display = 'none';
             btnTextBatch.innerText = "⚡ Gerar Caderno Completo (Sequencial)";
-            showToast('✅ Fila de geração concluída!');
+            showToast('✅ Fila de geração do caderno concluída!');
         }
 
         // =========================================================================
-        // 9. FORMATAÇÃO E EXPORTAÇÃO
+        // 11. FORMATAÇÃO E EXPORTAÇÃO EDITORIAL (PDF / ESPELHO)
         // =========================================================================
         function formatSectionMarkdownToHTML(rawText, sectionKey) {
             if (!rawText) return '';
@@ -2750,23 +3264,23 @@ Continue exatamente de onde parou sem repetir parágrafos anteriores. Ao final, 
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #d4af37; padding-bottom:12px;">
                             <span style="font-weight:bold; letter-spacing:1px; font-size:10pt; color:#d4af37;">PROJETO MULHERES INSPIRANDO MULHERES – MIM</span>
-                            <span style="font-size:9pt; color:#cbd5e1;">Matriz Integrada de Formação</span>
+                            <span style="font-size:9pt; color:#cbd5e1;">Matriz Pedagógica Integrada de Formação</span>
                         </div>
-                        <div style="margin-top:3.5cm;">
+                        <div style="margin-top:3.2cm;">
                             <div style="display:inline-block; background:#d4af37; color:#06101e; font-weight:900; padding:6px 14px; border-radius:4px; font-size:10pt; text-transform:uppercase; margin-bottom:16px;">
-                                Caderno Oficial • ${municipio}
+                                Caderno Oficial de Formação • ${municipio} & Rede Intermunicipal
                             </div>
-                            <h1 style="font-size:25pt; line-height:1.2; margin:0 0 16px 0; color:#ffffff; font-weight:900;">${caderno.fullTitle}</h1>
-                            <p style="font-size:13.5pt; color:#e2e8f0; margin:0 0 24px 0; font-style:italic;">${caderno.subtitle}</p>
-                            <div style="background:rgba(255,255,255,0.08); border-left:4px solid #d4af37; padding:14px 18px; border-radius:4px; font-size:10.5pt;">
+                            <h1 style="font-size:24pt; line-height:1.2; margin:0 0 16px 0; color:#ffffff; font-weight:900;">${caderno.fullTitle}</h1>
+                            <p style="font-size:13pt; color:#e2e8f0; margin:0 0 24px 0; font-style:italic;">${caderno.subtitle}</p>
+                            <div style="background:rgba(255,255,255,0.08); border-left:4px solid #d4af37; padding:14px 18px; border-radius:4px; font-size:10.5pt; line-height:1.5;">
                                 <strong>Pergunta Geradora Central:</strong> ${caderno.perguntaCentral}<br>
-                                <strong>Produto Esperado da Oficina:</strong> ${caderno.produto}
+                                <strong>Produto Esperado para o Portfólio:</strong> ${caderno.produto}
                             </div>
                         </div>
                     </div>
                     <div style="border-top:1px solid rgba(255,255,255,0.25); padding-top:14px; font-size:9.5pt; color:#cbd5e1; display:flex; justify-content:space-between;">
                         <div><strong>Percurso Formativo:</strong> 7 Oficinas • 35 Horas (21h Síncronas + 14h Assíncronas)</div>
-                        <div><strong>Território:</strong> ${municipio} • 2026</div>
+                        <div><strong>Território de Referência:</strong> ${municipio} • 2026</div>
                     </div>
                 </div>
             `;
